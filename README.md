@@ -1,20 +1,20 @@
-![Logo](admin/buderus-mx400.png)
+![Logo](admin/bosch-buderus-wp.png)
 
-# ioBroker.buderus-mx400
+# ioBroker.bosch-buderus-wp
 
-![Test and Release](https://github.com/septa-cr/ioBroker.buderus-mx400/workflows/Test%20and%20Release/badge.svg)
-[![License](https://img.shields.io/github/license/septa-cr/ioBroker.buderus-mx400)](LICENSE)
+![Test and Release](https://github.com/septa-cr/ioBroker.bosch-buderus-wp/workflows/Test%20and%20Release/badge.svg)
+[![License](https://img.shields.io/github/license/septa-cr/ioBroker.bosch-buderus-wp)](LICENSE)
 [![Donate](https://img.shields.io/badge/Donate-PayPal-ffc439.svg)](https://www.paypal.com/donate/?hosted_button_id=BW2WL8QCH2AMU)
 
 **[🇩🇪 Deutsche Anleitung](docs/de/README.md)**
 
-## Buderus MX400 adapter for ioBroker
+## Buderus MX400 / Bosch K 40 RF adapter for ioBroker
 
-This adapter reads the data of a **Buderus heat pump** via the official **local API** of the **LAN and radio module MX400**. The connection runs directly in your home network. No cloud account is needed.
+This adapter reads the data of a **heat pump** (Buderus and others) via the official **local API** of the **LAN and radio module Buderus MX400 / Bosch K 40 RF**. The connection runs directly in your home network. No cloud account is needed.
 
-<img src="docs/img/mx400.png" alt="Buderus LAN and radio module MX400" width="260">
+<img src="docs/img/mx400.png" alt="Buderus LAN and radio module MX400 (left) and Bosch Connect-Key K 40 RF (right)" width="420">
 
-*The Buderus LAN and radio module MX400 (connected via LAN). The adapter communicates with this module.*
+*The Buderus LAN and radio module MX400 (left) and the Bosch Connect-Key K 40 RF (right). The adapter communicates with this module and was tested with the MX400.*
 
 The MX400 is the internet gateway and radio module of the heating system. It sits in a slot of the heat pump and connects it to the home network via LAN or Wi-Fi. According to the manufacturer, the same local API is also offered by the Bosch Connect-Key K 40 RF and the K 40 RF of IVT, Vulcano and Worcester. The adapter was developed and tested with a Buderus MX400.
 
@@ -92,7 +92,7 @@ Install the adapter via the adapter list of the ioBroker Admin: open **Adapters*
 
 | Setting | Description |
 | --- | --- |
-| IP address of the MX400 | IP address of the MX400 in your network, e.g. `192.168.178.135` |
+| IP address of the MX400 | IP address of the MX400 in your network, e.g. `192.168.178.xxx` |
 | API token | The token created as described above. It is stored encrypted. |
 | Login / Pass | Only needed once to request the token. They are not stored. |
 | Polling interval (seconds) | How often the values are read. Default 60, minimum 10 |
@@ -126,6 +126,10 @@ Do you like this adapter? You can support its development with a coffee donation
 
 [![Donate via PayPal](https://img.shields.io/badge/Donate%20a%20coffee-PayPal-ffc439.svg?style=for-the-badge)](https://www.paypal.com/donate/?hosted_button_id=BW2WL8QCH2AMU)
 
+## Note on AI involvement
+
+This adapter was developed with the help of an AI assistant (Claude by Anthropic). It was tested with a real Buderus MX400 on a Raspberry Pi 5. The translations of the data point names into Russian, Portuguese, Dutch, French, Italian, Spanish, Polish, Ukrainian and Chinese were also created with AI assistance and have not been checked by native speakers. Corrections are welcome.
+
 ## Disclaimer
 
 This adapter is a private project and is not affiliated with Bosch Thermotechnik GmbH or Buderus. All product and company names are trademarks of their respective owners. Use at your own risk.
@@ -136,6 +140,12 @@ This adapter is a private project and is not affiliated with Bosch Thermotechnik
     Placeholder for the next version (at the beginning of the line):
     ### **WORK IN PROGRESS**
 -->
+### **WORK IN PROGRESS**
+
+- (septa-cr) The adapter was renamed from buderus-mx400 to bosch-buderus-wp, as it supports several brands (instance and data point IDs change, please create a new instance)
+- (septa-cr) Title, description and keywords now also name the Bosch K 40 RF (and IVT, Vulcano, Worcester)
+- (septa-cr) README: new photo of the modules, note on AI involvement
+
 ### 0.0.6 (2026-10-23)
 
 - (septa-cr) Data point names are now available in all recommended languages (Russian, Portuguese, Dutch, French, Italian, Spanish, Polish, Ukrainian, Chinese) in addition to German and English

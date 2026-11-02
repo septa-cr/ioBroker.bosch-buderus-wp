@@ -4,7 +4,7 @@
     "items": {
         "_connectionHeader": {
             "type": "header",
-            "text": "Connection settings for the MX400",
+            "text": "Connection settings for the gateway",
             "size": 4,
             "newLine": true,
             "xs": 12,
@@ -15,7 +15,7 @@
         },
         "ip": {
             "type": "text",
-            "label": "IP address of the MX400 LAN and radio module",
+            "label": "IP address of the gateway (LAN and radio module)",
             "newLine": true,
             "xs": 12,
             "sm": 12,
@@ -47,7 +47,7 @@
         },
         "_login": {
             "type": "text",
-            "label": "Login of the MX400",
+            "label": "Login of the gateway",
             "newLine": true,
             "xs": 12,
             "sm": 12,
@@ -57,7 +57,7 @@
         },
         "_pass": {
             "type": "password",
-            "label": "Pass of the MX400 (hyphens are removed automatically)",
+            "label": "Pass of the gateway (hyphens are removed automatically)",
             "newLine": true,
             "xs": 12,
             "sm": 12,
@@ -81,7 +81,7 @@
         },
         "_tokenHelpText": {
             "type": "staticText",
-            "text": "To create the API token, enter the 'Login' and 'Pass' values from the sticker or information sheet of the MX400 (gateway firmware 15.00.01 or newer is required). Then press the WLAN and Wireless buttons on the MX400 at the same time for one second and click 'Request API token' within 5 minutes. The token appears in the field above, then save the settings. Login and Pass are not stored. The token does not expire, so treat it like a password. The manufacturer's guide explains the steps:",
+            "text": "To create the API token, enter the 'Login' and 'Pass' values from the sticker or information sheet of the gateway (firmware 15.00.01 or newer is required). Then press the WLAN and Wireless buttons on the gateway at the same time for one second and click 'Request API token' within 5 minutes. The token appears in the field above, then save the settings. Login and Pass are not stored. The token does not expire, so treat it like a password. The manufacturer's guide explains the steps:",
             "newLine": true,
             "xs": 12,
             "sm": 12,
@@ -110,7 +110,7 @@
         },
         "_rescanText": {
             "type": "staticText",
-            "text": "At the start, the adapter remembers which resources your MX400 provides. It searches again once a day, or when you click this button. The search takes about one to two minutes.",
+            "text": "At the start, the adapter remembers which resources your gateway provides. It searches again once a day, or when you click this button. The search takes about one to two minutes.",
             "newLine": true,
             "xs": 12,
             "sm": 12,

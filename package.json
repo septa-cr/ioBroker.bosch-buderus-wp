@@ -1,13 +1,13 @@
 {
-  "name": "iobroker.buderus-mx400",
+  "name": "iobroker.bosch-buderus-wp",
   "version": "0.0.6",
-  "description": "Reads all data of a Buderus heat pump via the local API of the MX400 LAN and radio module",
+  "description": "Reads all data of a heat pump via the local API of the Buderus MX400 / Bosch K 40 RF LAN and radio module",
   "author": {
     "name": "septa-cr",
     "email": "septamobile@gmail.com"
   },
   "contributors": [],
-  "homepage": "https://github.com/septa-cr/ioBroker.buderus-mx400",
+  "homepage": "https://github.com/septa-cr/ioBroker.bosch-buderus-wp",
   "license": "MIT",
   "keywords": [
     "ioBroker",
@@ -15,12 +15,15 @@
     "mx400",
     "k40rf",
     "bosch",
+    "ivt",
+    "vulcano",
+    "worcester",
     "heat pump",
     "heating"
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/septa-cr/ioBroker.buderus-mx400.git"
+    "url": "https://github.com/septa-cr/ioBroker.bosch-buderus-wp.git"
   },
   "engines": {
     "node": ">=22"
@@ -64,7 +67,7 @@
     "dev-server": "dev-server"
   },
   "bugs": {
-    "url": "https://github.com/septa-cr/ioBroker.buderus-mx400/issues"
+    "url": "https://github.com/septa-cr/ioBroker.bosch-buderus-wp/issues"
   },
   "readmeFilename": "README.md"
 }

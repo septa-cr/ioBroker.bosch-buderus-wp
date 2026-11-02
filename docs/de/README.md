@@ -1,16 +1,16 @@
-![Logo](../../admin/buderus-mx400.png)
+![Logo](../../admin/bosch-buderus-wp.png)
 
-# ioBroker.buderus-mx400
+# ioBroker.bosch-buderus-wp
 
 **[🇬🇧 English version](../../README.md)**
 
-## Buderus-MX400-Adapter für ioBroker
+## Buderus-MX400- / Bosch-K-40-RF-Adapter für ioBroker
 
-Dieser Adapter liest die Daten einer **Buderus-Wärmepumpe** über die offizielle **lokale API** des **LAN- und Funkmoduls MX400** aus. Die Verbindung läuft direkt in deinem Heimnetz, ein Cloud-Konto ist nicht nötig.
+Dieser Adapter liest die Daten einer **Wärmepumpe** (Buderus und andere) über die offizielle **lokale API** des **LAN- und Funkmoduls Buderus MX400 / Bosch K 40 RF** aus. Die Verbindung läuft direkt in deinem Heimnetz, ein Cloud-Konto ist nicht nötig.
 
-<img src="../img/mx400.png" alt="Buderus LAN- und Funkmodul MX400" width="260">
+<img src="../img/mx400.png" alt="Buderus LAN- und Funkmodul MX400 (links) und Bosch Connect-Key K 40 RF (rechts)" width="420">
 
-*Das Buderus LAN- und Funkmodul MX400 (per LAN angeschlossen). Mit diesem Modul kommuniziert der Adapter.*
+*Das Buderus LAN- und Funkmodul MX400 (links) und der Bosch Connect-Key K 40 RF (rechts). Mit diesem Modul kommuniziert der Adapter, getestet wurde er mit dem MX400.*
 
 Das MX400 ist das Internet-Gateway und Funkmodul der Heizungsanlage. Es steckt in einem Steckplatz der Wärmepumpe und verbindet sie per LAN oder WLAN mit dem Heimnetz. Laut Hersteller bieten auch der Bosch Connect-Key K 40 RF sowie der K 40 RF von IVT, Vulcano und Worcester dieselbe lokale API an. Entwickelt und getestet wurde der Adapter mit einem Buderus MX400.
 
@@ -88,7 +88,7 @@ Installiere den Adapter über die Adapterliste im ioBroker-Admin: Öffne den Ber
 
 | Einstellung | Beschreibung |
 | --- | --- |
-| IP-Adresse des MX400 | IP-Adresse des MX400 in deinem Netzwerk, z. B. `192.168.178.135` |
+| IP-Adresse des MX400 | IP-Adresse des MX400 in deinem Netzwerk, z. B. `192.168.178.xxx` |
 | API-Token | Der wie oben beschrieben erzeugte Token. Er wird verschlüsselt gespeichert. |
 | Login / Pass | Nur einmal zum Anfordern des Tokens nötig. Sie werden nicht gespeichert. |
 | Abfrageintervall (Sekunden) | Wie oft die Werte gelesen werden. Standard 60, mindestens 10 |
@@ -121,6 +121,10 @@ Welche Ordner und Werte erscheinen, hängt von deiner Anlage ab.
 Gefällt dir der Adapter? Mit einer Kaffeespende unterstützt du die Weiterentwicklung:
 
 [![Spenden über PayPal](https://img.shields.io/badge/Kaffee%20spenden-PayPal-ffc439.svg?style=for-the-badge)](https://www.paypal.com/donate/?hosted_button_id=BW2WL8QCH2AMU)
+
+## Hinweis zur KI-Beteiligung
+
+Dieser Adapter wurde mit Unterstützung eines KI-Assistenten (Claude von Anthropic) entwickelt. Getestet wurde er mit einem echten Buderus MX400 an einem Raspberry Pi 5. Auch die Übersetzungen der Datenpunktnamen ins Russische, Portugiesische, Niederländische, Französische, Italienische, Spanische, Polnische, Ukrainische und Chinesische sind mit KI-Unterstützung entstanden und nicht von Muttersprachlern geprüft. Korrekturen sind willkommen.
 
 ## Haftungsausschluss
 

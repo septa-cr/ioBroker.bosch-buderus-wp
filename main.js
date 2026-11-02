@@ -253,14 +253,14 @@ function flatten(value, prefix, out) {
 	out.push([prefix, value]);
 }
 
-class BuderusMx400 extends utils.Adapter {
+class BoschBuderusWp extends utils.Adapter {
 	/**
 	 * @param {Partial<utils.AdapterOptions>} [options] - Adapter options
 	 */
 	constructor(options) {
 		super({
 			...options,
-			name: 'buderus-mx400',
+			name: 'bosch-buderus-wp',
 		});
 		this.on('ready', this.onReady.bind(this));
 		this.on('message', this.onMessage.bind(this));
@@ -301,7 +301,7 @@ class BuderusMx400 extends utils.Adapter {
 	}
 
 	/**
-	 * Fragt einen Pfad der MX400-API ab.
+	 * Fragt einen Pfad der Gateway-API ab.
 	 * Liefert das Antwortobjekt, bei einem nicht vorhandenen Pfad (404) oder nicht unterstützter Anfrage (400) null.
 	 *
 	 * @param {string} path - Pfad, z. B. /gateway/brand
@@ -642,7 +642,7 @@ class BuderusMx400 extends utils.Adapter {
 	/**
 	 * Setzt den Verbindungsanzeiger (info.connection), aber nur bei einer Änderung.
 	 *
-	 * @param {boolean} connected - true, wenn die MX400 antwortet
+	 * @param {boolean} connected - true, wenn das Gateway antwortet
 	 */
 	async setConnected(connected) {
 		if (this.connected === connected) {
@@ -807,9 +807,9 @@ class BuderusMx400 extends utils.Adapter {
 	}
 
 	/**
-	 * Sendet Formulardaten per POST an die MX400 (z. B. zum Anfordern des API-Tokens).
+	 * Sendet Formulardaten per POST an das Gateway (z. B. zum Anfordern des API-Tokens).
 	 *
-	 * @param {string} host - IP-Adresse der MX400
+	 * @param {string} host - IP-Adresse des Gateways
 	 * @param {number} port - Port
 	 * @param {string} path - Pfad
 	 * @param {string} body - Formulardaten (application/x-www-form-urlencoded)
@@ -865,7 +865,7 @@ class BuderusMx400 extends utils.Adapter {
 	}
 
 	/**
-	 * Fordert bei der MX400 einen API-Token an (Login und Pass vom Aufkleber des Geräts).
+	 * Fordert beim Gateway einen API-Token an (Login und Pass vom Aufkleber des Geräts).
 	 * Login und Pass werden weder gespeichert noch protokolliert.
 	 *
 	 * @param {any} message - Daten aus den Einstellungen (ip, login, pass)
@@ -891,9 +891,9 @@ class BuderusMx400 extends utils.Adapter {
 			}).toString();
 			const data = await this.postForm(ip, 9442, '/auth/token', body);
 			if (typeof data?.access_token !== 'string' || !data.access_token) {
-				return { error: 'The MX400 did not return an API token.' };
+				return { error: 'The gateway did not return an API token.' };
 			}
-			this.log.info('API-Token von der MX400 erhalten');
+			this.log.info('API-Token vom Gateway erhalten');
 			return { result: 'API token received. Please save the settings.', native: { token: data.access_token } };
 		} catch (error) {
 			const statusCode = /** @type {{ statusCode?: number }} */ (error).statusCode;
@@ -902,7 +902,7 @@ class BuderusMx400 extends utils.Adapter {
 				// physical_proximity_unproven: die Tasten am Gerät wurden nicht (rechtzeitig) gedrückt
 				return {
 					error:
-						'Please press the WLAN and Wireless buttons on the MX400 at the same time for one second ' +
+						'Please press the WLAN and Wireless buttons on the gateway at the same time for one second ' +
 						'and request the token again within 5 minutes.',
 				};
 			}
@@ -910,22 +910,22 @@ class BuderusMx400 extends utils.Adapter {
 				// invalid_grant: Login oder Pass stimmen nicht
 				return {
 					error:
-						'The MX400 refused the login data. Check Login and Pass, ' +
-						'and press the WLAN and Wireless buttons on the MX400 first.',
+						'The gateway refused the login data. Check Login and Pass, ' +
+						'and press the WLAN and Wireless buttons on the gateway first.',
 				};
 			}
 			if (statusCode === 507) {
 				// Token database full
 				return {
 					error:
-						'The MX400 cannot store another API token. ' +
+						'The gateway cannot store another API token. ' +
 						"Revoke unused tokens first (see the manufacturer's guide).",
 				};
 			}
 			if (statusCode) {
-				return { error: 'The MX400 refused the request.' };
+				return { error: 'The gateway refused the request.' };
 			}
-			return { error: 'The MX400 could not be reached.' };
+			return { error: 'The gateway could not be reached.' };
 		}
 	}
 
@@ -963,7 +963,7 @@ class BuderusMx400 extends utils.Adapter {
 			}
 			const ids = (signals.references ?? []).map((/** @type {{ id: string }} */ ref) => ref.id);
 			if (this.connected === false) {
-				this.log.info('Verbindung zur MX400 hergestellt');
+				this.log.info('Verbindung zum Gateway hergestellt');
 			}
 			await this.setConnected(true);
 
@@ -987,7 +987,7 @@ class BuderusMx400 extends utils.Adapter {
 			this.log.debug(`${ids.length + fixed.length + slow.length} Werte aktualisiert`);
 		} catch (error) {
 			if (this.connected !== false) {
-				this.log.warn(`Verbindung zur MX400 verloren: ${error.message}`);
+				this.log.warn(`Verbindung zum Gateway verloren: ${error.message}`);
 			} else {
 				this.log.debug(`Abfrage fehlgeschlagen: ${error.message}`);
 			}
@@ -1043,7 +1043,7 @@ class BuderusMx400 extends utils.Adapter {
 			const brand = await this.apiGet('/gateway/brand');
 			this.log.info(`Verbindung erfolgreich, Hersteller: ${brand?.value}`);
 		} catch (error) {
-			this.log.error(`Verbindung zur MX400 fehlgeschlagen: ${error.message}`);
+			this.log.error(`Verbindung zum Gateway fehlgeschlagen: ${error.message}`);
 		}
 
 		// Gespeicherte Pfadliste laden, damit die Suche nach den vorhandenen Pfaden nicht bei jedem Start läuft
@@ -1078,8 +1078,8 @@ if (require.main !== module) {
 	/**
 	 * @param {Partial<utils.AdapterOptions>} [options] - Adapter options
 	 */
-	module.exports = options => new BuderusMx400(options);
+	module.exports = options => new BoschBuderusWp(options);
 } else {
 	// otherwise start the instance directly
-	new BuderusMx400();
+	new BoschBuderusWp();
 }

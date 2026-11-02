@@ -1,7 +1,7 @@
 {
 	"cli": true,
 	"target": "directory",
-	"adapterName": "buderus-mx400",
+	"adapterName": "bosch-buderus-wp",
 	"title": "Buderus MX400",
 	"description": "Reads data from the Buderus MX400 heat pump indoor unit",
 	"keywords": ["buderus", "mx400", "heat pump", "heating"],
