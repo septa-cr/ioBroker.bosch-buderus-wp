@@ -140,7 +140,7 @@ This adapter is a private project and is not affiliated with Bosch Thermotechnik
     Placeholder for the next version (at the beginning of the line):
     ### **WORK IN PROGRESS**
 -->
-### **WORK IN PROGRESS**
+### 0.0.7 (2026-11-02)
 
 - (septa-cr) The adapter was renamed from buderus-mx400 to bosch-buderus-wp, as it supports several brands (instance and data point IDs change, please create a new instance)
 - (septa-cr) Title, description and keywords now also name the Bosch K 40 RF (and IVT, Vulcano, Worcester)
@@ -162,6 +162,12 @@ This adapter is a private project and is not affiliated with Bosch Thermotechnik
 ### 0.0.4 (2026-10-22)
 
 - (septa-cr) Adjusted to the requirements of the ioBroker repository: minimum Node.js 22, tests with Node.js 22, 24 and 26, automated releases via trusted publishing, updated contact address and installation notes
+
+### 0.0.3 (2026-10-22)
+
+- (septa-cr) The settings page is now translated into all languages
+- (septa-cr) More precise state roles for energy counters (`value.power.consumption`)
+- (septa-cr) Minimum Node.js version documented (Node.js 22)
 
 Older changelog entries can be found in [CHANGELOG_OLD.md](CHANGELOG_OLD.md).
 
