@@ -1,8 +1,21 @@
 {
     "common": {
         "name": "bosch-buderus-wp",
-        "version": "0.0.7",
+        "version": "0.0.8",
         "news": {
+            "0.0.8": {
+                "en": "New: the API token can be displayed in the settings (checkbox \"Show API token\" with a copy button), so that a backup of it can be kept outside ioBroker\nThe sensor designations PH1, PL1, TR1, TR3, TR5, TR6, TC3 and TA4 are now part of the names of the matching temperature data points",
+                "de": "Neu: Das API-Token kann in den Einstellungen angezeigt werden (Häkchen „API-Token anzeigen“ mit Kopieren-Knopf), um es außerhalb von ioBroker zu sichern\nDie Sensorbezeichnungen PH1, PL1, TR1, TR3, TR5, TR6, TC3 und TA4 sind nun Teil der Namen der passenden Temperaturdatenpunkte",
+                "ru": "Новое: API-токен можно отобразить в настройках (флажок «Показать API-токен» с кнопкой копирования), чтобы сохранить его резервную копию вне ioBroker\nОбозначения датчиков PH1, PL1, TR1, TR3, TR5, TR6, TC3 и TA4 теперь входят в названия соответствующих температурных точек данных",
+                "pt": "Novo: o token da API pode ser exibido nas configurações (caixa «Mostrar token da API» com botão de cópia) para guardar uma cópia de segurança fora do ioBroker\nAs designações dos sensores PH1, PL1, TR1, TR3, TR5, TR6, TC3 e TA4 fazem agora parte dos nomes dos pontos de dados de temperatura correspondentes",
+                "nl": "Nieuw: het API-token kan worden weergegeven in de instellingen (selectievakje „API-token tonen” met een kopieerknop), zodat een back-up ervan buiten ioBroker kan worden bewaard\nDe sensoraanduidingen PH1, PL1, TR1, TR3, TR5, TR6, TC3 en TA4 maken nu deel uit van de namen van de overeenkomende temperatuurgegevenspunten",
+                "fr": "Nouveau : le jeton API peut être affiché dans les paramètres (case « Afficher le jeton API » avec un bouton de copie), afin d'en conserver une copie en dehors d'ioBroker\nLes désignations des capteurs PH1, PL1, TR1, TR3, TR5, TR6, TC3 et TA4 font désormais partie des noms des points de données de température correspondants",
+                "it": "Novità: il token API può essere mostrato nelle impostazioni (casella «Mostra token API» con un pulsante di copia), per salvarne una copia al di fuori di ioBroker\nLe designazioni dei sensori PH1, PL1, TR1, TR3, TR5, TR6, TC3 e TA4 fanno ora parte dei nomi dei punti dati di temperatura corrispondenti",
+                "es": "Nuevo: el token de API puede mostrarse en la configuración (casilla «Mostrar token de API» con un botón de copia) para guardar una copia fuera de ioBroker\nLas designaciones de los sensores PH1, PL1, TR1, TR3, TR5, TR6, TC3 y TA4 forman ahora parte de los nombres de los puntos de datos de temperatura correspondientes",
+                "pl": "Nowość: token API może być wyświetlany w ustawieniach (pole wyboru „Pokaż token API” z przyciskiem kopiowania), dzięki czemu kopia zapasowa może być przechowywana poza ioBroker\nOznaczenia czujników PH1, PL1, TR1, TR3, TR5, TR6, TC3 i TA4 są teraz częścią nazw pasujących punktów danych temperatury",
+                "uk": "Нове: API-токен можна відобразити в налаштуваннях (прапорець «Показати API-токен» з кнопкою копіювання), щоб зберегти його резервну копію поза ioBroker\nПозначення датчиків PH1, PL1, TR1, TR3, TR5, TR6, TC3 і TA4 тепер є частиною назв відповідних температурних точок даних",
+                "zh-cn": "新增：可以在设置中显示 API 令牌（勾选“显示 API 令牌”，带复制按钮），以便将其备份保存在 ioBroker 之外\n传感器标识 PH1、PL1、TR1、TR3、TR5、TR6、TC3 和 TA4 现在是相应温度数据点名称的一部分"
+            },
             "0.0.7": {
                 "en": "The adapter was renamed from buderus-mx400 to bosch-buderus-wp, as it supports several brands (instance and data point IDs change, please create a new instance)\nTitle, description and keywords now also name the Bosch K 40 RF (and IVT, Vulcano, Worcester)\nREADME: new photo of the modules, note on AI involvement",
                 "de": "Der Adapter wurde von buderus-mx400 in bosch-buderus-wp umbenannt, da er mehrere Marken unterstützt (Instanz- und Datenpunkt-IDs ändern sich, bitte eine neue Instanz anlegen)\nTitel, Beschreibung und Schlüsselwörter nennen nun auch den Bosch K 40 RF (und IVT, Vulcano, Worcester)\nREADME: Neues Foto der Module, Hinweis zur KI-Beteiligung",
@@ -80,19 +93,6 @@
                 "pl": "Poprawiono opis pakietu (moduł LAN i radiowy MX400)",
                 "uk": "Виправлено опис пакета (LAN- та радіомодуль MX400)",
                 "zh-cn": "更正了软件包说明（MX400 局域网与无线模块）"
-            },
-            "0.0.1": {
-                "en": "Initial release: reads all values of the Buderus MX400 LAN and radio module via the local API (signals, energy counters, history data), German and English data point names, connection indicator",
-                "de": "Erstveröffentlichung: liest alle Werte des Buderus LAN- und Funkmoduls MX400 über die lokale API (Signale, Energiezähler, Verlaufsdaten), deutsche und englische Datenpunktnamen, Verbindungsanzeige",
-                "ru": "Первый выпуск: считывает все значения LAN- и радиомодуля Buderus MX400 через локальный API (сигналы, счётчики энергии, история), названия точек данных на немецком и английском, индикатор подключения",
-                "pt": "Versão inicial: lê todos os valores do módulo LAN e rádio Buderus MX400 através da API local (sinais, contadores de energia, histórico), nomes dos pontos de dados em alemão e inglês, indicador de ligação",
-                "nl": "Eerste uitgave: leest alle waarden van de Buderus MX400 LAN- en radiomodule via de lokale API (signalen, energiemeters, historische gegevens), Duitse en Engelse namen van datapunten, verbindingsindicator",
-                "fr": "Première version : lit toutes les valeurs du module LAN et radio Buderus MX400 via l'API locale (signaux, compteurs d'énergie, historique), noms des points de données en allemand et en anglais, indicateur de connexion",
-                "it": "Prima versione: legge tutti i valori del modulo LAN e radio Buderus MX400 tramite l'API locale (segnali, contatori di energia, dati storici), nomi dei punti dati in tedesco e inglese, indicatore di connessione",
-                "es": "Primera versión: lee todos los valores del módulo LAN y radio Buderus MX400 mediante la API local (señales, contadores de energía, datos históricos), nombres de puntos de datos en alemán e inglés, indicador de conexión",
-                "pl": "Pierwsze wydanie: odczytuje wszystkie wartości modułu LAN i radiowego Buderus MX400 przez lokalne API (sygnały, liczniki energii, dane historyczne), nazwy punktów danych po niemiecku i angielsku, wskaźnik połączenia",
-                "uk": "Перший випуск: зчитує всі значення LAN- та радіомодуля Buderus MX400 через локальний API (сигнали, лічильники енергії, історія), назви точок даних німецькою та англійською, індикатор підключення",
-                "zh-cn": "首次发布：通过本地 API 读取 Buderus MX400 局域网与无线模块的全部数值（信号、能量计数器、历史数据），数据点名称支持德语和英语，带连接状态指示"
             }
         },
         "titleLang": {

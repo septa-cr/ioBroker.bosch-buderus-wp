@@ -140,7 +140,7 @@ This adapter is a private project and is not affiliated with Bosch Thermotechnik
     Placeholder for the next version (at the beginning of the line):
     ### **WORK IN PROGRESS**
 -->
-### **WORK IN PROGRESS**
+### 0.0.8 (2026-11-03)
 
 - (septa-cr) New: the API token can be displayed in the settings (checkbox "Show API token" with a copy button), so that a backup of it can be kept outside ioBroker
 - (septa-cr) The sensor designations PH1, PL1, TR1, TR3, TR5, TR6, TC3 and TA4 are now part of the names of the matching temperature data points
@@ -167,12 +167,6 @@ This adapter is a private project and is not affiliated with Bosch Thermotechnik
 ### 0.0.4 (2026-10-22)
 
 - (septa-cr) Adjusted to the requirements of the ioBroker repository: minimum Node.js 22, tests with Node.js 22, 24 and 26, automated releases via trusted publishing, updated contact address and installation notes
-
-### 0.0.3 (2026-10-22)
-
-- (septa-cr) The settings page is now translated into all languages
-- (septa-cr) More precise state roles for energy counters (`value.power.consumption`)
-- (septa-cr) Minimum Node.js version documented (Node.js 22)
 
 Older changelog entries can be found in [CHANGELOG_OLD.md](CHANGELOG_OLD.md).
 

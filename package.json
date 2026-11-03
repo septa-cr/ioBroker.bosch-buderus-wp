@@ -1,6 +1,6 @@
 {
   "name": "iobroker.bosch-buderus-wp",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "Reads all data of a heat pump via the local API of the Buderus MX400 / Bosch K 40 RF LAN and radio module",
   "author": {
     "name": "septa-cr",
