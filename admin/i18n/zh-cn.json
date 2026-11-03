@@ -2,6 +2,8 @@
     "Connection settings for the gateway": "网关连接设置",
     "IP address of the gateway (LAN and radio module)": "网关（局域网与无线模块）的 IP 地址",
     "API token": "API 令牌",
+    "Show API token": "显示 API 令牌",
+    "API token (to copy, for a backup of the token outside ioBroker)": "API 令牌（用于复制，在 ioBroker 之外备份令牌）",
     "Polling interval (seconds)": "查询间隔（秒）",
     "Manufacturer's guide: create an API token": "制造商指南：创建 API 令牌",
     "Do you like this adapter? You can support its development with a coffee donation.": "喜欢这个适配器吗？您可以请开发者喝杯咖啡来支持开发。",

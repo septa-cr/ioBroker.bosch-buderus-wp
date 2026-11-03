@@ -2,6 +2,8 @@
     "Connection settings for the gateway": "Verbindingsinstellingen voor de gateway",
     "IP address of the gateway (LAN and radio module)": "IP-adres van de gateway (LAN- en radiomodule)",
     "API token": "API-token",
+    "Show API token": "API-token tonen",
+    "API token (to copy, for a backup of the token outside ioBroker)": "API-token (om te kopiëren, voor een back-up van het token buiten ioBroker)",
     "Polling interval (seconds)": "Pollinginterval (seconden)",
     "Manufacturer's guide: create an API token": "Handleiding van de fabrikant: API-token aanmaken",
     "Do you like this adapter? You can support its development with a coffee donation.": "Vind je deze adapter leuk? Je kunt de ontwikkeling steunen met een kopje koffie.",

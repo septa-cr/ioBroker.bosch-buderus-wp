@@ -55,7 +55,7 @@ The token is created **once** with the `Login` and `Pass` values from the sticke
 1. Enter the **IP address** of the MX400 in the settings.
 2. Enter **Login** and **Pass** (hyphens are removed automatically). These two values are not stored.
 3. Press the **WLAN** and **Wireless** buttons on the MX400 at the same time for one second. The LEDs briefly flash blue.
-4. **Within 5 minutes**, click **Request API token** in the settings. The token appears in the field *API token*.
+4. **Within 5 minutes**, click **Request API token** in the settings. The token appears in the field *API token*. To keep a backup of the token outside ioBroker (for example in a password manager), tick **Show API token** below the field. The token is then displayed and can be copied with the button next to it.
 5. Click **Save**.
 
 Request the token only once and keep it: every request creates a new token on the MX400, and its memory for tokens is limited (error `507 Token database full`, unused tokens can be revoked as described in the manufacturer's guide).
@@ -140,6 +140,11 @@ This adapter is a private project and is not affiliated with Bosch Thermotechnik
     Placeholder for the next version (at the beginning of the line):
     ### **WORK IN PROGRESS**
 -->
+### **WORK IN PROGRESS**
+
+- (septa-cr) New: the API token can be displayed in the settings (checkbox "Show API token" with a copy button), so that a backup of it can be kept outside ioBroker
+- (septa-cr) The sensor designations PH1, PL1, TR1, TR3, TR5, TR6, TC3 and TA4 are now part of the names of the matching temperature data points
+
 ### 0.0.7 (2026-11-02)
 
 - (septa-cr) The adapter was renamed from buderus-mx400 to bosch-buderus-wp, as it supports several brands (instance and data point IDs change, please create a new instance)

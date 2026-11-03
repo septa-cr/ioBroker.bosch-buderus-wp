@@ -2,6 +2,8 @@
     "Connection settings for the gateway": "Paramètres de connexion à la passerelle",
     "IP address of the gateway (LAN and radio module)": "Adresse IP de la passerelle (module LAN et radio)",
     "API token": "Jeton API",
+    "Show API token": "Afficher le jeton API",
+    "API token (to copy, for a backup of the token outside ioBroker)": "Jeton API (à copier, pour une sauvegarde du jeton en dehors d'ioBroker)",
     "Polling interval (seconds)": "Intervalle d'interrogation (secondes)",
     "Manufacturer's guide: create an API token": "Guide du fabricant : créer un jeton API",
     "Do you like this adapter? You can support its development with a coffee donation.": "Cet adaptateur vous plaît ? Vous pouvez soutenir son développement avec un café.",

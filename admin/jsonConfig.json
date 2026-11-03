@@ -37,6 +37,7 @@
         },
         "token": {
             "type": "password",
+            "visible": true,
             "label": "API token",
             "newLine": true,
             "xs": 12,
@@ -44,6 +45,29 @@
             "md": 6,
             "lg": 4,
             "xl": 4
+        },
+        "_showToken": {
+            "type": "checkbox",
+            "label": "Show API token",
+            "newLine": true,
+            "xs": 12,
+            "sm": 12,
+            "md": 6,
+            "lg": 4,
+            "xl": 4
+        },
+        "_tokenView": {
+            "type": "pattern",
+            "pattern": "${data.token}",
+            "label": "API token (to copy, for a backup of the token outside ioBroker)",
+            "copyToClipboard": true,
+            "hidden": "!data._showToken",
+            "newLine": true,
+            "xs": 12,
+            "sm": 12,
+            "md": 12,
+            "lg": 8,
+            "xl": 8
         },
         "_login": {
             "type": "text",

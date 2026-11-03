@@ -2,6 +2,8 @@
     "Connection settings for the gateway": "Connection settings for the gateway",
     "IP address of the gateway (LAN and radio module)": "IP address of the gateway (LAN and radio module)",
     "API token": "API token",
+    "Show API token": "Show API token",
+    "API token (to copy, for a backup of the token outside ioBroker)": "API token (to copy, for a backup of the token outside ioBroker)",
     "Polling interval (seconds)": "Polling interval (seconds)",
     "Manufacturer's guide: create an API token": "Manufacturer's guide: create an API token",
     "Do you like this adapter? You can support its development with a coffee donation.": "Do you like this adapter? You can support its development with a coffee donation.",

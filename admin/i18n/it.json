@@ -2,6 +2,8 @@
     "Connection settings for the gateway": "Impostazioni di connessione al gateway",
     "IP address of the gateway (LAN and radio module)": "Indirizzo IP del gateway (modulo LAN e radio)",
     "API token": "Token API",
+    "Show API token": "Mostra token API",
+    "API token (to copy, for a backup of the token outside ioBroker)": "Token API (da copiare, per un backup del token al di fuori di ioBroker)",
     "Polling interval (seconds)": "Intervallo di interrogazione (secondi)",
     "Manufacturer's guide: create an API token": "Guida del produttore: creare un token API",
     "Do you like this adapter? You can support its development with a coffee donation.": "Ti piace questo adattatore? Puoi sostenerne lo sviluppo con un caffè.",

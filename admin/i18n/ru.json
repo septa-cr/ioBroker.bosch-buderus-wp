@@ -2,6 +2,8 @@
     "Connection settings for the gateway": "Параметры подключения к шлюзу",
     "IP address of the gateway (LAN and radio module)": "IP-адрес шлюза (LAN- и радиомодуль)",
     "API token": "API-токен",
+    "Show API token": "Показать API-токен",
+    "API token (to copy, for a backup of the token outside ioBroker)": "API-токен (для копирования и резервного хранения токена вне ioBroker)",
     "Polling interval (seconds)": "Интервал опроса (секунды)",
     "Manufacturer's guide: create an API token": "Руководство производителя: создание API-токена",
     "Do you like this adapter? You can support its development with a coffee donation.": "Нравится этот адаптер? Вы можете поддержать его развитие чашкой кофе.",
