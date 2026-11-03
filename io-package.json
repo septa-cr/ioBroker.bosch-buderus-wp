@@ -41,58 +41,6 @@
                 "pl": "Nazwy punktów danych są teraz dostępne we wszystkich zalecanych językach (rosyjski, portugalski, holenderski, francuski, włoski, hiszpański, polski, ukraiński, chiński) oprócz niemieckiego i angielskiego\nPlik z nazwami jest bardziej kompaktowy: numerowane nazwy (obieg grzewczy od 1 do 4 itp.) są generowane z szablonów\nPole `_pass` jest teraz zadeklarowane jako chronione i zaszyfrowane w `io-package.json`",
                 "uk": "Назви точок даних тепер доступні всіма рекомендованими мовами (російською, португальською, голландською, французькою, італійською, іспанською, польською, українською, китайською) на додаток до німецької та англійської\nФайл з назвами більш компактний: з шаблонів генеруються пронумеровані імена (контур опалення від 1 до 4 і т.д.)\nПоле `_pass` тепер оголошено захищеним і зашифрованим у `io-package.json`",
                 "zh-cn": "除了德语和英语外，现在还提供所有推荐语言（俄语、葡萄牙语、荷兰语、法语、意大利语、西班牙语、波兰语、乌克兰语、中文）的数据点名称\n带有名称的文件更紧凑：编号名称（供暖回路 1 到 4 等）由模板生成\n现在，io-package.json 中已将 `_pass` 字段声明为受保护和加密"
-            },
-            "0.0.5": {
-                "en": "New: request the API token directly in the adapter settings; the list of found resources is stored and reused at the next start; values are only written when they change; documentation corrected (Admin 7.6.20)",
-                "de": "Neu: API-Token direkt in den Einstellungen anfordern; die Liste der gefundenen Ressourcen wird gespeichert und beim nächsten Start wiederverwendet; Werte werden nur noch bei Änderung geschrieben; Dokumentation korrigiert (Admin 7.6.20)",
-                "ru": "Новое: API-токен можно запросить прямо в настройках адаптера; список найденных ресурсов сохраняется и используется при следующем запуске; значения записываются только при изменении; исправлена документация (Admin 7.6.20)",
-                "pt": "Novo: pedir o token da API diretamente nas definições do adaptador; a lista de recursos encontrados é guardada e reutilizada no próximo arranque; os valores só são escritos quando mudam; documentação corrigida (Admin 7.6.20)",
-                "nl": "Nieuw: het API-token rechtstreeks in de instellingen van de adapter aanvragen; de lijst met gevonden bronnen wordt opgeslagen en bij de volgende start hergebruikt; waarden worden alleen geschreven als ze veranderen; documentatie gecorrigeerd (Admin 7.6.20)",
-                "fr": "Nouveau : demander le jeton API directement dans les paramètres de l'adaptateur ; la liste des ressources trouvées est enregistrée et réutilisée au prochain démarrage ; les valeurs ne sont écrites que lorsqu'elles changent ; documentation corrigée (Admin 7.6.20)",
-                "it": "Novità: richiedere il token API direttamente nelle impostazioni dell'adattatore; l'elenco delle risorse trovate viene salvato e riutilizzato al prossimo avvio; i valori vengono scritti solo quando cambiano; documentazione corretta (Admin 7.6.20)",
-                "es": "Novedad: solicitar el token de API directamente en los ajustes del adaptador; la lista de recursos encontrados se guarda y se reutiliza en el siguiente inicio; los valores solo se escriben cuando cambian; documentación corregida (Admin 7.6.20)",
-                "pl": "Nowość: token API można zażądać bezpośrednio w ustawieniach adaptera; lista znalezionych zasobów jest zapisywana i używana przy następnym starcie; wartości są zapisywane tylko po zmianie; poprawiono dokumentację (Admin 7.6.20)",
-                "uk": "Нове: API-токен можна запросити безпосередньо в налаштуваннях адаптера; список знайдених ресурсів зберігається та використовується під час наступного запуску; значення записуються лише за зміни; виправлено документацію (Admin 7.6.20)",
-                "zh-cn": "新增：可直接在适配器设置中申请 API 令牌；找到的资源列表会被保存并在下次启动时重复使用；仅在数值发生变化时才写入；更正了文档（Admin 7.6.20）"
-            },
-            "0.0.4": {
-                "en": "Adjusted to the requirements of the ioBroker repository: minimum Node.js 22, tests with Node.js 22, 24 and 26, automated releases via trusted publishing, updated contact address and installation notes",
-                "de": "An die Anforderungen des ioBroker-Repositorys angepasst: mindestens Node.js 22, Tests mit Node.js 22, 24 und 26, automatische Releases über Trusted Publishing, neue Kontaktadresse und Installationshinweise",
-                "ru": "Адаптировано к требованиям репозитория ioBroker: минимум Node.js 22, тесты с Node.js 22, 24 и 26, автоматические релизы с помощью доверенной публикации, обновленный контактный адрес и примечания по установке",
-                "pt": "Ajustado aos requisitos do repositório ioBroker: mínimo Node.js 22, testes com Node.js 22, 24 e 26, versões automáticas via publicação confiável, endereço de contato atualizado e notas de instalação",
-                "nl": "Aangepast aan de vereisten van de ioBroker-repository: minimaal Node.js 22, tests met Node.js 22, 24 en 26, geautomatiseerde releases via betrouwbare publicatie, bijgewerkt contactadres en installatienotities",
-                "fr": "Adapté aux exigences du référentiel ioBroker : Node.js 22 au minimum, tests avec Node.js 22, 24 et 26, versions automatisées via Trusted Publishing, adresse de contact et notes d'installation mises à jour",
-                "it": "Adattato ai requisiti del repository ioBroker: minimo Node.js 22, test con Node.js 22, 24 e 26, release automatiche tramite Trusted Publishing, indirizzo di contatto e note di installazione aggiornati",
-                "es": "Ajustado a los requisitos del repositorio de ioBroker: mínimo Node.js 22, pruebas con Node.js 22, 24 y 26, publicaciones automatizadas mediante publicación fiable, dirección de contacto y notas de instalación actualizadas",
-                "pl": "Dostosowane do wymagań repozytorium ioBroker: minimum Node.js 22, testy z Node.js 22, 24 i 26, zautomatyzowane wersje poprzez zaufane publikowanie, zaktualizowany adres kontaktowy i uwagi dotyczące instalacji",
-                "uk": "Адаптовано до вимог сховища ioBroker: мінімум Node.js 22, тести з Node.js 22, 24 та 26, автоматизовані випуски через довірену публікацію, оновлена контактна адреса та примітки щодо встановлення",
-                "zh-cn": "根据 ioBroker 存储库的要求进行了调整：最低 Node.js 22，使用 Node.js 22、24 和 26 进行测试，通过可信发布自动发布，更新了联系地址和安装说明"
-            },
-            "0.0.3": {
-                "en": "Settings page translated into all languages, more precise state roles for energy counters, minimum Node.js version documented",
-                "de": "Einstellungsseite in alle Sprachen übersetzt, genauere Rollen für Energiezähler, Mindestversion von Node.js dokumentiert",
-                "ru": "Страница настроек переведена на все языки, более точные роли для счётчиков энергии, указана минимальная версия Node.js",
-                "pt": "Página de definições traduzida para todos os idiomas, funções mais precisas para os contadores de energia, versão mínima do Node.js documentada",
-                "nl": "Instellingenpagina in alle talen vertaald, nauwkeurigere rollen voor energiemeters, minimale Node.js-versie gedocumenteerd",
-                "fr": "Page de paramètres traduite dans toutes les langues, rôles plus précis pour les compteurs d'énergie, version minimale de Node.js documentée",
-                "it": "Pagina delle impostazioni tradotta in tutte le lingue, ruoli più precisi per i contatori di energia, versione minima di Node.js documentata",
-                "es": "Página de ajustes traducida a todos los idiomas, roles más precisos para los contadores de energía, versión mínima de Node.js documentada",
-                "pl": "Strona ustawień przetłumaczona na wszystkie języki, dokładniejsze role dla liczników energii, udokumentowano minimalną wersję Node.js",
-                "uk": "Сторінку налаштувань перекладено всіма мовами, точніші ролі для лічильників енергії, вказано мінімальну версію Node.js",
-                "zh-cn": "设置页面已翻译成所有语言，能量计数器的角色更精确，并注明了最低 Node.js 版本"
-            },
-            "0.0.2": {
-                "en": "Corrected the package description (LAN and radio module MX400)",
-                "de": "Paketbeschreibung korrigiert (LAN- und Funkmodul MX400)",
-                "ru": "Исправлено описание пакета (LAN- и радиомодуль MX400)",
-                "pt": "Descrição do pacote corrigida (módulo LAN e rádio MX400)",
-                "nl": "Pakketbeschrijving gecorrigeerd (LAN- en radiomodule MX400)",
-                "fr": "Description du paquet corrigée (module LAN et radio MX400)",
-                "it": "Descrizione del pacchetto corretta (modulo LAN e radio MX400)",
-                "es": "Descripción del paquete corregida (módulo LAN y radio MX400)",
-                "pl": "Poprawiono opis pakietu (moduł LAN i radiowy MX400)",
-                "uk": "Виправлено опис пакета (LAN- та радіомодуль MX400)",
-                "zh-cn": "更正了软件包说明（MX400 局域网与无线模块）"
             }
         },
         "titleLang": {
