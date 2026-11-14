@@ -140,6 +140,13 @@ This adapter is a private project and is not affiliated with Bosch Thermotechnik
     Placeholder for the next version (at the beginning of the line):
     ### **WORK IN PROGRESS**
 -->
+### 0.0.9 (2026-11-14)
+
+- (septa-cr) Fixed: no data point is created below another data point any more (error messages); an old data point of this kind is removed automatically
+- (septa-cr) The energy counters (kWh) now use the role `value.energy` instead of the outdated `value.power.consumption`, the system pressure (bar) uses the role `value`
+- (septa-cr) Log messages are now in English
+- (septa-cr) The sensor designations TC0, TC1, TW1 and TR4 are now part of the names of the matching temperature data points
+
 ### 0.0.8 (2026-11-03)
 
 - (septa-cr) New: the API token can be displayed in the settings (checkbox "Show API token" with a copy button), so that a backup of it can be kept outside ioBroker

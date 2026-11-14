@@ -61,12 +61,10 @@ function numberRole(unit, apiPath) {
 			return 'value.temperature';
 		case 'kWh':
 		case 'Wh':
-			return 'value.power.consumption';
+			return 'value.energy';
 		case 'W':
 		case 'kW':
 			return 'value.power';
-		case 'bar':
-			return 'value.pressure';
 		default:
 			return unit === '%' && /humidity/i.test(apiPath) ? 'value.humidity' : 'value';
 	}
@@ -232,6 +230,11 @@ function flatten(value, prefix, out) {
 		return;
 	}
 	if (Array.isArray(value)) {
+		if (value.length === 0) {
+			// Eine leere Liste (z. B. keine Fehlermeldungen) bekommt keinen Datenpunkt. Sonst würden später, wenn die Liste
+			// Einträge enthält, Datenpunkte unterhalb eines Datenpunkts entstehen. Die Antwort steht vollständig im Datenpunkt json.
+			return;
+		}
 		if (value.every(item => item === null || typeof item !== 'object')) {
 			// Liste einfacher Werte, z. B. ["ch","dhw"], als Text ablegen
 			out.push([prefix, JSON.stringify(value)]);
@@ -339,7 +342,7 @@ class BoschBuderusWp extends utils.Adapter {
 					});
 				},
 			);
-			req.on('timeout', () => req.destroy(new Error(`Zeitüberschreitung bei ${path}`)));
+			req.on('timeout', () => req.destroy(new Error(`Timeout for ${path}`)));
 			req.on('error', reject);
 			req.end();
 		});
@@ -424,6 +427,12 @@ class BoschBuderusWp extends utils.Adapter {
 			const parentId = parts.slice(0, i).join('.');
 			if (this.knownObjects.has(parentId)) {
 				continue;
+			}
+			// Ein Datenpunkt darf keine Unterobjekte haben: ein bestehender Datenpunkt an dieser Stelle wird entfernt
+			const existing = await this.getObjectAsync(parentId);
+			if (existing && existing.type === 'state') {
+				await this.delObjectAsync(parentId);
+				this.knownStates.delete(parentId);
 			}
 			await this.extendObjectAsync(parentId, {
 				type: 'folder',
@@ -699,9 +708,7 @@ class BoschBuderusWp extends utils.Adapter {
 				failed.push(apiPath);
 				errors++;
 				if (errors >= 5) {
-					this.log.warn(
-						'Suche nach festen Pfaden abgebrochen, das Gerät antwortet nicht. Neuer Versuch folgt.',
-					);
+					this.log.warn('Search for fixed paths aborted, the device does not respond. Will try again.');
 					return;
 				}
 			}
@@ -715,12 +722,12 @@ class BoschBuderusWp extends utils.Adapter {
 		this.discovered = true;
 		await this.saveDiscovery();
 		this.log.info(
-			`Suche abgeschlossen: ${endpoints.length} Pfade geprüft, ${fast.length + slow.length} vorhanden ` +
-				`(davon ${slow.length} stündlich), ${notPresent} bei dieser Anlage nicht vorhanden, ` +
-				`${failed.length} ohne Antwort`,
+			`Search finished: ${endpoints.length} paths checked, ${fast.length + slow.length} present ` +
+				`(${slow.length} of them hourly), ${notPresent} not present on this system, ` +
+				`${failed.length} without response`,
 		);
 		if (failed.length) {
-			this.log.info(`Ohne Antwort (werden stündlich erneut versucht): ${failed.join(', ')}`);
+			this.log.info(`No response (retried hourly): ${failed.join(', ')}`);
 		}
 	}
 
@@ -737,7 +744,7 @@ class BoschBuderusWp extends utils.Adapter {
 			try {
 				if (await this.pollOne(apiPath)) {
 					(isSlowPath(apiPath) ? this.slowPaths : this.fixedPaths).push(apiPath);
-					this.log.info(`Pfad nachträglich gefunden: ${apiPath}`);
+					this.log.info(`Path found later: ${apiPath}`);
 				}
 			} catch (error) {
 				this.log.debug(`${apiPath}: ${error.message}`);
@@ -797,8 +804,8 @@ class BoschBuderusWp extends utils.Adapter {
 			this.lastDiscovery = Number(data.ts) || 0;
 			this.discovered = true;
 			this.log.info(
-				`Gespeicherte Pfadliste geladen: ${data.fixed.length + data.slow.length} vorhanden ` +
-					`(davon ${data.slow.length} stündlich), die Suche wird nicht wiederholt`,
+				`Saved path list loaded: ${data.fixed.length + data.slow.length} present ` +
+					`(${data.slow.length} of them hourly), the search is not repeated`,
 			);
 			return true;
 		} catch {
@@ -893,11 +900,11 @@ class BoschBuderusWp extends utils.Adapter {
 			if (typeof data?.access_token !== 'string' || !data.access_token) {
 				return { error: 'The gateway did not return an API token.' };
 			}
-			this.log.info('API-Token vom Gateway erhalten');
+			this.log.info('API token received from the gateway');
 			return { result: 'API token received. Please save the settings.', native: { token: data.access_token } };
 		} catch (error) {
 			const statusCode = /** @type {{ statusCode?: number }} */ (error).statusCode;
-			this.log.warn(`Token-Anfrage fehlgeschlagen: ${error.message}`);
+			this.log.warn(`Token request failed: ${error.message}`);
 			if (statusCode === 412) {
 				// physical_proximity_unproven: die Tasten am Gerät wurden nicht (rechtzeitig) gedrückt
 				return {
@@ -959,11 +966,11 @@ class BoschBuderusWp extends utils.Adapter {
 		try {
 			const signals = await this.apiGet('/signals');
 			if (!signals) {
-				throw new Error('Signalliste nicht verfügbar');
+				throw new Error('Signal list not available');
 			}
 			const ids = (signals.references ?? []).map((/** @type {{ id: string }} */ ref) => ref.id);
 			if (this.connected === false) {
-				this.log.info('Verbindung zum Gateway hergestellt');
+				this.log.info('Connection to the gateway established');
 			}
 			await this.setConnected(true);
 
@@ -984,12 +991,12 @@ class BoschBuderusWp extends utils.Adapter {
 				}
 			}
 			await this.pollPaths([...ids, ...fixed, ...slow]);
-			this.log.debug(`${ids.length + fixed.length + slow.length} Werte aktualisiert`);
+			this.log.debug(`${ids.length + fixed.length + slow.length} values updated`);
 		} catch (error) {
 			if (this.connected !== false) {
-				this.log.warn(`Verbindung zum Gateway verloren: ${error.message}`);
+				this.log.warn(`Connection to the gateway lost: ${error.message}`);
 			} else {
-				this.log.debug(`Abfrage fehlgeschlagen: ${error.message}`);
+				this.log.debug(`Query failed: ${error.message}`);
 			}
 			await this.setConnected(false);
 		}
@@ -1035,15 +1042,15 @@ class BoschBuderusWp extends utils.Adapter {
 		await this.setConnected(false);
 
 		if (!this.config.ip || !this.config.token) {
-			this.log.error('Bitte IP-Adresse und Token in den Adaptereinstellungen eintragen.');
+			this.log.error('Please enter the IP address and token in the adapter settings.');
 			return;
 		}
 
 		try {
 			const brand = await this.apiGet('/gateway/brand');
-			this.log.info(`Verbindung erfolgreich, Hersteller: ${brand?.value}`);
+			this.log.info(`Connection successful, manufacturer: ${brand?.value}`);
 		} catch (error) {
-			this.log.error(`Verbindung zum Gateway fehlgeschlagen: ${error.message}`);
+			this.log.error(`Connection to the gateway failed: ${error.message}`);
 		}
 
 		// Gespeicherte Pfadliste laden, damit die Suche nach den vorhandenen Pfaden nicht bei jedem Start läuft
@@ -1051,7 +1058,7 @@ class BoschBuderusWp extends utils.Adapter {
 
 		// Startet die regelmäßige Abfrage. Schlägt ein Durchlauf fehl, wird es automatisch erneut versucht.
 		await this.pollCycle();
-		this.log.info(`${this.knownStates.size} Datenpunkte angelegt, Abfrage läuft im eingestellten Intervall`);
+		this.log.info(`${this.knownStates.size} data points created, polling runs at the configured interval`);
 	}
 
 	/**
