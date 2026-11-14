@@ -26,7 +26,7 @@
     "url": "https://github.com/septa-cr/ioBroker.bosch-buderus-wp.git"
   },
   "engines": {
-    "node": ">=22"
+    "node": ">=22.0.0"
   },
   "dependencies": {
     "@iobroker/adapter-core": "^3.4.3"

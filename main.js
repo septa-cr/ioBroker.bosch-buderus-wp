@@ -337,7 +337,7 @@ class BoschBuderusWp extends utils.Adapter {
 						try {
 							resolve(JSON.parse(body));
 						} catch {
-							reject(new Error(`Ungültige Antwort bei ${path}`));
+							reject(new Error(`Invalid response for ${path}`));
 						}
 					});
 				},
@@ -859,12 +859,12 @@ class BoschBuderusWp extends utils.Adapter {
 						try {
 							resolve(JSON.parse(text));
 						} catch {
-							reject(new Error('Ungültige Antwort'));
+							reject(new Error('Invalid response'));
 						}
 					});
 				},
 			);
-			req.on('timeout', () => req.destroy(new Error('Zeitüberschreitung')));
+			req.on('timeout', () => req.destroy(new Error('Timeout')));
 			req.on('error', reject);
 			req.write(body);
 			req.end();
@@ -1003,7 +1003,8 @@ class BoschBuderusWp extends utils.Adapter {
 		if (this.unloaded) {
 			return;
 		}
-		const seconds = Math.max(10, Number(this.config.interval) || 60);
+		// Das Intervall wird auch im Code begrenzt (10 bis 3600 Sekunden), nicht nur in den Einstellungen
+		const seconds = Math.min(3600, Math.max(10, Number(this.config.interval) || 60));
 		this.pollTimer = this.setTimeout(() => this.pollCycle(), seconds * 1000);
 	}
 

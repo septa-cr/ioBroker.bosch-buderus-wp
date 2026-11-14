@@ -97,7 +97,7 @@ Install the adapter via the adapter list of the ioBroker Admin: open **Adapters*
 | Login / Pass | Only needed once to request the token. They are not stored. |
 | Polling interval (seconds) | How often the values are read. Default 60, minimum 10 |
 
-At the first start, the adapter checks all resources of the API. This takes about one to two minutes. The log then shows how many resources your system provides, for example: *"Search completed: 1286 paths checked, 118 present …"*.
+At the first start, the adapter checks all resources of the API. This takes about one to two minutes. The log then shows how many resources your system provides, for example: *"Search finished: 1286 paths checked, 118 present …"*.
 
 ## Data points
 
@@ -144,7 +144,8 @@ This adapter is a private project and is not affiliated with Bosch Thermotechnik
 
 - (septa-cr) Fixed: no data point is created below another data point any more (error messages); an old data point of this kind is removed automatically
 - (septa-cr) The energy counters (kWh) now use the role `value.energy` instead of the outdated `value.power.consumption`, the system pressure (bar) uses the role `value`
-- (septa-cr) Log messages are now in English
+- (septa-cr) Log messages and error texts are now in English
+- (septa-cr) The polling interval is now also limited to 10 to 3600 seconds in the code
 - (septa-cr) The sensor designations TC0, TC1, TW1 and TR4 are now part of the names of the matching temperature data points
 
 ### 0.0.8 (2026-11-03)

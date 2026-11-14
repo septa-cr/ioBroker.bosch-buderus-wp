@@ -93,7 +93,7 @@ Installiere den Adapter über die Adapterliste im ioBroker-Admin: Öffne den Ber
 | Login / Pass | Nur einmal zum Anfordern des Tokens nötig. Sie werden nicht gespeichert. |
 | Abfrageintervall (Sekunden) | Wie oft die Werte gelesen werden. Standard 60, mindestens 10 |
 
-Beim ersten Start prüft der Adapter alle Ressourcen der API. Das dauert etwa ein bis zwei Minuten. Danach steht im Log, wie viele Ressourcen deine Anlage liefert, zum Beispiel: *"Suche abgeschlossen: 1286 Pfade geprüft, 118 vorhanden …"*.
+Beim ersten Start prüft der Adapter alle Ressourcen der API. Das dauert etwa ein bis zwei Minuten. Danach steht im Log, wie viele Ressourcen deine Anlage liefert, zum Beispiel: *"Search finished: 1286 paths checked, 118 present …"* (die Meldungen im Log sind englisch).
 
 ## Datenpunkte
 
