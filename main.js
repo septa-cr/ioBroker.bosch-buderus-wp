@@ -4,7 +4,7 @@ const utils = require('@iobroker/adapter-core');
 const https = require('node:https');
 const crypto = require('node:crypto');
 const endpoints = require('./lib/endpoints.json');
-/** @type {{ paths: Record<string, ioBroker.Translated>, templates: Record<string, ioBroker.Translated>, keys: Record<string, ioBroker.Translated>, suffixes: Record<string, ioBroker.Translated>, folders: Record<string, ioBroker.Translated>, numberedFolders: Record<string, ioBroker.Translated>, info: Record<string, ioBroker.Translated> }} */
+/** @type {{ paths: Record<string, ioBroker.Translated>, templates: Record<string, ioBroker.Translated>, keys: Record<string, ioBroker.Translated>, suffixes: Record<string, ioBroker.Translated>, folders: Record<string, ioBroker.Translated>, numberedFolders: Record<string, ioBroker.Translated>, fields: Record<string, Record<string, string>>, info: Record<string, ioBroker.Translated> }} */
 const names = require('./lib/names.json');
 
 /** Abstand, in dem die Suche nach den vorhandenen Pfaden komplett wiederholt wird (24 Stunden) */
@@ -177,6 +177,40 @@ function withPart(base, part) {
 	const result = {};
 	for (const lang of new Set([...Object.keys(b), ...Object.keys(p)])) {
 		result[lang] = `${b[lang] ?? b.en} – ${p[lang] ?? p.en}`;
+	}
+	return /** @type {ioBroker.Translated} */ (result);
+}
+
+/** Teile eines Feldpfads, die keinen eigenen Namen bekommen (sie stehen nur für die Verschachtelung) */
+const SKIPPED_FIELD_PARTS = new Set(['value', 'values']);
+
+/** Sprachen, in denen die Feldnamen übersetzt werden */
+const FIELD_LANGUAGES = ['en', 'de', 'ru', 'pt', 'nl', 'fr', 'it', 'es', 'pl', 'uk', 'zh-cn'];
+
+/**
+ * Lesbarer Name für ein Feld in einer zusammengesetzten Antwort, z. B. values.0.ModuleSerialNumber.
+ * Bekannte Feldnamen stehen in lib/names.json, Nummern erscheinen in eckigen Klammern. Ist kein Teil bekannt, bleibt der Pfad.
+ *
+ * @param {string} fieldPath - Pfad des Felds innerhalb der Antwort, z. B. progress.cur_step
+ * @returns {ioBroker.StringOrTranslated} Name
+ */
+function fieldName(fieldPath) {
+	const parts = fieldPath.split('.').filter(part => !SKIPPED_FIELD_PARTS.has(part));
+	if (!parts.some(part => names.fields[part])) {
+		return fieldPath;
+	}
+	/** @type {Record<string, string>} */
+	const result = {};
+	for (const lang of FIELD_LANGUAGES) {
+		result[lang] = parts
+			.map(part => {
+				if (/^\d+$/.test(part)) {
+					return `[${part}]`;
+				}
+				const translated = names.fields[part];
+				return translated ? (translated[lang] ?? translated.en) : part;
+			})
+			.join(' ');
 	}
 	return /** @type {ioBroker.Translated} */ (result);
 }
@@ -588,7 +622,7 @@ class BoschBuderusWp extends utils.Adapter {
 		const current = new Set();
 		for (const [path, value] of leaves) {
 			const id = `${base}.${path}`;
-			const name = withPart(baseName, path);
+			const name = withPart(baseName, fieldName(path));
 			current.add(id);
 			if (value === 'true' || value === 'false' || typeof value === 'boolean') {
 				await this.setValue(id, name, value === true || value === 'true', 'boolean', 'indicator');
