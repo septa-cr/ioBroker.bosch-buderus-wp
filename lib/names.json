@@ -274,17 +274,17 @@
 			"zh-cn": "热源调节"
 		},
 		"/heatSources/actualSupplyTemperature": {
-			"en": "System supply temperature",
-			"de": "Systemvorlauftemperatur",
-			"ru": "Температура подачи системы",
-			"pt": "Temperatura de ida do sistema",
-			"nl": "Aanvoertemperatuur systeem",
-			"fr": "Température de départ du système",
-			"it": "Temperatura di mandata del sistema",
-			"es": "Temperatura de impulsión del sistema",
-			"pl": "Temperatura zasilania systemu",
-			"uk": "Температура подачі системи",
-			"zh-cn": "系统供水温度"
+			"en": "Heating flow temperature (T0)",
+			"de": "Vorlauftemperatur Heizung (T0)",
+			"ru": "Температура подачи системы (T0)",
+			"pt": "Temperatura de ida do sistema (T0)",
+			"nl": "Aanvoertemperatuur systeem (T0)",
+			"fr": "Température de départ du système (T0)",
+			"it": "Temperatura di mandata del sistema (T0)",
+			"es": "Temperatura de impulsión del sistema (T0)",
+			"pl": "Temperatura zasilania systemu (T0)",
+			"uk": "Температура подачі системи (T0)",
+			"zh-cn": "系统供水温度 (T0)"
 		},
 		"/heatSources/compressor/powerElecActual": {
 			"en": "Compressor electrical power",
@@ -613,7 +613,7 @@
 		},
 		"/heatSources/systemPressure": {
 			"en": "System pressure",
-			"de": "Anlagendruck",
+			"de": "Systemdruck",
 			"ru": "Давление в системе",
 			"pt": "Pressão do sistema",
 			"nl": "Systeemdruk",
@@ -3381,17 +3381,17 @@
 			"zh-cn": "启动检查"
 		},
 		"/signals/SRC.CUHP.HP1.ReturnTemp": {
-			"en": "Return temperature (TC0)",
-			"de": "Rücklauftemperatur (TC0)",
-			"ru": "Температура обратной линии (TC0)",
-			"pt": "Temperatura de retorno (TC0)",
-			"nl": "Retourtemperatuur (TC0)",
-			"fr": "Température de retour (TC0)",
-			"it": "Temperatura di ritorno (TC0)",
-			"es": "Temperatura de retorno (TC0)",
-			"pl": "Temperatura powrotu (TC0)",
-			"uk": "Температура зворотної лінії (TC0)",
-			"zh-cn": "回水温度 (TC0)"
+			"en": "Heat pump return temperature (TC0)",
+			"de": "Wärmepumpe Rücklauftemperatur (TC0)",
+			"ru": "Температура обратной линии теплового насоса (TC0)",
+			"pt": "Temperatura de retorno da bomba de calor (TC0)",
+			"nl": "Retourtemperatuur warmtepomp (TC0)",
+			"fr": "Température de retour de la pompe à chaleur (TC0)",
+			"it": "Temperatura di ritorno della pompa di calore (TC0)",
+			"es": "Temperatura de retorno de la bomba de calor (TC0)",
+			"pl": "Temperatura powrotu pompy ciepła (TC0)",
+			"uk": "Температура зворотної лінії теплового насоса (TC0)",
+			"zh-cn": "热泵回水温度 (TC0)"
 		},
 		"/signals/SRC.IntFlowTemp": {
 			"en": "Flow temperature (TC1)",
@@ -3574,6 +3574,45 @@
 			"pl": "Presostat obiegu kolektora",
 			"uk": "Реле тиску контуру колектора",
 			"zh-cn": "集热回路压力开关"
+		},
+		"/signals/SRC.CUHP.Dehum.Active": {
+			"en": "Dehumidification active",
+			"de": "Entfeuchtung aktiv",
+			"ru": "Осушение активно",
+			"pt": "Desumidificação ativa",
+			"nl": "Ontvochtiging actief",
+			"fr": "Déshumidification active",
+			"it": "Deumidificazione attiva",
+			"es": "Deshumidificación activa",
+			"pl": "Osuszanie aktywne",
+			"uk": "Осушення активне",
+			"zh-cn": "除湿已启用"
+		},
+		"/signals/SRC.CUHP.Dehum.Request": {
+			"en": "Dehumidification requested",
+			"de": "Entfeuchtung angefordert",
+			"ru": "Осушение запрошено",
+			"pt": "Desumidificação solicitada",
+			"nl": "Ontvochtiging aangevraagd",
+			"fr": "Déshumidification demandée",
+			"it": "Deumidificazione richiesta",
+			"es": "Deshumidificación solicitada",
+			"pl": "Osuszanie żądane",
+			"uk": "Осушення запитано",
+			"zh-cn": "已请求除湿"
+		},
+		"/signals/SRC.CUHP.GroundWater.PumpRelay": {
+			"en": "Groundwater pump relay",
+			"de": "Grundwasserpumpe Relais",
+			"ru": "Реле насоса грунтовых вод",
+			"pt": "Relé da bomba de água subterrânea",
+			"nl": "Relais grondwaterpomp",
+			"fr": "Relais de la pompe d'eau souterraine",
+			"it": "Relè pompa acqua di falda",
+			"es": "Relé de la bomba de agua subterránea",
+			"pl": "Przekaźnik pompy wody gruntowej",
+			"uk": "Реле насоса ґрунтових вод",
+			"zh-cn": "地下水泵继电器"
 		}
 	},
 	"templates": {
@@ -6078,6 +6117,32 @@
 			"pl": "Dodatkowy podgrzewacz",
 			"uk": "Додатковий нагрівач",
 			"zh-cn": "辅助加热器"
+		},
+		"Dehum": {
+			"en": "Dehumidification",
+			"de": "Entfeuchtung",
+			"ru": "Осушение",
+			"pt": "Desumidificação",
+			"nl": "Ontvochtiging",
+			"fr": "Déshumidification",
+			"it": "Deumidificazione",
+			"es": "Deshumidificación",
+			"pl": "Osuszanie",
+			"uk": "Осушення",
+			"zh-cn": "除湿"
+		},
+		"GroundWater": {
+			"en": "Groundwater",
+			"de": "Grundwasser",
+			"ru": "Грунтовые воды",
+			"pt": "Água subterrânea",
+			"nl": "Grondwater",
+			"fr": "Eau souterraine",
+			"it": "Acqua di falda",
+			"es": "Agua subterránea",
+			"pl": "Woda gruntowa",
+			"uk": "Ґрунтові води",
+			"zh-cn": "地下水"
 		}
 	},
 	"numberedFolders": {

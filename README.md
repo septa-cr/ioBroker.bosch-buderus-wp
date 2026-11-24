@@ -147,6 +147,13 @@ This adapter is a private project and is not affiliated with Bosch Thermotechnik
     Placeholder for the next version (at the beginning of the line):
     ### **WORK IN PROGRESS**
 -->
+### 0.0.11 (2026-11-24)
+
+- (septa-cr) The sensor designation T0 (confirmed with the manufacturer's app) is now part of the name of the system flow temperature
+- (septa-cr) The system pressure is now called "Systemdruck" in German, as in the manufacturer's app
+- (septa-cr) The second return temperature (TC0, from the signal list) is now named "Heat pump return temperature" so that the two data points can be told apart
+- (septa-cr) The names of the data points for dehumidification and the groundwater pump and of their folders are now translated in all languages
+
 ### 0.0.10 (2026-11-24)
 
 - (septa-cr) Fixed: a data point with custom settings (e.g. logging) is no longer deleted when an old data point has to be replaced; a warning is written to the log instead
