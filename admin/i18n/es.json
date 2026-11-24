@@ -22,6 +22,6 @@
     "The gateway did not return an API token.": "La pasarela no devolvió ningún token de API.",
     "The search for resources will start with the next query cycle.": "La búsqueda de recursos comenzará con el siguiente ciclo de consulta.",
     "Please press the WLAN and Wireless buttons on the gateway at the same time for one second and request the token again within 5 minutes.": "Pulse a la vez los botones WLAN y Wireless de la pasarela durante un segundo y vuelva a solicitar el token en un plazo de 5 minutos.",
-    "The gateway cannot store another API token. Revoke unused tokens first (see the manufacturer's guide).": "La pasarela no puede almacenar otro token de API. Revoque primero los tokens no utilizados (consulte la guía del fabricante).",
+    "The gateway cannot store another API token. A token can only be revoked with the token itself (see the manufacturer's guide).": "La pasarela no puede almacenar otro token de API. Un token solo puede revocarse con el propio token (consulte la guía del fabricante).",
     "The gateway refused the request.": "La pasarela rechazó la solicitud."
 }

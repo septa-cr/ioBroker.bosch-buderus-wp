@@ -22,6 +22,6 @@
     "The gateway did not return an API token.": "网关未返回 API 令牌。",
     "The search for resources will start with the next query cycle.": "资源搜索将在下一个查询周期开始。",
     "Please press the WLAN and Wireless buttons on the gateway at the same time for one second and request the token again within 5 minutes.": "请在网关上同时按下 WLAN 和 Wireless 按钮一秒钟，并在 5 分钟内重新申请令牌。",
-    "The gateway cannot store another API token. Revoke unused tokens first (see the manufacturer's guide).": "网关无法再保存新的 API 令牌。请先撤销不再使用的令牌（参见制造商指南）。",
+    "The gateway cannot store another API token. A token can only be revoked with the token itself (see the manufacturer's guide).": "网关无法再保存新的 API 令牌。令牌只能用该令牌本身撤销（参见制造商指南）。",
     "The gateway refused the request.": "网关拒绝了该请求。"
 }

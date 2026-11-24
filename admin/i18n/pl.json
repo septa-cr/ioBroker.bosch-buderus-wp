@@ -22,6 +22,6 @@
     "The gateway did not return an API token.": "Brama nie zwróciła tokenu API.",
     "The search for resources will start with the next query cycle.": "Wyszukiwanie zasobów rozpocznie się w następnym cyklu odpytywania.",
     "Please press the WLAN and Wireless buttons on the gateway at the same time for one second and request the token again within 5 minutes.": "Naciśnij jednocześnie przyciski WLAN i Wireless na bramie na jedną sekundę i w ciągu 5 minut ponownie poproś o token.",
-    "The gateway cannot store another API token. Revoke unused tokens first (see the manufacturer's guide).": "Brama nie może zapisać kolejnego tokenu API. Najpierw unieważnij nieużywane tokeny (zob. instrukcja producenta).",
+    "The gateway cannot store another API token. A token can only be revoked with the token itself (see the manufacturer's guide).": "Brama nie może zapisać kolejnego tokenu API. Token można unieważnić tylko za pomocą samego tokenu (zob. instrukcja producenta).",
     "The gateway refused the request.": "Brama odrzuciła żądanie."
 }

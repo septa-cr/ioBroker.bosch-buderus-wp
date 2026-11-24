@@ -22,6 +22,6 @@
     "The gateway did not return an API token.": "Шлюз не вернул API-токен.",
     "The search for resources will start with the next query cycle.": "Поиск ресурсов начнётся со следующим циклом опроса.",
     "Please press the WLAN and Wireless buttons on the gateway at the same time for one second and request the token again within 5 minutes.": "Одновременно нажмите на шлюзе кнопки WLAN и Wireless на одну секунду и в течение 5 минут снова запросите токен.",
-    "The gateway cannot store another API token. Revoke unused tokens first (see the manufacturer's guide).": "Шлюз не может сохранить ещё один API-токен. Сначала отзовите ненужные токены (см. руководство производителя).",
+    "The gateway cannot store another API token. A token can only be revoked with the token itself (see the manufacturer's guide).": "Шлюз не может сохранить ещё один API-токен. Токен можно отозвать только с помощью самого токена (см. руководство производителя).",
     "The gateway refused the request.": "Шлюз отклонил запрос."
 }

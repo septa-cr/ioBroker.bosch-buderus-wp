@@ -22,6 +22,6 @@
     "The gateway did not return an API token.": "De gateway heeft geen API-token teruggegeven.",
     "The search for resources will start with the next query cycle.": "Het zoeken naar bronnen begint met de volgende opvraagcyclus.",
     "Please press the WLAN and Wireless buttons on the gateway at the same time for one second and request the token again within 5 minutes.": "Druk op de gateway gelijktijdig één seconde op de knoppen WLAN en Wireless en vraag het token binnen 5 minuten opnieuw aan.",
-    "The gateway cannot store another API token. Revoke unused tokens first (see the manufacturer's guide).": "De gateway kan geen extra API-token opslaan. Trek eerst ongebruikte tokens in (zie de handleiding van de fabrikant).",
+    "The gateway cannot store another API token. A token can only be revoked with the token itself (see the manufacturer's guide).": "De gateway kan geen extra API-token opslaan. Een token kan alleen met het token zelf worden ingetrokken (zie de handleiding van de fabrikant).",
     "The gateway refused the request.": "De gateway heeft het verzoek geweigerd."
 }

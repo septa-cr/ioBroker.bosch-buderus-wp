@@ -54,7 +54,7 @@ Der Token wird **einmalig** mit den Werten `Login` und `Pass` vom Aufkleber bzw.
 4. Klicke **innerhalb von 5 Minuten** in den Einstellungen auf **API-Token anfordern**. Der Token erscheint im Feld *API-Token*. Für eine Sicherung des Tokens außerhalb von ioBroker (zum Beispiel in einem Passwortmanager) setze darunter das Häkchen bei **API-Token anzeigen**. Der Token wird dann angezeigt und lässt sich mit dem Knopf daneben kopieren.
 5. Klicke auf **Speichern**.
 
-Fordere den Token nur einmal an und behalte ihn: Jede Anfrage erzeugt einen neuen Token auf dem MX400, und dessen Speicher für Token ist begrenzt (Fehler `507 Token database full`, nicht benötigte Token lassen sich wie in der Anleitung des Herstellers beschrieben widerrufen).
+Fordere den Token nur einmal an und behalte ihn: Jede Anfrage erzeugt einen neuen Token auf dem MX400, und dessen Speicher für Token ist begrenzt (Fehler `507 Token database full`, laut Hersteller lässt sich ein Token nur mit dem Token selbst widerrufen, siehe Anleitung des Herstellers).
 
 ### Möglichkeit 2: von Hand mit curl
 

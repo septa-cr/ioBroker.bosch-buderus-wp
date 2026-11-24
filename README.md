@@ -6,6 +6,13 @@
 [![License](https://img.shields.io/github/license/septa-cr/ioBroker.bosch-buderus-wp)](LICENSE)
 [![Donate](https://img.shields.io/badge/Donate-PayPal-ffc439.svg)](https://www.paypal.com/donate/?hosted_button_id=BW2WL8QCH2AMU)
 
+[![NPM version](https://img.shields.io/npm/v/iobroker.bosch-buderus-wp.svg)](https://www.npmjs.com/package/iobroker.bosch-buderus-wp)
+[![Downloads](https://img.shields.io/npm/dm/iobroker.bosch-buderus-wp.svg)](https://www.npmjs.com/package/iobroker.bosch-buderus-wp)
+![Number of Installations](https://iobroker.live/badges/bosch-buderus-wp-installed.svg)
+![Current version in stable repository](https://iobroker.live/badges/bosch-buderus-wp-stable.svg)
+
+[![NPM](https://nodei.co/npm/iobroker.bosch-buderus-wp.png?downloads=true)](https://nodei.co/npm/iobroker.bosch-buderus-wp/)
+
 **[🇩🇪 Deutsche Anleitung](docs/de/README.md)**
 
 ## Buderus MX400 / Bosch K 40 RF adapter for ioBroker
@@ -58,7 +65,7 @@ The token is created **once** with the `Login` and `Pass` values from the sticke
 4. **Within 5 minutes**, click **Request API token** in the settings. The token appears in the field *API token*. To keep a backup of the token outside ioBroker (for example in a password manager), tick **Show API token** below the field. The token is then displayed and can be copied with the button next to it.
 5. Click **Save**.
 
-Request the token only once and keep it: every request creates a new token on the MX400, and its memory for tokens is limited (error `507 Token database full`, unused tokens can be revoked as described in the manufacturer's guide).
+Request the token only once and keep it: every request creates a new token on the MX400, and its memory for tokens is limited (error `507 Token database full`, according to the manufacturer a token can only be revoked with the token itself, see the manufacturer's guide).
 
 ### Option 2: manually with curl
 
@@ -140,6 +147,13 @@ This adapter is a private project and is not affiliated with Bosch Thermotechnik
     Placeholder for the next version (at the beginning of the line):
     ### **WORK IN PROGRESS**
 -->
+### 0.0.10 (2026-11-24)
+
+- (septa-cr) Fixed: a data point with custom settings (e.g. logging) is no longer deleted when an old data point has to be replaced; a warning is written to the log instead
+- (septa-cr) The error text for a full token memory (HTTP 507) was corrected: according to the manufacturer a token can only be revoked with the token itself
+- (septa-cr) The warning about a timer when the adapter is stopped no longer appears
+- (septa-cr) Update of `@iobroker/testing` to 6.3.2, badges added to the README
+
 ### 0.0.9 (2026-11-14)
 
 - (septa-cr) Fixed: no data point is created below another data point any more (error messages); an old data point of this kind is removed automatically

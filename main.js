@@ -277,6 +277,9 @@ class BoschBuderusWp extends utils.Adapter {
 		/** Datenpunkte, die in einzelne Werte aufgeteilt werden (alte Textdatenpunkte wurden entfernt) */
 		/** @type {Set<string>} */
 		this.expandedStates = new Set();
+		/** Datenpunkte mit Benutzereinstellungen (common.custom), die nicht gelöscht werden dürfen */
+		/** @type {Set<string>} */
+		this.protectedStates = new Set();
 		/** Zuletzt geschriebene Einzelwerte je zusammengesetzter Antwort */
 		/** @type {Map<string, Set<string>>} */
 		this.complexLeaves = new Map();
@@ -396,7 +399,9 @@ class BoschBuderusWp extends utils.Adapter {
 	 */
 	async setValue(id, name, val, type, role, unit) {
 		if (!this.knownStates.has(id)) {
-			await this.ensureParents(id);
+			if (!(await this.ensureParents(id))) {
+				return;
+			}
 			await this.extendObjectAsync(id, {
 				type: 'state',
 				common: {
@@ -416,10 +421,38 @@ class BoschBuderusWp extends utils.Adapter {
 	}
 
 	/**
+	 * Entfernt einen bestehenden Datenpunkt, damit an dieser Stelle ein Ordner oder Kanal angelegt werden kann.
+	 * Hat der Datenpunkt Benutzereinstellungen (common.custom, z. B. für Logging), wird er nicht gelöscht.
+	 *
+	 * @param {string} id - ID des Objekts
+	 * @returns {Promise<boolean>} true, wenn die ID frei ist; false, wenn ein geschützter Datenpunkt bestehen bleibt
+	 */
+	async removeLegacyState(id) {
+		if (this.protectedStates.has(id)) {
+			return false;
+		}
+		const existing = await this.getObjectAsync(id);
+		if (!existing || existing.type !== 'state') {
+			return true;
+		}
+		if (existing.common?.custom && Object.keys(existing.common.custom).length > 0) {
+			this.protectedStates.add(id);
+			this.log.warn(
+				`State ${id} has custom settings and is not deleted, so no sub-states can be created below it. Please remove the custom settings and delete the state manually.`,
+			);
+			return false;
+		}
+		await this.delObjectAsync(id);
+		this.knownStates.delete(id);
+		return true;
+	}
+
+	/**
 	 * Legt fehlende Ordner oberhalb eines Objekts an. Laut ioBroker-Regeln sollen Unterstrukturen
 	 * aus Objekten vom Typ folder, channel oder device bestehen und Datenpunkte nur auf der letzten Ebene liegen.
 	 *
 	 * @param {string} id - ID des Datenpunkts oder Kanals
+	 * @returns {Promise<boolean>} false, wenn ein geschützter Datenpunkt im Weg ist und nichts angelegt wurde
 	 */
 	async ensureParents(id) {
 		const parts = id.split('.');
@@ -429,10 +462,8 @@ class BoschBuderusWp extends utils.Adapter {
 				continue;
 			}
 			// Ein Datenpunkt darf keine Unterobjekte haben: ein bestehender Datenpunkt an dieser Stelle wird entfernt
-			const existing = await this.getObjectAsync(parentId);
-			if (existing && existing.type === 'state') {
-				await this.delObjectAsync(parentId);
-				this.knownStates.delete(parentId);
+			if (!(await this.removeLegacyState(parentId))) {
+				return false;
 			}
 			await this.extendObjectAsync(parentId, {
 				type: 'folder',
@@ -441,6 +472,7 @@ class BoschBuderusWp extends utils.Adapter {
 			});
 			this.knownObjects.add(parentId);
 		}
+		return true;
 	}
 
 	/**
@@ -450,10 +482,12 @@ class BoschBuderusWp extends utils.Adapter {
 	 * @param {ioBroker.StringOrTranslated} name - Name des Kanals
 	 */
 	async ensureChannel(id, name) {
-		if (this.knownObjects.has(id)) {
+		if (this.knownObjects.has(id) || this.protectedStates.has(id)) {
 			return;
 		}
-		await this.ensureParents(id);
+		if (!(await this.ensureParents(id))) {
+			return;
+		}
 		await this.extendObjectAsync(id, { type: 'channel', common: { name }, native: {} });
 		this.knownObjects.add(id);
 	}
@@ -511,11 +545,7 @@ class BoschBuderusWp extends utils.Adapter {
 			return;
 		}
 		this.expandedStates.add(base);
-		const obj = await this.getObjectAsync(base);
-		if (obj && obj.type === 'state') {
-			await this.delObjectAsync(base);
-		}
-		this.knownStates.delete(base);
+		await this.removeLegacyState(base);
 	}
 
 	/**
@@ -662,6 +692,21 @@ class BoschBuderusWp extends utils.Adapter {
 	}
 
 	/**
+	 * Kurze Pause zwischen zwei Abfragen. Beim Beenden des Adapters wird kein neuer Timer mehr gestartet.
+	 *
+	 * @param {number} ms - Dauer in Millisekunden
+	 * @returns {Promise<void>}
+	 */
+	pause(ms) {
+		if (this.unloaded) {
+			return Promise.resolve();
+		}
+		return new Promise(resolve => {
+			this.setTimeout(() => resolve(), ms);
+		});
+	}
+
+	/**
 	 * Fragt eine Liste von Pfaden ab und schreibt die Werte in die Datenpunkte.
 	 *
 	 * @param {string[]} paths - API-Pfade
@@ -676,7 +721,7 @@ class BoschBuderusWp extends utils.Adapter {
 			} catch (error) {
 				this.log.debug(`${apiPath}: ${error.message}`);
 			}
-			await new Promise(resolve => this.setTimeout(() => resolve(undefined), 50));
+			await this.pause(50);
 		}
 	}
 
@@ -712,7 +757,7 @@ class BoschBuderusWp extends utils.Adapter {
 					return;
 				}
 			}
-			await new Promise(resolve => this.setTimeout(() => resolve(undefined), 20));
+			await this.pause(20);
 		}
 		this.fixedPaths = fast;
 		this.slowPaths = slow;
@@ -750,7 +795,7 @@ class BoschBuderusWp extends utils.Adapter {
 				this.log.debug(`${apiPath}: ${error.message}`);
 				stillFailing.push(apiPath);
 			}
-			await new Promise(resolve => this.setTimeout(() => resolve(undefined), 50));
+			await this.pause(50);
 		}
 		this.retryPaths = stillFailing;
 	}
@@ -926,7 +971,7 @@ class BoschBuderusWp extends utils.Adapter {
 				return {
 					error:
 						'The gateway cannot store another API token. ' +
-						"Revoke unused tokens first (see the manufacturer's guide).",
+						"A token can only be revoked with the token itself (see the manufacturer's guide).",
 				};
 			}
 			if (statusCode) {

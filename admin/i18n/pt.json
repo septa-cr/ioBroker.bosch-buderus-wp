@@ -22,6 +22,6 @@
     "The gateway did not return an API token.": "O gateway não devolveu um token da API.",
     "The search for resources will start with the next query cycle.": "A pesquisa de recursos começará no próximo ciclo de consulta.",
     "Please press the WLAN and Wireless buttons on the gateway at the same time for one second and request the token again within 5 minutes.": "Prima em simultâneo os botões WLAN e Wireless do gateway durante um segundo e volte a pedir o token no prazo de 5 minutos.",
-    "The gateway cannot store another API token. Revoke unused tokens first (see the manufacturer's guide).": "O gateway não consegue guardar outro token da API. Revogue primeiro os tokens não utilizados (consulte o guia do fabricante).",
+    "The gateway cannot store another API token. A token can only be revoked with the token itself (see the manufacturer's guide).": "O gateway não consegue guardar outro token da API. Um token só pode ser revogado com o próprio token (consulte o guia do fabricante).",
     "The gateway refused the request.": "O gateway recusou o pedido."
 }
