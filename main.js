@@ -45,7 +45,21 @@ function isSlowPath(apiPath) {
  * @returns {string | undefined} Einheit für ioBroker
  */
 function normalizeUnit(unit) {
-	return unit === 'C' ? '°C' : unit;
+	switch (unit) {
+		case 'C':
+			return '°C';
+		case 'mins':
+			return 'min';
+		case 'db':
+			return 'dB';
+		case 'day':
+		case 'month':
+		case 'year':
+			// Teile eines Datums (z. B. Installationsdatum) sind keine Einheit; ein leerer Text entfernt eine früher gesetzte Einheit
+			return '';
+		default:
+			return unit;
+	}
 }
 
 /**
@@ -410,7 +424,7 @@ class BoschBuderusWp extends utils.Adapter {
 					role,
 					read: true,
 					write: false,
-					...(unit ? { unit } : {}),
+					...(unit !== undefined ? { unit } : {}),
 				},
 				native: {},
 			});

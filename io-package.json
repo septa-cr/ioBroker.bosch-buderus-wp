@@ -1,8 +1,21 @@
 {
     "common": {
         "name": "bosch-buderus-wp",
-        "version": "0.0.11",
+        "version": "0.0.12",
         "news": {
+            "0.0.12": {
+                "en": "Units are now written the usual way: \"min\" instead of \"mins\" and \"dB\" instead of \"db\"; the parts of the installation date (day, month, year) no longer show a unit",
+                "de": "Einheiten werden jetzt in der üblichen Schreibweise angezeigt: „min“ statt „mins“ und „dB“ statt „db“; die Teile des Installationsdatums (Tag, Monat, Jahr) zeigen keine Einheit mehr",
+                "ru": "Единицы измерения теперь пишутся в привычном виде: «min» вместо «mins» и «dB» вместо «db»; части даты установки (день, месяц, год) больше не показывают единицу",
+                "pt": "As unidades passam a ser escritas da forma habitual: «min» em vez de «mins» e «dB» em vez de «db»; as partes da data de instalação (dia, mês, ano) deixam de mostrar uma unidade",
+                "nl": "Eenheden worden nu op de gebruikelijke manier geschreven: „min” in plaats van „mins” en „dB” in plaats van „db”; de delen van de installatiedatum (dag, maand, jaar) tonen geen eenheid meer",
+                "fr": "Les unités sont désormais écrites de la façon habituelle : « min » au lieu de « mins » et « dB » au lieu de « db » ; les éléments de la date d'installation (jour, mois, année) n'affichent plus d'unité",
+                "it": "Le unità sono ora scritte nel modo consueto: «min» invece di «mins» e «dB» invece di «db»; le parti della data di installazione (giorno, mese, anno) non mostrano più un'unità",
+                "es": "Las unidades se escriben ahora de la forma habitual: «min» en lugar de «mins» y «dB» en lugar de «db»; las partes de la fecha de instalación (día, mes, año) ya no muestran una unidad",
+                "pl": "Jednostki są teraz zapisywane w zwykły sposób: „min” zamiast „mins” i „dB” zamiast „db”; części daty instalacji (dzień, miesiąc, rok) nie pokazują już jednostki",
+                "uk": "Одиниці виміру тепер записуються у звичному вигляді: «min» замість «mins» та «dB» замість «db»; частини дати встановлення (день, місяць, рік) більше не показують одиницю",
+                "zh-cn": "单位现在使用常见写法：“min”代替“mins”，“dB”代替“db”；安装日期的各部分（日、月、年）不再显示单位"
+            },
             "0.0.11": {
                 "en": "The sensor designation T0 (confirmed with the manufacturer's app) is now part of the name of the system flow temperature\nThe system pressure is now called \"Systemdruck\" in German, as in the manufacturer's app\nThe second return temperature (TC0, from the signal list) is now named \"Heat pump return temperature\" so that the two data points can be told apart\nThe names of the data points for dehumidification and the groundwater pump and of their folders are now translated in all languages",
                 "de": "Die Sensorbezeichnung T0 (mit der Hersteller-App bestätigt) ist nun Teil des Namens der Systemvorlauftemperatur\nDer Systemdruck heißt auf Deutsch jetzt „Systemdruck“, wie in der Hersteller-App\nDie zweite Rücklauftemperatur (TC0, aus der Signalliste) heißt jetzt „Wärmepumpe Rücklauftemperatur“, damit sich die beiden Datenpunkte unterscheiden lassen\nDie Namen der Datenpunkte für Entfeuchtung und Grundwasserpumpe sowie ihrer Ordner sind jetzt in allen Sprachen übersetzt",

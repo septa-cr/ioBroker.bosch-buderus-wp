@@ -147,6 +147,10 @@ This adapter is a private project and is not affiliated with Bosch Thermotechnik
     Placeholder for the next version (at the beginning of the line):
     ### **WORK IN PROGRESS**
 -->
+### 0.0.12 (2026-11-24)
+
+- (septa-cr) Units are now written the usual way: "min" instead of "mins" and "dB" instead of "db"; the parts of the installation date (day, month, year) no longer show a unit
+
 ### 0.0.11 (2026-11-24)
 
 - (septa-cr) The sensor designation T0 (confirmed with the manufacturer's app) is now part of the name of the system flow temperature
