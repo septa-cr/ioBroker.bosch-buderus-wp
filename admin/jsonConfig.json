@@ -1,193 +1,246 @@
 {
     "i18n": true,
-    "type": "panel",
+    "type": "tabs",
     "items": {
-        "_connectionHeader": {
-            "type": "header",
-            "text": "Connection settings for the gateway",
-            "size": 4,
-            "newLine": true,
-            "xs": 12,
-            "sm": 12,
-            "md": 12,
-            "lg": 12,
-            "xl": 12
+        "_connectionTab": {
+            "type": "panel",
+            "label": "Connection",
+            "items": {
+                "_connectionHeader": {
+                    "type": "header",
+                    "text": "Connection settings for the gateway",
+                    "size": 4,
+                    "newLine": true,
+                    "xs": 12,
+                    "sm": 12,
+                    "md": 12,
+                    "lg": 12,
+                    "xl": 12
+                },
+                "ip": {
+                    "type": "text",
+                    "label": "IP address of the gateway (LAN and radio module)",
+                    "newLine": true,
+                    "xs": 12,
+                    "sm": 12,
+                    "md": 6,
+                    "lg": 4,
+                    "xl": 4
+                },
+                "interval": {
+                    "type": "number",
+                    "label": "Polling interval (seconds)",
+                    "min": 10,
+                    "max": 3600,
+                    "newLine": true,
+                    "xs": 12,
+                    "sm": 12,
+                    "md": 6,
+                    "lg": 4,
+                    "xl": 4
+                },
+                "token": {
+                    "type": "password",
+                    "visible": true,
+                    "label": "API token",
+                    "newLine": true,
+                    "xs": 12,
+                    "sm": 12,
+                    "md": 6,
+                    "lg": 4,
+                    "xl": 4
+                },
+                "_showToken": {
+                    "type": "checkbox",
+                    "label": "Show API token",
+                    "newLine": true,
+                    "xs": 12,
+                    "sm": 12,
+                    "md": 6,
+                    "lg": 4,
+                    "xl": 4
+                },
+                "_tokenView": {
+                    "type": "pattern",
+                    "pattern": "${data.token}",
+                    "label": "API token (to copy, for a backup of the token outside ioBroker)",
+                    "copyToClipboard": true,
+                    "hidden": "!data._showToken",
+                    "newLine": true,
+                    "xs": 12,
+                    "sm": 12,
+                    "md": 12,
+                    "lg": 8,
+                    "xl": 8
+                },
+                "_login": {
+                    "type": "text",
+                    "label": "Login of the gateway",
+                    "newLine": true,
+                    "xs": 12,
+                    "sm": 12,
+                    "md": 6,
+                    "lg": 4,
+                    "xl": 4
+                },
+                "_pass": {
+                    "type": "password",
+                    "label": "Pass of the gateway (hyphens are removed automatically)",
+                    "newLine": true,
+                    "xs": 12,
+                    "sm": 12,
+                    "md": 6,
+                    "lg": 4,
+                    "xl": 4
+                },
+                "_getToken": {
+                    "type": "sendTo",
+                    "label": "Request API token",
+                    "command": "getToken",
+                    "variant": "contained",
+                    "useNative": true,
+                    "jsonData": "{\"ip\": \"${data.ip}\", \"login\": \"${data._login}\", \"pass\": \"${data._pass}\"}",
+                    "newLine": true,
+                    "xs": 12,
+                    "sm": 12,
+                    "md": 6,
+                    "lg": 4,
+                    "xl": 4
+                },
+                "_tokenHelpText": {
+                    "type": "staticText",
+                    "text": "To create the API token, enter the 'Login' and 'Pass' values from the sticker or information sheet of the gateway (firmware 15.00.01 or newer is required). Then press the WLAN and Wireless buttons on the gateway at the same time for one second and click 'Request API token' within 5 minutes. The token appears in the field above, then save the settings. Login and Pass are not stored. The token does not expire, so treat it like a password. The manufacturer's guide explains the steps:",
+                    "newLine": true,
+                    "xs": 12,
+                    "sm": 12,
+                    "md": 12,
+                    "lg": 12,
+                    "xl": 12
+                },
+                "_tokenHelpLink": {
+                    "type": "staticLink",
+                    "label": "Manufacturer's guide: create an API token",
+                    "href": "https://github.com/bosch-home-comfort/api-docs/blob/main/docs/k-40-rf.md",
+                    "target": "_blank",
+                    "button": true,
+                    "variant": "outlined",
+                    "icon": "book",
+                    "newLine": true,
+                    "xs": 12,
+                    "sm": 12,
+                    "md": 6,
+                    "lg": 4,
+                    "xl": 4
+                },
+                "_rescanDivider": {
+                    "type": "divider",
+                    "newLine": true
+                },
+                "_rescanText": {
+                    "type": "staticText",
+                    "text": "At the start, the adapter remembers which resources your gateway provides. It searches again once a day, or when you click this button. The search takes about one to two minutes.",
+                    "newLine": true,
+                    "xs": 12,
+                    "sm": 12,
+                    "md": 12,
+                    "lg": 12,
+                    "xl": 12
+                },
+                "_rescan": {
+                    "type": "sendTo",
+                    "label": "Search resources again",
+                    "command": "rescan",
+                    "variant": "outlined",
+                    "newLine": true,
+                    "xs": 12,
+                    "sm": 12,
+                    "md": 6,
+                    "lg": 4,
+                    "xl": 4
+                },
+                "_donateDivider": {
+                    "type": "divider",
+                    "newLine": true
+                },
+                "_donateText": {
+                    "type": "staticText",
+                    "text": "Do you like this adapter? You can support its development with a coffee donation.",
+                    "newLine": true,
+                    "xs": 12,
+                    "sm": 12,
+                    "md": 12,
+                    "lg": 12,
+                    "xl": 12
+                },
+                "_donateButton": {
+                    "type": "staticLink",
+                    "label": "Donate a coffee via PayPal",
+                    "href": "https://www.paypal.com/donate/?hosted_button_id=BW2WL8QCH2AMU",
+                    "target": "_blank",
+                    "button": true,
+                    "variant": "contained",
+                    "icon": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0Ij48cGF0aCBkPSJNMyA5aDEzdjVhNSA1IDAgMCAxLTUgNUg4YTUgNSAwIDAgMS01LTV6IiBmaWxsPSIjM2IyYTFhIi8+PHBhdGggZD0iTTE2IDEwaDEuNWEyLjUgMi41IDAgMCAxIDAgNUgxNiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjM2IyYTFhIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNNyAyYzAgMS41IDEuNSAxLjUgMS41IDNTNyA2LjUgNyA3LjVNMTEgMmMwIDEuNSAxLjUgMS41IDEuNSAzUzExIDYuNSAxMSA3LjUiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzNiMmExYSIgc3Ryb2tlLXdpZHRoPSIxLjYiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPjxyZWN0IHg9IjIiIHk9IjIwIiB3aWR0aD0iMTYiIGhlaWdodD0iMiIgcng9IjEiIGZpbGw9IiMzYjJhMWEiLz48L3N2Zz4K",
+                    "controlStyle": {
+                        "backgroundColor": "#ffc439",
+                        "color": "#111111",
+                        "fontWeight": "bold",
+                        "textTransform": "none"
+                    },
+                    "newLine": true,
+                    "xs": 12,
+                    "sm": 12,
+                    "md": 6,
+                    "lg": 4,
+                    "xl": 4
+                }
+            }
         },
-        "ip": {
-            "type": "text",
-            "label": "IP address of the gateway (LAN and radio module)",
-            "newLine": true,
-            "xs": 12,
-            "sm": 12,
-            "md": 6,
-            "lg": 4,
-            "xl": 4
-        },
-        "interval": {
-            "type": "number",
-            "label": "Polling interval (seconds)",
-            "min": 10,
-            "max": 3600,
-            "newLine": true,
-            "xs": 12,
-            "sm": 12,
-            "md": 6,
-            "lg": 4,
-            "xl": 4
-        },
-        "token": {
-            "type": "password",
-            "visible": true,
-            "label": "API token",
-            "newLine": true,
-            "xs": 12,
-            "sm": 12,
-            "md": 6,
-            "lg": 4,
-            "xl": 4
-        },
-        "_showToken": {
-            "type": "checkbox",
-            "label": "Show API token",
-            "newLine": true,
-            "xs": 12,
-            "sm": 12,
-            "md": 6,
-            "lg": 4,
-            "xl": 4
-        },
-        "_tokenView": {
-            "type": "pattern",
-            "pattern": "${data.token}",
-            "label": "API token (to copy, for a backup of the token outside ioBroker)",
-            "copyToClipboard": true,
-            "hidden": "!data._showToken",
-            "newLine": true,
-            "xs": 12,
-            "sm": 12,
-            "md": 12,
-            "lg": 8,
-            "xl": 8
-        },
-        "_login": {
-            "type": "text",
-            "label": "Login of the gateway",
-            "newLine": true,
-            "xs": 12,
-            "sm": 12,
-            "md": 6,
-            "lg": 4,
-            "xl": 4
-        },
-        "_pass": {
-            "type": "password",
-            "label": "Pass of the gateway (hyphens are removed automatically)",
-            "newLine": true,
-            "xs": 12,
-            "sm": 12,
-            "md": 6,
-            "lg": 4,
-            "xl": 4
-        },
-        "_getToken": {
-            "type": "sendTo",
-            "label": "Request API token",
-            "command": "getToken",
-            "variant": "contained",
-            "useNative": true,
-            "jsonData": "{\"ip\": \"${data.ip}\", \"login\": \"${data._login}\", \"pass\": \"${data._pass}\"}",
-            "newLine": true,
-            "xs": 12,
-            "sm": 12,
-            "md": 6,
-            "lg": 4,
-            "xl": 4
-        },
-        "_tokenHelpText": {
-            "type": "staticText",
-            "text": "To create the API token, enter the 'Login' and 'Pass' values from the sticker or information sheet of the gateway (firmware 15.00.01 or newer is required). Then press the WLAN and Wireless buttons on the gateway at the same time for one second and click 'Request API token' within 5 minutes. The token appears in the field above, then save the settings. Login and Pass are not stored. The token does not expire, so treat it like a password. The manufacturer's guide explains the steps:",
-            "newLine": true,
-            "xs": 12,
-            "sm": 12,
-            "md": 12,
-            "lg": 12,
-            "xl": 12
-        },
-        "_tokenHelpLink": {
-            "type": "staticLink",
-            "label": "Manufacturer's guide: create an API token",
-            "href": "https://github.com/bosch-home-comfort/api-docs/blob/main/docs/k-40-rf.md",
-            "target": "_blank",
-            "button": true,
-            "variant": "outlined",
-            "icon": "book",
-            "newLine": true,
-            "xs": 12,
-            "sm": 12,
-            "md": 6,
-            "lg": 4,
-            "xl": 4
-        },
-        "_rescanDivider": {
-            "type": "divider",
-            "newLine": true
-        },
-        "_rescanText": {
-            "type": "staticText",
-            "text": "At the start, the adapter remembers which resources your gateway provides. It searches again once a day, or when you click this button. The search takes about one to two minutes.",
-            "newLine": true,
-            "xs": 12,
-            "sm": 12,
-            "md": 12,
-            "lg": 12,
-            "xl": 12
-        },
-        "_rescan": {
-            "type": "sendTo",
-            "label": "Search resources again",
-            "command": "rescan",
-            "variant": "outlined",
-            "newLine": true,
-            "xs": 12,
-            "sm": 12,
-            "md": 6,
-            "lg": 4,
-            "xl": 4
-        },
-        "_donateDivider": {
-            "type": "divider",
-            "newLine": true
-        },
-        "_donateText": {
-            "type": "staticText",
-            "text": "Do you like this adapter? You can support its development with a coffee donation.",
-            "newLine": true,
-            "xs": 12,
-            "sm": 12,
-            "md": 12,
-            "lg": 12,
-            "xl": 12
-        },
-        "_donateButton": {
-            "type": "staticLink",
-            "label": "Donate a coffee via PayPal",
-            "href": "https://www.paypal.com/donate/?hosted_button_id=BW2WL8QCH2AMU",
-            "target": "_blank",
-            "button": true,
-            "variant": "contained",
-            "icon": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0Ij48cGF0aCBkPSJNMyA5aDEzdjVhNSA1IDAgMCAxLTUgNUg4YTUgNSAwIDAgMS01LTV6IiBmaWxsPSIjM2IyYTFhIi8+PHBhdGggZD0iTTE2IDEwaDEuNWEyLjUgMi41IDAgMCAxIDAgNUgxNiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjM2IyYTFhIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNNyAyYzAgMS41IDEuNSAxLjUgMS41IDNTNyA2LjUgNyA3LjVNMTEgMmMwIDEuNSAxLjUgMS41IDEuNSAzUzExIDYuNSAxMSA3LjUiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzNiMmExYSIgc3Ryb2tlLXdpZHRoPSIxLjYiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPjxyZWN0IHg9IjIiIHk9IjIwIiB3aWR0aD0iMTYiIGhlaWdodD0iMiIgcng9IjEiIGZpbGw9IiMzYjJhMWEiLz48L3N2Zz4K",
-            "controlStyle": {
-                "backgroundColor": "#ffc439",
-                "color": "#111111",
-                "fontWeight": "bold",
-                "textTransform": "none"
-            },
-            "newLine": true,
-            "xs": 12,
-            "sm": 12,
-            "md": 6,
-            "lg": 4,
-            "xl": 4
+        "_diagnosisTab": {
+            "type": "panel",
+            "label": "Diagnosis",
+            "items": {
+                "_diagnosisHeader": {
+                    "type": "header",
+                    "text": "Diagnosis report",
+                    "size": 4,
+                    "newLine": true,
+                    "xs": 12,
+                    "sm": 12,
+                    "md": 12,
+                    "lg": 12,
+                    "xl": 12
+                },
+                "_diagnosisText": {
+                    "type": "staticText",
+                    "text": "The diagnosis report is a short text for forum posts. It contains the adapter version, a few device properties, the paths that have no readable name yet and the fixed values that have no text yet. It contains no measured values and no personal data such as the IP address or serial numbers. If you switch the option on, the adapter creates the data point info.diagnosis and keeps it up to date. If you switch it off, the data point is deleted. Saving the settings restarts the adapter.",
+                    "newLine": true,
+                    "xs": 12,
+                    "sm": 12,
+                    "md": 12,
+                    "lg": 12,
+                    "xl": 12
+                },
+                "diagnosis": {
+                    "type": "checkbox",
+                    "label": "Create diagnosis report",
+                    "newLine": true,
+                    "xs": 12,
+                    "sm": 12,
+                    "md": 6,
+                    "lg": 4,
+                    "xl": 4
+                },
+                "_diagnosisCopyText": {
+                    "type": "staticText",
+                    "text": "To copy the report, open the object bosch-buderus-wp.0.info.diagnosis in the Objects tab, click the value and copy the text. Please look through the report before you post it, and add your heat pump model to your post.",
+                    "newLine": true,
+                    "xs": 12,
+                    "sm": 12,
+                    "md": 12,
+                    "lg": 12,
+                    "xl": 12
+                }
+            }
         }
     }
 }

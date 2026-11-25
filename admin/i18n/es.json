@@ -23,5 +23,11 @@
     "The search for resources will start with the next query cycle.": "La búsqueda de recursos comenzará con el siguiente ciclo de consulta.",
     "Please press the WLAN and Wireless buttons on the gateway at the same time for one second and request the token again within 5 minutes.": "Pulse a la vez los botones WLAN y Wireless de la pasarela durante un segundo y vuelva a solicitar el token en un plazo de 5 minutos.",
     "The gateway cannot store another API token. A token can only be revoked with the token itself (see the manufacturer's guide).": "La pasarela no puede almacenar otro token de API. Un token solo puede revocarse con el propio token (consulte la guía del fabricante).",
-    "The gateway refused the request.": "La pasarela rechazó la solicitud."
+    "The gateway refused the request.": "La pasarela rechazó la solicitud.",
+    "Connection": "Conexión",
+    "Diagnosis": "Diagnóstico",
+    "Diagnosis report": "Informe de diagnóstico",
+    "Create diagnosis report": "Crear informe de diagnóstico",
+    "The diagnosis report is a short text for forum posts. It contains the adapter version, a few device properties, the paths that have no readable name yet and the fixed values that have no text yet. It contains no measured values and no personal data such as the IP address or serial numbers. If you switch the option on, the adapter creates the data point info.diagnosis and keeps it up to date. If you switch it off, the data point is deleted. Saving the settings restarts the adapter.": "El informe de diagnóstico es un texto breve para mensajes del foro. Contiene la versión del adaptador, algunas propiedades del dispositivo, las rutas que aún no tienen un nombre legible y los valores fijos que aún no tienen texto. No contiene valores medidos ni datos personales como la dirección IP o los números de serie. Si activas la opción, el adaptador crea el punto de datos info.diagnosis y lo mantiene actualizado. Si la desactivas, el punto de datos se elimina. Al guardar los ajustes, el adaptador se reinicia.",
+    "To copy the report, open the object bosch-buderus-wp.0.info.diagnosis in the Objects tab, click the value and copy the text. Please look through the report before you post it, and add your heat pump model to your post.": "Para copiar el informe, abre el objeto bosch-buderus-wp.0.info.diagnosis en la pestaña Objetos, haz clic en el valor y copia el texto. Revisa el informe antes de publicarlo e indica en tu mensaje también el modelo de tu bomba de calor."
 }

@@ -112,7 +112,7 @@ At the first start, the adapter checks all resources of the API. This takes abou
 | --- | --- |
 | `info.connection` | Connection to the MX400 (true/false) |
 | `info.discoveredPaths` | Internal list of the resources found on your MX400 (JSON) |
-| `info.diagnosis` | Diagnosis report for forum posts (JSON, see below) |
+| `info.diagnosis` | Diagnosis report for forum posts (JSON, only if switched on, see below) |
 | `signals.*` | All signals reported by the device, e.g. outdoor temperature, flow temperature, compressor speed |
 | `heatSources.*` | Heat pump: temperatures, compressor power, system pressure, energy counters |
 | `heatingCircuits.hc1.*` | Heating circuit 1: room temperature, setpoints, pump and status |
@@ -125,7 +125,9 @@ Which folders and values appear depends on your system.
 
 ### Diagnosis report
 
-The data point `info.diagnosis` contains a short report that you can paste into a forum post when something is missing or looks wrong on your system. It contains the adapter version, a few device properties (brand, firmware, system type, heat pump type), the paths that have no readable name yet and the fixed values that have no text yet. It contains **no measured values, no IP address, no serial numbers and no other personal data**. Please still look through it before you post it.
+If something is missing or looks wrong on your system, the adapter can create a short report that you can paste into a forum post. Switch it on in the adapter settings, tab **Diagnosis** (it is off by default), and save. Then the data point `info.diagnosis` appears. If you switch it off again, the data point is deleted.
+
+The report contains the adapter version, a few device properties (brand, firmware, system type, heat pump type), the paths that have no readable name yet and the fixed values that have no text yet. It contains **no measured values, no IP address, no serial numbers and no other personal data**. Please still look through it before you post it.
 
 To copy it, open the object `bosch-buderus-wp.0.info.diagnosis` in the admin UI (tab Objects), click the value and copy the text. State your heat pump model in your post as well.
 
@@ -159,7 +161,7 @@ This adapter is a private project and is not affiliated with Bosch Thermotechnik
 - (septa-cr) Units are now written the usual way: "min" instead of "mins" and "dB" instead of "db"; the parts of the installation date (day, month, year) no longer show a unit
 - (septa-cr) The fields of the update, system information and device lists (e.g. gateway ID, timestamp, module serial number) and their folders now have readable names in all languages
 - (septa-cr) Status values with fixed values (e.g. refrigerant circuit status, heating circuit status) now show a readable text next to the value in the object list (English, taken from the manufacturer's API description)
-- (septa-cr) New data point `info.diagnosis` with a diagnosis report for forum posts (adapter version, device type, paths without a name, fixed values without a text; no measured values and no personal data)
+- (septa-cr) New diagnosis report for forum posts: in the new tab "Diagnosis" of the settings you can switch on the data point `info.diagnosis` (off by default). It contains the adapter version, device type, paths without a name and fixed values without a text, but no measured values and no personal data
 - (septa-cr) Status texts now also match values that the gateway writes differently (upper/lower case, underscores) and use the value list reported by the gateway, so more values show a readable text
 - (septa-cr) Data points with a list of states (e.g. EEBUS status, holiday mode) no longer stay empty: the value is kept and the object list shows the text next to it
 

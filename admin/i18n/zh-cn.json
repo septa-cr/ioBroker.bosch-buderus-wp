@@ -23,5 +23,11 @@
     "The search for resources will start with the next query cycle.": "资源搜索将在下一个查询周期开始。",
     "Please press the WLAN and Wireless buttons on the gateway at the same time for one second and request the token again within 5 minutes.": "请在网关上同时按下 WLAN 和 Wireless 按钮一秒钟，并在 5 分钟内重新申请令牌。",
     "The gateway cannot store another API token. A token can only be revoked with the token itself (see the manufacturer's guide).": "网关无法再保存新的 API 令牌。令牌只能用该令牌本身撤销（参见制造商指南）。",
-    "The gateway refused the request.": "网关拒绝了该请求。"
+    "The gateway refused the request.": "网关拒绝了该请求。",
+    "Connection": "连接",
+    "Diagnosis": "诊断",
+    "Diagnosis report": "诊断报告",
+    "Create diagnosis report": "创建诊断报告",
+    "The diagnosis report is a short text for forum posts. It contains the adapter version, a few device properties, the paths that have no readable name yet and the fixed values that have no text yet. It contains no measured values and no personal data such as the IP address or serial numbers. If you switch the option on, the adapter creates the data point info.diagnosis and keeps it up to date. If you switch it off, the data point is deleted. Saving the settings restarts the adapter.": "诊断报告是用于论坛发帖的简短文本，包含适配器版本、若干设备属性、尚无易读名称的路径以及尚无文本的固定值。报告不含测量值，也不含 IP 地址或序列号等个人数据。启用该选项后，适配器会创建数据点 info.diagnosis 并保持更新；关闭后该数据点会被删除。保存设置会重新启动适配器。",
+    "To copy the report, open the object bosch-buderus-wp.0.info.diagnosis in the Objects tab, click the value and copy the text. Please look through the report before you post it, and add your heat pump model to your post.": "要复制报告，请在“对象”选项卡中打开对象 bosch-buderus-wp.0.info.diagnosis，点击其值并复制文本。发布前请先检查报告，并在帖子中注明您的热泵型号。"
 }

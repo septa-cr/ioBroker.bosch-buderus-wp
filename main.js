@@ -394,6 +394,8 @@ class BoschBuderusWp extends utils.Adapter {
 		/** Datenpunkte mit Benutzereinstellungen (common.custom), die nicht gelöscht werden dürfen */
 		/** @type {Set<string>} */
 		this.protectedStates = new Set();
+		/** Diagnosebericht in den Einstellungen eingeschaltet? */
+		this.diagnosisEnabled = false;
 		/** Angaben für den Diagnosebericht je abgefragtem Pfad (ohne Messwerte) */
 		/** @type {Map<string, { named: boolean, value?: string, missingTexts?: string[] }>} */
 		this.diagnosis = new Map();
@@ -810,6 +812,9 @@ class BoschBuderusWp extends utils.Adapter {
 	 * @param {any} [data] - Antwortobjekt der API (bei Verlaufsdaten nicht vorhanden)
 	 */
 	recordDiagnosis(apiPath, data) {
+		if (!this.diagnosisEnabled) {
+			return;
+		}
 		/** @type {{ named: boolean, value?: string, missingTexts?: string[] }} */
 		const entry = { named: nameFor(apiPath) !== apiPath };
 		if (data && DIAGNOSIS_VALUES.has(apiPath) && typeof data.value === 'string') {
@@ -834,6 +839,9 @@ class BoschBuderusWp extends utils.Adapter {
 	 * Tester können ihn im Forum einfügen, damit fehlende Namen und Texte ergänzt werden können.
 	 */
 	async writeDiagnosis() {
+		if (!this.diagnosisEnabled) {
+			return;
+		}
 		/** @type {Record<string, string>} */
 		const gateway = {};
 		/** @type {string[]} */
@@ -1292,17 +1300,23 @@ class BoschBuderusWp extends utils.Adapter {
 			},
 			native: {},
 		});
-		await this.extendObjectAsync('info.diagnosis', {
-			type: 'state',
-			common: {
-				name: names.info.diagnosis,
-				type: 'string',
-				role: 'json',
-				read: true,
-				write: false,
-			},
-			native: {},
-		});
+		// Diagnosebericht: Datenpunkt nur anlegen, wenn er in den Einstellungen eingeschaltet ist, sonst entfernen
+		this.diagnosisEnabled = this.config.diagnosis === true;
+		if (this.diagnosisEnabled) {
+			await this.extendObjectAsync('info.diagnosis', {
+				type: 'state',
+				common: {
+					name: names.info.diagnosis,
+					type: 'string',
+					role: 'json',
+					read: true,
+					write: false,
+				},
+				native: {},
+			});
+		} else if (await this.getObjectAsync('info.diagnosis')) {
+			await this.delObjectAsync('info.diagnosis');
+		}
 		await this.setConnected(false);
 
 		if (!this.config.ip || !this.config.token) {
