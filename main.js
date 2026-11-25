@@ -426,21 +426,36 @@ class BoschBuderusWp extends utils.Adapter {
 	 * Wandelt eine API-Antwort in Wert und Datentyp für ioBroker um.
 	 *
 	 * @param {any} data - Antwortobjekt der API
-	 * @returns {{ val: string | number | boolean | null, type: 'string' | 'number' | 'boolean', unit?: string }} Wert, Typ und Einheit
+	 * @returns {{ val: string | number | boolean | null, type: 'string' | 'number' | 'boolean', unit?: string, states?: Record<string, string> }} Wert, Typ, Einheit und ggf. Zustandstexte
 	 */
 	convertValue(data) {
 		const raw = data.value;
 		const unit = normalizeUnit(data.unitOfMeasure);
 
 		if (data.type === 'floatValue' || data.type === 'integerValue') {
-			// Sonderwerte (Kurzschluss, Leitungsbruch, zu geringer Durchfluss ...) nicht als Messwert übernehmen.
-			// Die API meldet sie entweder als Liste von Objekten oder als einfaches Objekt.
-			const entries = Array.isArray(data.state) ? data.state : [data.state];
-			const specialValues = entries
-				.filter(entry => entry && typeof entry === 'object')
-				.flatMap(entry => Object.values(entry));
-			const isSpecial = raw !== undefined && specialValues.includes(raw);
-			return { val: isSpecial ? null : raw, type: 'number', unit };
+			// Die API liefert die Liste "state" entweder als Liste von Objekten oder als einfaches Objekt.
+			const entries = (Array.isArray(data.state) ? data.state : [data.state]).filter(
+				(/** @type {any} */ entry) => entry && typeof entry === 'object',
+			);
+			if (data.unitOfMeasure) {
+				// Messwert (hat eine Einheit): Sonderwerte (Kurzschluss, Leitungsbruch, zu geringer Durchfluss ...)
+				// nicht als Messwert übernehmen.
+				const specialValues = entries.flatMap((/** @type {any} */ entry) => Object.values(entry));
+				const isSpecial = raw !== undefined && specialValues.includes(raw);
+				return { val: isSpecial ? null : raw, type: 'number', unit };
+			}
+			// Zahl ohne Einheit mit "state"-Liste: Zustandsliste (z. B. 6 = Not_Commissioned). Der Wert bleibt erhalten,
+			// die Texte werden als Werteliste am Datenpunkt hinterlegt.
+			/** @type {Record<string, string>} */
+			const states = {};
+			for (const entry of entries) {
+				for (const [label, code] of Object.entries(entry)) {
+					if (typeof code === 'number') {
+						states[String(code)] = label;
+					}
+				}
+			}
+			return { val: raw, type: 'number', unit, ...(Object.keys(states).length ? { states } : {}) };
 		}
 		if (raw === 'true' || raw === 'false') {
 			return { val: raw === 'true', type: 'boolean' };
@@ -467,7 +482,7 @@ class BoschBuderusWp extends utils.Adapter {
 	 * @param {'string' | 'number' | 'boolean'} type - Datentyp
 	 * @param {string} role - Rolle des Datenpunkts
 	 * @param {string} [unit] - Einheit
-	 * @param {Record<string, string>} [states] - Werteliste mit Texten (nur für Textdatenpunkte)
+	 * @param {Record<string, string>} [states] - Werteliste mit Texten (für Textdatenpunkte und Zahlen ohne Einheit)
 	 */
 	async setValue(id, name, val, type, role, unit, states) {
 		if (!this.knownStates.has(id)) {
@@ -582,7 +597,7 @@ class BoschBuderusWp extends utils.Adapter {
 			await this.writeComplex(apiPath, data);
 			return;
 		}
-		const { val, type, unit } = this.convertValue(data);
+		const { val, type, unit, states } = this.convertValue(data);
 		const role = type === 'boolean' ? 'indicator' : type === 'number' ? numberRole(unit, apiPath) : 'text';
 		await this.setValue(
 			toId(apiPath),
@@ -591,7 +606,7 @@ class BoschBuderusWp extends utils.Adapter {
 			type,
 			role,
 			unit,
-			type === 'string' ? statesFor(apiPath) : undefined,
+			type === 'string' ? statesFor(apiPath) : states,
 		);
 	}
 
