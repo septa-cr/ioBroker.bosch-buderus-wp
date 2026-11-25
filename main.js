@@ -13,6 +13,19 @@ const RESCAN_INTERVAL_MS = 24 * 60 * 60 * 1000;
 /** Kennung der Pfadliste: ändert sich, wenn eine neue Version der Adapter-Datei endpoints.json andere Pfade enthält */
 const ENDPOINTS_SIGNATURE = crypto.createHash('sha1').update(endpoints.join('\n')).digest('hex').slice(0, 12);
 
+/** Pfade, deren Wert im Diagnosebericht stehen darf (nur Geräteeigenschaften, keine persönlichen Daten) */
+const DIAGNOSIS_VALUES = new Set([
+	'/gateway/brand',
+	'/gateway/versionFirmware',
+	'/gateway/versionHardware',
+	'/system/type',
+	'/system/bus',
+	'/heatSources/hs1/heatPumpType',
+]);
+
+/** Werte, für die im Diagnosebericht kein Text fehlen kann (reine Ein/Aus-Werte) */
+const PLAIN_VALUES = new Set(['on', 'off', 'yes', 'no', 'true', 'false']);
+
 /** Abstand, in dem Verlaufsdaten und andere selten ändernde Werte abgefragt werden (1 Stunde) */
 const SLOW_INTERVAL_MS = 60 * 60 * 1000;
 
@@ -351,6 +364,9 @@ class BoschBuderusWp extends utils.Adapter {
 		/** Datenpunkte mit Benutzereinstellungen (common.custom), die nicht gelöscht werden dürfen */
 		/** @type {Set<string>} */
 		this.protectedStates = new Set();
+		/** Angaben für den Diagnosebericht je abgefragtem Pfad (ohne Messwerte) */
+		/** @type {Map<string, { named: boolean, value?: string, missingTexts?: string[] }>} */
+		this.diagnosis = new Map();
 		/** Zuletzt geschriebene Einzelwerte je zusammengesetzter Antwort */
 		/** @type {Map<string, Set<string>>} */
 		this.complexLeaves = new Map();
@@ -757,6 +773,64 @@ class BoschBuderusWp extends utils.Adapter {
 	}
 
 	/**
+	 * Merkt sich für den Diagnosebericht, ob ein Pfad einen Namen hat und ob für seine festen Werte Texte vorhanden sind.
+	 * Messwerte werden nicht gespeichert, nur einzelne Geräteeigenschaften (siehe DIAGNOSIS_VALUES).
+	 *
+	 * @param {string} apiPath - API-Pfad
+	 * @param {any} [data] - Antwortobjekt der API (bei Verlaufsdaten nicht vorhanden)
+	 */
+	recordDiagnosis(apiPath, data) {
+		/** @type {{ named: boolean, value?: string, missingTexts?: string[] }} */
+		const entry = { named: nameFor(apiPath) !== apiPath };
+		if (data && DIAGNOSIS_VALUES.has(apiPath) && typeof data.value === 'string') {
+			entry.value = data.value;
+		}
+		if (data && Array.isArray(data.allowedValues)) {
+			const known = statesFor(apiPath) ?? {};
+			const missing = data.allowedValues
+				.map(String)
+				.filter((/** @type {string} */ v) => !PLAIN_VALUES.has(v) && !(v in known));
+			if (missing.length) {
+				entry.missingTexts = missing;
+			}
+		}
+		this.diagnosis.set(apiPath, entry);
+	}
+
+	/**
+	 * Schreibt den Diagnosebericht (Datenpunkt info.diagnosis). Er enthält keine Messwerte und keine persönlichen Daten:
+	 * Version, einzelne Geräteeigenschaften, Pfade ohne Namen und feste Werte ohne Text.
+	 * Tester können ihn im Forum einfügen, damit fehlende Namen und Texte ergänzt werden können.
+	 */
+	async writeDiagnosis() {
+		/** @type {Record<string, string>} */
+		const gateway = {};
+		/** @type {string[]} */
+		const unnamedPaths = [];
+		/** @type {Record<string, string[]>} */
+		const valuesWithoutText = {};
+		for (const [apiPath, entry] of [...this.diagnosis].sort(([a], [b]) => a.localeCompare(b))) {
+			if (entry.value !== undefined) {
+				gateway[apiPath] = entry.value;
+			}
+			if (!entry.named) {
+				unnamedPaths.push(apiPath);
+			}
+			if (entry.missingTexts) {
+				valuesWithoutText[apiPath] = entry.missingTexts;
+			}
+		}
+		const report = {
+			adapter: this.common?.version ?? 'unknown',
+			pathsQueried: this.diagnosis.size,
+			gateway,
+			unnamedPaths,
+			valuesWithoutText,
+		};
+		await this.setStateChangedAsync('info.diagnosis', { val: JSON.stringify(report, null, 1), ack: true });
+	}
+
+	/**
 	 * Fragt einen Pfad ab und schreibt den Wert in den Datenpunkt.
 	 *
 	 * @param {string} apiPath - API-Pfad
@@ -764,13 +838,18 @@ class BoschBuderusWp extends utils.Adapter {
 	 */
 	async pollOne(apiPath) {
 		if (apiPath.startsWith('/recordings/')) {
-			return this.pollRecording(apiPath);
+			const exists = await this.pollRecording(apiPath);
+			if (exists) {
+				this.recordDiagnosis(apiPath);
+			}
+			return exists;
 		}
 		const data = await this.apiGet(apiPath);
 		if (!data) {
 			return false;
 		}
 		await this.writeState(apiPath, data);
+		this.recordDiagnosis(apiPath, data);
 		return true;
 	}
 
@@ -1132,6 +1211,7 @@ class BoschBuderusWp extends utils.Adapter {
 				}
 			}
 			await this.pollPaths([...ids, ...fixed, ...slow]);
+			await this.writeDiagnosis();
 			this.log.debug(`${ids.length + fixed.length + slow.length} values updated`);
 		} catch (error) {
 			if (this.connected !== false) {
@@ -1174,6 +1254,17 @@ class BoschBuderusWp extends utils.Adapter {
 			type: 'state',
 			common: {
 				name: names.info.discoveredPaths,
+				type: 'string',
+				role: 'json',
+				read: true,
+				write: false,
+			},
+			native: {},
+		});
+		await this.extendObjectAsync('info.diagnosis', {
+			type: 'state',
+			common: {
+				name: names.info.diagnosis,
 				type: 'string',
 				role: 'json',
 				read: true,

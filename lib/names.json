@@ -6355,6 +6355,19 @@
 			"pl": "Zasoby znalezione w bramie (JSON)",
 			"uk": "Ресурси, знайдені на шлюзі (JSON)",
 			"zh-cn": "在网关上找到的资源（JSON）"
+		},
+		"diagnosis": {
+			"en": "Diagnosis report for forum posts (JSON, no personal data)",
+			"de": "Diagnosebericht für Forenbeiträge (JSON, ohne persönliche Daten)",
+			"ru": "Диагностический отчёт для сообщений на форуме (JSON, без личных данных)",
+			"pt": "Relatório de diagnóstico para publicações no fórum (JSON, sem dados pessoais)",
+			"nl": "Diagnoserapport voor forumberichten (JSON, zonder persoonlijke gegevens)",
+			"fr": "Rapport de diagnostic pour les messages du forum (JSON, sans données personnelles)",
+			"it": "Rapporto di diagnosi per i messaggi nel forum (JSON, senza dati personali)",
+			"es": "Informe de diagnóstico para mensajes del foro (JSON, sin datos personales)",
+			"pl": "Raport diagnostyczny do wpisów na forum (JSON, bez danych osobowych)",
+			"uk": "Діагностичний звіт для дописів на форумі (JSON, без персональних даних)",
+			"zh-cn": "论坛发帖用诊断报告（JSON，不含个人数据）"
 		}
 	},
 	"fields": {

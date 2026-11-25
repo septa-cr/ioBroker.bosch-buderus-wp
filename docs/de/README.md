@@ -101,6 +101,7 @@ Beim ersten Start prüft der Adapter alle Ressourcen der API. Das dauert etwa ei
 | --- | --- |
 | `info.connection` | Verbindung zum MX400 (true/false) |
 | `info.discoveredPaths` | Interne Liste der auf deiner MX400 gefundenen Ressourcen (JSON) |
+| `info.diagnosis` | Diagnosebericht für Forenbeiträge (JSON, siehe unten) |
 | `signals.*` | Alle vom Gerät gemeldeten Signale, z. B. Außentemperatur, Vorlauftemperatur, Verdichterdrehzahl |
 | `heatSources.*` | Wärmepumpe: Temperaturen, Verdichterleistung, Anlagendruck, Energiezähler |
 | `heatingCircuits.hc1.*` | Heizkreis 1: Raumtemperatur, Sollwerte, Pumpe und Status |
@@ -110,6 +111,12 @@ Beim ersten Start prüft der Adapter alle Ressourcen der API. Das dauert etwa ei
 | `system.*`, `gateway.*`, `notifications.*` | Systeminformationen, Gateway, Fehlermeldungen |
 
 Welche Ordner und Werte erscheinen, hängt von deiner Anlage ab.
+
+### Diagnosebericht
+
+Der Datenpunkt `info.diagnosis` enthält einen kurzen Bericht, den du in einen Forenbeitrag einfügen kannst, wenn bei deiner Anlage etwas fehlt oder nicht stimmt. Er enthält die Adapter-Version, einige Geräteeigenschaften (Marke, Firmware, Anlagentyp, Wärmepumpentyp), die Pfade, die noch keinen lesbaren Namen haben, und die festen Werte, zu denen noch ein Text fehlt. Er enthält **keine Messwerte, keine IP-Adresse, keine Seriennummern und keine anderen persönlichen Daten**. Sieh ihn trotzdem durch, bevor du ihn veröffentlichst.
+
+So kopierst du ihn: Öffne im Admin den Reiter Objekte und das Objekt `bosch-buderus-wp.0.info.diagnosis`, klicke auf den Wert und kopiere den Text. Schreibe in deinem Beitrag bitte auch dazu, welches Wärmepumpen-Modell du hast.
 
 ## Hinweise zur Sicherheit
 
