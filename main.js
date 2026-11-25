@@ -4,7 +4,7 @@ const utils = require('@iobroker/adapter-core');
 const https = require('node:https');
 const crypto = require('node:crypto');
 const endpoints = require('./lib/endpoints.json');
-/** @type {{ paths: Record<string, ioBroker.Translated>, templates: Record<string, ioBroker.Translated>, keys: Record<string, ioBroker.Translated>, suffixes: Record<string, ioBroker.Translated>, folders: Record<string, ioBroker.Translated>, numberedFolders: Record<string, ioBroker.Translated>, fields: Record<string, Record<string, string>>, info: Record<string, ioBroker.Translated> }} */
+/** @type {{ paths: Record<string, ioBroker.Translated>, templates: Record<string, ioBroker.Translated>, keys: Record<string, ioBroker.Translated>, suffixes: Record<string, ioBroker.Translated>, folders: Record<string, ioBroker.Translated>, numberedFolders: Record<string, ioBroker.Translated>, fields: Record<string, Record<string, string>>, stateValues: Record<string, string[]>, stateTexts: Record<string, string>, info: Record<string, ioBroker.Translated> }} */
 const names = require('./lib/names.json');
 
 /** Abstand, in dem die Suche nach den vorhandenen Pfaden komplett wiederholt wird (24 Stunden) */
@@ -213,6 +213,29 @@ function fieldName(fieldPath) {
 			.join(' ');
 	}
 	return /** @type {ioBroker.Translated} */ (result);
+}
+
+/**
+ * Werteliste (common.states) für einen Textdatenpunkt mit festen Werten, z. B. den Status des Kältekreises.
+ * Die erlaubten Werte stammen aus der Beschreibung der Hersteller-API; Werte ohne bekannten Text werden weggelassen
+ * und erscheinen dann unverändert. Die Texte sind einsprachig, weil der Admin mehrsprachige Wertelisten nicht anzeigen kann.
+ *
+ * @param {string} apiPath - API-Pfad
+ * @returns {Record<string, string> | undefined} Werte mit Texten oder undefined
+ */
+function statesFor(apiPath) {
+	const values = names.stateValues[apiPath] ?? names.stateValues[apiPath.replace(NUMBER_IN_PATH, '$1$2{n}')];
+	if (!values) {
+		return undefined;
+	}
+	/** @type {Record<string, string>} */
+	const states = {};
+	for (const value of values) {
+		if (names.stateTexts[value]) {
+			states[value] = names.stateTexts[value];
+		}
+	}
+	return Object.keys(states).length > 0 ? states : undefined;
 }
 
 /**
@@ -444,8 +467,9 @@ class BoschBuderusWp extends utils.Adapter {
 	 * @param {'string' | 'number' | 'boolean'} type - Datentyp
 	 * @param {string} role - Rolle des Datenpunkts
 	 * @param {string} [unit] - Einheit
+	 * @param {Record<string, string>} [states] - Werteliste mit Texten (nur für Textdatenpunkte)
 	 */
-	async setValue(id, name, val, type, role, unit) {
+	async setValue(id, name, val, type, role, unit, states) {
 		if (!this.knownStates.has(id)) {
 			if (!(await this.ensureParents(id))) {
 				return;
@@ -459,6 +483,7 @@ class BoschBuderusWp extends utils.Adapter {
 					read: true,
 					write: false,
 					...(unit !== undefined ? { unit } : {}),
+					...(states ? { states } : {}),
 				},
 				native: {},
 			});
@@ -559,7 +584,15 @@ class BoschBuderusWp extends utils.Adapter {
 		}
 		const { val, type, unit } = this.convertValue(data);
 		const role = type === 'boolean' ? 'indicator' : type === 'number' ? numberRole(unit, apiPath) : 'text';
-		await this.setValue(toId(apiPath), nameFor(apiPath), val, type, role, unit);
+		await this.setValue(
+			toId(apiPath),
+			nameFor(apiPath),
+			val,
+			type,
+			role,
+			unit,
+			type === 'string' ? statesFor(apiPath) : undefined,
+		);
 	}
 
 	/**

@@ -151,6 +151,7 @@ This adapter is a private project and is not affiliated with Bosch Thermotechnik
 
 - (septa-cr) Units are now written the usual way: "min" instead of "mins" and "dB" instead of "db"; the parts of the installation date (day, month, year) no longer show a unit
 - (septa-cr) The fields of the update, system information and device lists (e.g. gateway ID, timestamp, module serial number) and their folders now have readable names in all languages
+- (septa-cr) Status values with fixed values (e.g. refrigerant circuit status, heating circuit status) now show a readable text next to the value in the object list (English, taken from the manufacturer's API description)
 
 ### 0.0.11 (2026-11-24)
 
