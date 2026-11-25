@@ -160,6 +160,7 @@ This adapter is a private project and is not affiliated with Bosch Thermotechnik
 - (septa-cr) The fields of the update, system information and device lists (e.g. gateway ID, timestamp, module serial number) and their folders now have readable names in all languages
 - (septa-cr) Status values with fixed values (e.g. refrigerant circuit status, heating circuit status) now show a readable text next to the value in the object list (English, taken from the manufacturer's API description)
 - (septa-cr) New data point `info.diagnosis` with a diagnosis report for forum posts (adapter version, device type, paths without a name, fixed values without a text; no measured values and no personal data)
+- (septa-cr) Status texts now also match values that the gateway writes differently (upper/lower case, underscores) and use the value list reported by the gateway, so more values show a readable text
 - (septa-cr) Data points with a list of states (e.g. EEBUS status, holiday mode) no longer stay empty: the value is kept and the object list shows the text next to it
 
 ### 0.0.11 (2026-11-24)

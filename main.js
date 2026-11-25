@@ -229,23 +229,43 @@ function fieldName(fieldPath) {
 }
 
 /**
+ * Schlüssel zum Vergleichen von Werten: ohne Groß-/Kleinschreibung, Unterstriche und Sonderzeichen.
+ * Die Geräte melden manche Werte anders geschrieben als die Beschreibung der API (z. B. activeDhw statt activeDHW).
+ *
+ * @param {string} value - Wert
+ * @returns {string} Vergleichsschlüssel
+ */
+function valueKey(value) {
+	return value.toLowerCase().replace(/[^a-z0-9]/g, '');
+}
+
+/** Texte zu festen Werten, nach Vergleichsschlüssel (siehe valueKey) */
+/** @type {Map<string, string>} */
+const STATE_TEXTS = new Map(Object.entries(names.stateTexts).map(([value, text]) => [valueKey(value), text]));
+
+/**
  * Werteliste (common.states) für einen Textdatenpunkt mit festen Werten, z. B. den Status des Kältekreises.
- * Die erlaubten Werte stammen aus der Beschreibung der Hersteller-API; Werte ohne bekannten Text werden weggelassen
- * und erscheinen dann unverändert. Die Texte sind einsprachig, weil der Admin mehrsprachige Wertelisten nicht anzeigen kann.
+ * Die Werte kommen aus der Liste, die das Gerät selbst meldet (allowedValues); fehlt sie, aus der Beschreibung der
+ * Hersteller-API. Werte ohne bekannten Text werden weggelassen und erscheinen dann unverändert.
+ * Die Texte sind einsprachig, weil der Admin mehrsprachige Wertelisten nicht anzeigen kann.
+ * Nur Pfade, für die in lib/names.json feste Werte hinterlegt sind, bekommen eine Werteliste (reine Ein/Aus-Werte nicht).
  *
  * @param {string} apiPath - API-Pfad
+ * @param {string[]} [deviceValues] - vom Gerät gemeldete erlaubte Werte (allowedValues)
  * @returns {Record<string, string> | undefined} Werte mit Texten oder undefined
  */
-function statesFor(apiPath) {
-	const values = names.stateValues[apiPath] ?? names.stateValues[apiPath.replace(NUMBER_IN_PATH, '$1$2{n}')];
-	if (!values) {
+function statesFor(apiPath, deviceValues) {
+	const documented = names.stateValues[apiPath] ?? names.stateValues[apiPath.replace(NUMBER_IN_PATH, '$1$2{n}')];
+	if (!documented) {
 		return undefined;
 	}
+	const values = deviceValues?.length ? deviceValues : documented;
 	/** @type {Record<string, string>} */
 	const states = {};
 	for (const value of values) {
-		if (names.stateTexts[value]) {
-			states[value] = names.stateTexts[value];
+		const text = STATE_TEXTS.get(valueKey(value));
+		if (text) {
+			states[value] = text;
 		}
 	}
 	return Object.keys(states).length > 0 ? states : undefined;
@@ -338,6 +358,16 @@ function flatten(value, prefix, out) {
 		return;
 	}
 	out.push([prefix, value]);
+}
+
+/**
+ * Vom Gerät gemeldete erlaubte Werte eines Datenpunkts.
+ *
+ * @param {any} data - Antwortobjekt der API
+ * @returns {string[] | undefined} Liste der Werte oder undefined
+ */
+function allowedValues(data) {
+	return Array.isArray(data?.allowedValues) ? data.allowedValues.map(String) : undefined;
 }
 
 class BoschBuderusWp extends utils.Adapter {
@@ -622,7 +652,7 @@ class BoschBuderusWp extends utils.Adapter {
 			type,
 			role,
 			unit,
-			type === 'string' ? statesFor(apiPath) : states,
+			type === 'string' ? statesFor(apiPath, allowedValues(data)) : states,
 		);
 	}
 
@@ -785,11 +815,12 @@ class BoschBuderusWp extends utils.Adapter {
 		if (data && DIAGNOSIS_VALUES.has(apiPath) && typeof data.value === 'string') {
 			entry.value = data.value;
 		}
-		if (data && Array.isArray(data.allowedValues)) {
-			const known = statesFor(apiPath) ?? {};
-			const missing = data.allowedValues
-				.map(String)
-				.filter((/** @type {string} */ v) => !PLAIN_VALUES.has(v) && !(v in known));
+		const deviceValues = allowedValues(data);
+		if (deviceValues) {
+			const known = statesFor(apiPath, deviceValues) ?? {};
+			const missing = deviceValues.filter(
+				(/** @type {string} */ v) => v !== '' && !PLAIN_VALUES.has(v) && !(v in known),
+			);
 			if (missing.length) {
 				entry.missingTexts = missing;
 			}
