@@ -1,6 +1,10 @@
 {
     "i18n": true,
     "type": "tabs",
+    "iconPosition": "top",
+    "tabsStyle": {
+        "fontSize": "1.25rem"
+    },
     "items": {
         "_connectionTab": {
             "type": "panel",
@@ -193,7 +197,8 @@
                     "lg": 4,
                     "xl": 4
                 }
-            }
+            },
+            "icon": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0Ij48cGF0aCBmaWxsPSIjMjE5NmYzIiBkPSJNMTYuMDEgN0wxNiAzaC0ydjRoLTRWM0g4djRoLS4wMUM3IDYuOTkgNiA3Ljk5IDYgOC45OXY1LjQ5TDkuNSAxOHYzaDV2LTNsMy41LTMuNTFWOWMwLTEtMS0yLjAxLTEuOTktMnoiLz48L3N2Zz4="
         },
         "_diagnosisTab": {
             "type": "panel",
@@ -232,7 +237,7 @@
                 },
                 "_diagnosisCopyText": {
                     "type": "staticText",
-                    "text": "To copy the report, open the object bosch-buderus-wp.0.info.diagnosis in the Objects tab, click the value and copy the text. Please look through the report before you post it, and add your heat pump model to your post.",
+                    "text": "To copy the report, open the object bosch-buderus-wp.0.info.diagnosis in the Objects tab, click the value and copy the text. Please look through the report before you post it, and add your heat pump model to your post. Please post the report in a code block (button </> in the forum editor), so that the thread stays tidy.",
                     "newLine": true,
                     "xs": 12,
                     "sm": 12,
@@ -240,7 +245,8 @@
                     "lg": 12,
                     "xl": 12
                 }
-            }
+            },
+            "icon": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0Ij48cGF0aCBmaWxsPSIjMjE5NmYzIiBkPSJNMTUuNSAxNGgtLjc5bC0uMjgtLjI3QzE1LjQxIDEyLjU5IDE2IDExLjExIDE2IDkuNSAxNiA1LjkxIDEzLjA5IDMgOS41IDNTMyA1LjkxIDMgOS41IDUuOTEgMTYgOS41IDE2YzEuNjEgMCAzLjA5LS41OSA0LjIzLTEuNTdsLjI3LjI4di43OWw1IDQuOTlMMjAuNDkgMTlsLTQuOTktNXptLTYgMEM3LjAxIDE0IDUgMTEuOTkgNSA5LjVTNy4wMSA1IDkuNSA1IDE0IDcuMDEgMTQgOS41IDExLjk5IDE0IDkuNSAxNHoiLz48L3N2Zz4="
         }
     }
 }

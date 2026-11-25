@@ -118,7 +118,7 @@ Wenn bei deiner Anlage etwas fehlt oder nicht stimmt, kann der Adapter einen kur
 
 Der Bericht enthält die Adapter-Version, einige Geräteeigenschaften (Marke, Firmware, Anlagentyp, Wärmepumpentyp), die Pfade, die noch keinen lesbaren Namen haben, und die festen Werte, zu denen noch ein Text fehlt. Er enthält **keine Messwerte, keine IP-Adresse, keine Seriennummern und keine anderen persönlichen Daten**. Sieh ihn trotzdem durch, bevor du ihn veröffentlichst.
 
-So kopierst du ihn: Öffne im Admin den Reiter Objekte und das Objekt `bosch-buderus-wp.0.info.diagnosis`, klicke auf den Wert und kopiere den Text. Schreibe in deinem Beitrag bitte auch dazu, welches Wärmepumpen-Modell du hast.
+So kopierst du ihn: Öffne im Admin den Reiter Objekte und das Objekt `bosch-buderus-wp.0.info.diagnosis`, klicke auf den Wert und kopiere den Text. Schreibe in deinem Beitrag bitte auch dazu, welches Wärmepumpen-Modell du hast. Poste den Bericht bitte in einem Codeblock (Knopf `</>` im Forum-Editor), damit der Thread übersichtlich bleibt.
 
 ## Hinweise zur Sicherheit
 

@@ -129,7 +129,7 @@ If something is missing or looks wrong on your system, the adapter can create a 
 
 The report contains the adapter version, a few device properties (brand, firmware, system type, heat pump type), the paths that have no readable name yet and the fixed values that have no text yet. It contains **no measured values, no IP address, no serial numbers and no other personal data**. Please still look through it before you post it.
 
-To copy it, open the object `bosch-buderus-wp.0.info.diagnosis` in the admin UI (tab Objects), click the value and copy the text. State your heat pump model in your post as well.
+To copy it, open the object `bosch-buderus-wp.0.info.diagnosis` in the admin UI (tab Objects), click the value and copy the text. State your heat pump model in your post as well. Please post the report in a code block (button `</>` in the forum editor), so that the thread stays tidy.
 
 ## Security notes
 
