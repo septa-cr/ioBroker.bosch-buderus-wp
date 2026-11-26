@@ -1363,7 +1363,25 @@ if (require.main !== module) {
 	/**
 	 * @param {Partial<utils.AdapterOptions>} [options] - Adapter options
 	 */
-	module.exports = options => new BoschBuderusWp(options);
+	const createAdapter = options => new BoschBuderusWp(options);
+	// Die Hilfsfunktionen werden zusätzlich bereitgestellt, damit die Tests (main.test.js) sie einzeln prüfen können
+	module.exports = Object.assign(createAdapter, {
+		helpers: {
+			formatDate,
+			isSlowPath,
+			normalizeUnit,
+			numberRole,
+			nameFor,
+			folderName,
+			fieldName,
+			valueKey,
+			statesFor,
+			toId,
+			extractSeries,
+			flatten,
+			allowedValues,
+		},
+	});
 } else {
 	// otherwise start the instance directly
 	new BoschBuderusWp();
