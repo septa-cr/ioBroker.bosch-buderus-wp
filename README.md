@@ -159,6 +159,7 @@ This adapter is a private project and is not affiliated with Bosch Thermotechnik
 ### 0.0.13 (2026-11-26)
 
 - (septa-cr) The data point "Burner in operation" is now called "Heat source in operation", which fits a heat pump better
+- (septa-cr) The data points for the pumps PC0 and PC1 now say which pump it is: primary circuit pump and heating circuit pump (meaning taken from the glossary of a community knowledge base)
 
 ### 0.0.12 (2026-11-25)
 
