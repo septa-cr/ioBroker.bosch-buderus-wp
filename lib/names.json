@@ -482,17 +482,17 @@
 			"zh-cn": "应急运行"
 		},
 		"/heatSources/flameStatus": {
-			"en": "Burner in operation",
-			"de": "Brenner in Betrieb",
-			"ru": "Горелка работает",
-			"pt": "Queimador em funcionamento",
-			"nl": "Brander in bedrijf",
-			"fr": "Brûleur en fonctionnement",
-			"it": "Bruciatore in funzione",
-			"es": "Quemador en funcionamiento",
-			"pl": "Palnik pracuje",
-			"uk": "Пальник працює",
-			"zh-cn": "燃烧器运行中"
+			"en": "Heat source in operation",
+			"de": "Wärmeerzeuger in Betrieb",
+			"ru": "Источник тепла работает",
+			"pt": "Fonte de calor em funcionamento",
+			"nl": "Warmteopwekker in bedrijf",
+			"fr": "Générateur de chaleur en service",
+			"it": "Generatore di calore in funzione",
+			"es": "Generador de calor en funcionamiento",
+			"pl": "Źródło ciepła pracuje",
+			"uk": "Джерело тепла працює",
+			"zh-cn": "热源运行中"
 		},
 		"/heatSources/numberOfRefrigerantCircuitsOnline": {
 			"en": "Refrigerant circuits online",

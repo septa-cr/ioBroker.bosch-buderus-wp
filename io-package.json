@@ -1,8 +1,21 @@
 {
     "common": {
         "name": "bosch-buderus-wp",
-        "version": "0.0.12",
+        "version": "0.0.13",
         "news": {
+            "0.0.13": {
+                "en": "The data point \"Burner in operation\" is now called \"Heat source in operation\", which fits a heat pump better",
+                "de": "Der Datenpunkt „Brenner in Betrieb“ heißt jetzt „Wärmeerzeuger in Betrieb“, das passt besser zu einer Wärmepumpe",
+                "ru": "Датапоинт «Горелка работает» теперь называется «Источник тепла работает», это лучше подходит для теплового насоса",
+                "pt": "O ponto de dados «Queimador em funcionamento» chama-se agora «Fonte de calor em funcionamento», o que se adequa melhor a uma bomba de calor",
+                "nl": "Het gegevenspunt „Brander in bedrijf” heet nu „Warmteopwekker in bedrijf”, wat beter bij een warmtepomp past",
+                "fr": "Le point de données « Brûleur en fonctionnement » s'appelle désormais « Générateur de chaleur en service », ce qui convient mieux à une pompe à chaleur",
+                "it": "Il punto dati «Bruciatore in funzione» si chiama ora «Generatore di calore in funzione», più adatto a una pompa di calore",
+                "es": "El punto de datos «Quemador en funcionamiento» se llama ahora «Generador de calor en funcionamiento», que encaja mejor con una bomba de calor",
+                "pl": "Punkt danych „Palnik pracuje” nazywa się teraz „Źródło ciepła pracuje”, co lepiej pasuje do pompy ciepła",
+                "uk": "Точка даних «Пальник працює» тепер називається «Джерело тепла працює», що краще підходить для теплового насоса",
+                "zh-cn": "数据点“燃烧器运行中”现在改称“热源运行中”，更适合热泵"
+            },
             "0.0.12": {
                 "en": "Units are now written the usual way: \"min\" instead of \"mins\" and \"dB\" instead of \"db\"; the parts of the installation date (day, month, year) no longer show a unit\nThe fields of the update, system information and device lists (e.g. gateway ID, timestamp, module serial number) and their folders now have readable names in all languages\nStatus values with fixed values (e.g. refrigerant circuit status, heating circuit status) now show a readable text next to the value in the object list (English, taken from the manufacturer's API description)\nData points with a list of states (e.g. EEBUS status, holiday mode) no longer stay empty: the value is kept and the object list shows the text next to it\nNew diagnosis report for forum posts: in the new tab \"Diagnosis\" of the settings you can switch on the data point info.diagnosis (off by default). It contains the adapter version, device type, paths without a name and fixed values without a text, but no measured values and no personal data\nStatus texts now also match values that the gateway writes differently (upper/lower case, underscores) and use the value list reported by the gateway, so more values show a readable text",
                 "de": "Einheiten werden jetzt in der üblichen Schreibweise angezeigt: „min“ statt „mins“ und „dB“ statt „db“; die Teile des Installationsdatums (Tag, Monat, Jahr) zeigen keine Einheit mehr\nDie Felder der Update-, Systeminformations- und Geräte-Listen (z. B. Gateway-ID, Zeitstempel, Modul-Seriennummer) und ihre Ordner haben jetzt in allen Sprachen lesbare Namen\nStatuswerte mit festen Werten (z. B. Status des Kältekreises, Heizkreis-Status) zeigen in der Objektliste jetzt einen lesbaren Text neben dem Wert (Englisch, aus der API-Beschreibung des Herstellers)\nDatenpunkte mit einer Zustandsliste (z. B. EEBUS-Status, Urlaubsmodus) bleiben nicht mehr leer: Der Wert bleibt erhalten, und die Objektliste zeigt den Text daneben\nNeuer Diagnosebericht für Forenbeiträge: Im neuen Reiter „Diagnose“ der Einstellungen lässt sich der Datenpunkt info.diagnosis einschalten (standardmäßig aus). Er enthält Adapter-Version, Gerätetyp, Pfade ohne Namen und feste Werte ohne Text, aber keine Messwerte und keine persönlichen Daten\nStatustexte passen jetzt auch zu Werten, die das Gateway anders schreibt (Groß-/Kleinschreibung, Unterstriche) und nutzen die vom Gateway gemeldete Werteliste, sodass mehr Werte einen lesbaren Text zeigen",

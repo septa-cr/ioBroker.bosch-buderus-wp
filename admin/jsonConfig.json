@@ -2,9 +2,6 @@
     "i18n": true,
     "type": "tabs",
     "iconPosition": "top",
-    "tabsStyle": {
-        "fontSize": "1.25rem"
-    },
     "items": {
         "_connectionTab": {
             "type": "panel",
