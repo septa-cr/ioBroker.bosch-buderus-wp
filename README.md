@@ -123,6 +123,12 @@ At the first start, the adapter checks all resources of the API. This takes abou
 
 Which folders and values appear depends on your system.
 
+### Recognising the operating state
+
+- `heatSources.hs1.refrigerant.status` shows what the refrigerant circuit is doing, for example `idle`, `heating`, `cooling`, `defrost` or `dhw` (hot water). The possible values depend on the device and can differ a little from the manufacturer's description. The adapter uses the list that your device reports itself.
+- `heatSources.flameStatus` ("Heat source in operation") only says whether the heat source is running (on/off).
+- Whether the hot water is being charged right now is shown by the signals `signals.SRC.IntDHW.HeatUpActive` and `signals.SRC.IntDHW.DHURunning` (the names of these signals come from the device; if your system does not report them, they do not appear).
+
 ### Diagnosis report
 
 If something is missing or looks wrong on your system, the adapter can create a short report that you can paste into a forum post. Switch it on in the adapter settings, tab **Diagnosis** (it is off by default), and save. Then the data point `info.diagnosis` appears. If you switch it off again, the data point is deleted.
@@ -160,6 +166,7 @@ This adapter is a private project and is not affiliated with Bosch Thermotechnik
 
 - (septa-cr) The data point "Burner in operation" is now called "Heat source in operation", which fits a heat pump better
 - (septa-cr) The data points for the pumps PC0 and PC1 now say which pump it is: primary circuit pump and heating circuit pump (meaning taken from the glossary of a community knowledge base)
+- (septa-cr) The status of the refrigerant circuit now also has texts for the values off, dhw (hot water), pool and pool_heat, which Buderus devices report; the README now explains how to recognise the operating state
 
 ### 0.0.12 (2026-11-25)
 

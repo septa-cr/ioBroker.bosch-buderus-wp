@@ -6814,7 +6814,11 @@
 			"passive_defrost",
 			"shutoff",
 			"alarm",
-			"test_mode"
+			"test_mode",
+			"off",
+			"dhw",
+			"pool",
+			"pool_heat"
 		],
 		"/heatSources/hs{n}/safetyBoard/status": [
 			"initialization",

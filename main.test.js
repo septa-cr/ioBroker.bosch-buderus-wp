@@ -200,6 +200,18 @@ describe('statesFor (Werteliste mit Texten)', () => {
 		expect(states.defrost).to.equal(names.stateTexts.defrost);
 	});
 
+	it('kennt die Werte, die Buderus-Geräte für den Kältekreis melden (off, dhw, pool, pool_heat)', () => {
+		const device = ['off', 'heating', 'cooling', 'dhw', 'pool', 'pool_heat', 'defrost', 'alarm'];
+		const states = h.statesFor('/heatSources/hs1/refrigerant/status', device);
+		expect(Object.keys(states)).to.deep.equal(device);
+		expect(states.dhw).to.equal(names.stateTexts.dhw);
+		// ohne Liste des Geräts kommen die Werte aus names.json
+		const fallback = h.statesFor('/heatSources/hs1/refrigerant/status');
+		for (const value of ['off', 'dhw', 'pool', 'pool_heat']) {
+			expect(fallback[value], value).to.equal(names.stateTexts[value]);
+		}
+	});
+
 	it('findet Pfade mit Nummer über die Vorlage', () => {
 		expect(typeof h.statesFor('/heatSources/hs3/refrigerant/status')).to.equal('object');
 	});

@@ -112,6 +112,12 @@ Beim ersten Start prüft der Adapter alle Ressourcen der API. Das dauert etwa ei
 
 Welche Ordner und Werte erscheinen, hängt von deiner Anlage ab.
 
+### Betriebszustand erkennen
+
+- `heatSources.hs1.refrigerant.status` zeigt, was der Kältekreis gerade tut, zum Beispiel `idle`, `heating`, `cooling`, `defrost` oder `dhw` (Warmwasser). Welche Werte möglich sind, hängt vom Gerät ab und kann ein wenig von der Beschreibung des Herstellers abweichen. Der Adapter nutzt die Liste, die dein Gerät selbst meldet.
+- `heatSources.flameStatus` („Wärmeerzeuger in Betrieb“) sagt nur, ob der Wärmeerzeuger läuft (ein/aus).
+- Ob gerade das Warmwasser geladen wird, zeigen die Signale `signals.SRC.IntDHW.HeatUpActive` und `signals.SRC.IntDHW.DHURunning` (die Namen dieser Signale stammen vom Gerät; meldet deine Anlage sie nicht, erscheinen sie nicht).
+
 ### Diagnosebericht
 
 Wenn bei deiner Anlage etwas fehlt oder nicht stimmt, kann der Adapter einen kurzen Bericht erzeugen, den du in einen Forenbeitrag einfügen kannst. Schalte ihn in den Einstellungen des Adapters im Reiter **Diagnose** ein (standardmäßig aus) und speichere. Dann erscheint der Datenpunkt `info.diagnosis`. Schaltest du ihn wieder aus, wird der Datenpunkt gelöscht.
