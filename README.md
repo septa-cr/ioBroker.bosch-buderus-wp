@@ -142,11 +142,14 @@ To copy it, open the object `bosch-buderus-wp.0.info.diagnosis` in the admin UI 
 - The MX400 uses a self-signed certificate. As recommended by the manufacturer, the adapter therefore does not verify the certificate for this connection only. The data is still transmitted encrypted. Use the adapter only in a trusted local network.
 - The token is stored encrypted in ioBroker and is only made available to the adapter itself.
 
-## Support the development
+## Support
 
-Do you like this adapter? You can support its development with a coffee donation:
+The adapter is free. If you would like to buy me a coffee, I would be happy about it:
 
-[![Donate via PayPal](https://img.shields.io/badge/Donate%20a%20coffee-PayPal-ffc439.svg?style=for-the-badge)](https://www.paypal.com/donate/?hosted_button_id=BW2WL8QCH2AMU)
+[![Donate](https://img.shields.io/badge/Donate-PayPal-ffc439.svg)](https://www.paypal.com/donate/?hosted_button_id=BW2WL8QCH2AMU)
+
+- **Bugs and ideas:** please report them as an [issue on GitHub](https://github.com/septa-cr/ioBroker.bosch-buderus-wp/issues).
+- **Questions and test reports:** please use the [ioBroker forum](https://forum.iobroker.net/topic/85916), in the test thread of the adapter.
 
 ## Note on AI involvement
 

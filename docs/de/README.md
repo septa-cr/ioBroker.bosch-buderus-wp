@@ -131,11 +131,14 @@ So kopierst du ihn: Öffne im Admin den Reiter Objekte und das Objekt `bosch-bud
 - Das MX400 benutzt ein selbst signiertes Zertifikat. Der Adapter prüft das Zertifikat deshalb, wie vom Hersteller empfohlen, nur für diese eine Verbindung nicht. Die Daten werden trotzdem verschlüsselt übertragen. Benutze den Adapter nur in einem vertrauenswürdigen lokalen Netzwerk.
 - Der Token wird in ioBroker verschlüsselt gespeichert und nur dem Adapter selbst zur Verfügung gestellt.
 
-## Entwicklung unterstützen
+## Unterstützung
 
-Gefällt dir der Adapter? Mit einer Kaffeespende unterstützt du die Weiterentwicklung:
+Der Adapter ist kostenlos. Wenn du mir einen Kaffee spendieren möchtest, freue ich mich:
 
-[![Spenden über PayPal](https://img.shields.io/badge/Kaffee%20spenden-PayPal-ffc439.svg?style=for-the-badge)](https://www.paypal.com/donate/?hosted_button_id=BW2WL8QCH2AMU)
+[![Spenden](https://img.shields.io/badge/Spenden-PayPal-ffc439.svg)](https://www.paypal.com/donate/?hosted_button_id=BW2WL8QCH2AMU)
+
+- **Fehler und Ideen:** bitte als [Issue auf GitHub](https://github.com/septa-cr/ioBroker.bosch-buderus-wp/issues) melden.
+- **Fragen und Testberichte:** bitte im [ioBroker-Forum](https://forum.iobroker.net/topic/85916) im Tester-Thread des Adapters schreiben.
 
 ## Hinweis zur KI-Beteiligung
 
