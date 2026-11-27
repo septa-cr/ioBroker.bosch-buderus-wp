@@ -342,6 +342,21 @@ describe('convertValue', () => {
 		expect(result.states).to.deep.equal({ 6: 'Not_Commissioned', 0: 'Commissioned' });
 	});
 
+	it('macht aus einer Zahl ohne Einheit mit nur FALSE (0) und TRUE (1) einen Wahrheitswert', () => {
+		const data = { type: 'integerValue', state: [{ FALSE: 0, TRUE: 1 }] };
+		expect(adapter.convertValue({ ...data, value: 0 })).to.deep.equal({ val: false, type: 'boolean' });
+		expect(adapter.convertValue({ ...data, value: 1 })).to.deep.equal({ val: true, type: 'boolean' });
+	});
+
+	it('lässt andere Zustandslisten und unerwartete Werte als Zahl stehen', () => {
+		const other = adapter.convertValue({ type: 'integerValue', value: 1, state: [{ OFF: 0, ON: 1 }] });
+		expect(other.type).to.equal('number');
+		expect(other.states).to.deep.equal({ 0: 'OFF', 1: 'ON' });
+		const odd = adapter.convertValue({ type: 'integerValue', value: 5, state: [{ FALSE: 0, TRUE: 1 }] });
+		expect(odd.type).to.equal('number');
+		expect(odd.val).to.equal(5);
+	});
+
 	it('wandelt "true" und "false" in Wahrheitswerte', () => {
 		expect(adapter.convertValue({ type: 'stringValue', value: 'true' })).to.deep.equal({
 			val: true,

@@ -503,6 +503,19 @@ class BoschBuderusWp extends utils.Adapter {
 					}
 				}
 			}
+			// Ist die Zustandsliste nur FALSE (0) und TRUE (1), ist es ein Ja/Nein-Wert und wird als Wahrheitswert abgelegt
+			// (wie die übrigen Signale, z. B. DHURunning).
+			const labels = Object.entries(states);
+			const isSwitch =
+				labels.length > 0 &&
+				labels.every(
+					([code, label]) =>
+						(code === '0' && label.toLowerCase() === 'false') ||
+						(code === '1' && label.toLowerCase() === 'true'),
+				);
+			if (isSwitch && (raw === 0 || raw === 1)) {
+				return { val: raw === 1, type: 'boolean' };
+			}
 			return { val: raw, type: 'number', unit, ...(Object.keys(states).length ? { states } : {}) };
 		}
 		if (raw === 'true' || raw === 'false') {

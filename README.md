@@ -7,9 +7,7 @@
 [![Donate](https://img.shields.io/badge/Donate-PayPal-ffc439.svg)](https://www.paypal.com/donate/?hosted_button_id=BW2WL8QCH2AMU)
 
 [![NPM version](https://img.shields.io/npm/v/iobroker.bosch-buderus-wp.svg)](https://www.npmjs.com/package/iobroker.bosch-buderus-wp)
-[![Downloads](https://img.shields.io/npm/dm/iobroker.bosch-buderus-wp.svg)](https://www.npmjs.com/package/iobroker.bosch-buderus-wp)
 ![Number of Installations](https://iobroker.live/badges/bosch-buderus-wp-installed.svg)
-![Current version in stable repository](https://iobroker.live/badges/bosch-buderus-wp-stable.svg)
 
 [![NPM](https://nodei.co/npm/iobroker.bosch-buderus-wp.png?downloads=true)](https://nodei.co/npm/iobroker.bosch-buderus-wp/)
 
