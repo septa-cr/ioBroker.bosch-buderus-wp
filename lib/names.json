@@ -5075,6 +5075,45 @@
 			"pl": "JSON",
 			"uk": "JSON",
 			"zh-cn": "JSON"
+		},
+		"yesterday": {
+			"en": "yesterday",
+			"de": "gestern",
+			"ru": "вчера",
+			"pt": "ontem",
+			"nl": "gisteren",
+			"fr": "hier",
+			"it": "ieri",
+			"es": "ayer",
+			"pl": "wczoraj",
+			"uk": "вчора",
+			"zh-cn": "昨天"
+		},
+		"lastMonth": {
+			"en": "last month",
+			"de": "Vormonat",
+			"ru": "в прошлом месяце",
+			"pt": "mês anterior",
+			"nl": "vorige maand",
+			"fr": "mois précédent",
+			"it": "mese scorso",
+			"es": "mes anterior",
+			"pl": "w poprzednim miesiącu",
+			"uk": "минулого місяця",
+			"zh-cn": "上月"
+		},
+		"sinceStart": {
+			"en": "since start",
+			"de": "seit Beginn",
+			"ru": "с начала",
+			"pt": "desde o início",
+			"nl": "sinds het begin",
+			"fr": "depuis le début",
+			"it": "dall'inizio",
+			"es": "desde el inicio",
+			"pl": "od początku",
+			"uk": "від початку",
+			"zh-cn": "自开始以来"
 		}
 	},
 	"folders": {
@@ -6208,6 +6247,32 @@
 			"pl": "Wzorzec SGTIN",
 			"uk": "Шаблон SGTIN",
 			"zh-cn": "SGTIN 模式"
+		},
+		"calculated": {
+			"en": "Calculated values",
+			"de": "Berechnete Werte",
+			"ru": "Расчётные значения",
+			"pt": "Valores calculados",
+			"nl": "Berekende waarden",
+			"fr": "Valeurs calculées",
+			"it": "Valori calcolati",
+			"es": "Valores calculados",
+			"pl": "Wartości obliczone",
+			"uk": "Розрахункові значення",
+			"zh-cn": "计算值"
+		},
+		"cop": {
+			"en": "Coefficient of performance (COP)",
+			"de": "Leistungszahl (COP)",
+			"ru": "Коэффициент преобразования (COP)",
+			"pt": "Coeficiente de desempenho (COP)",
+			"nl": "Prestatiecoëfficiënt (COP)",
+			"fr": "Coefficient de performance (COP)",
+			"it": "Coefficiente di prestazione (COP)",
+			"es": "Coeficiente de rendimiento (COP)",
+			"pl": "Współczynnik wydajności (COP)",
+			"uk": "Коефіцієнт перетворення (COP)",
+			"zh-cn": "性能系数（COP）"
 		}
 	},
 	"numberedFolders": {
@@ -6985,5 +7050,46 @@
 		"unassigned": "Unassigned",
 		"unknown": "Unknown",
 		"wps": "WPS"
+	},
+	"calculated": {
+		"copHeating": {
+			"en": "COP heating",
+			"de": "COP Heizen",
+			"ru": "COP отопления",
+			"pt": "COP aquecimento",
+			"nl": "COP verwarming",
+			"fr": "COP chauffage",
+			"it": "COP riscaldamento",
+			"es": "COP calefacción",
+			"pl": "COP ogrzewania",
+			"uk": "COP опалення",
+			"zh-cn": "供暖COP"
+		},
+		"copDhw": {
+			"en": "COP hot water",
+			"de": "COP Warmwasser",
+			"ru": "COP горячей воды",
+			"pt": "COP água quente",
+			"nl": "COP warm water",
+			"fr": "COP eau chaude",
+			"it": "COP acqua calda",
+			"es": "COP agua caliente",
+			"pl": "COP ciepłej wody",
+			"uk": "COP гарячої води",
+			"zh-cn": "热水COP"
+		},
+		"copTotal": {
+			"en": "COP total",
+			"de": "COP gesamt",
+			"ru": "COP, всего",
+			"pt": "COP total",
+			"nl": "COP totaal",
+			"fr": "COP total",
+			"it": "COP totale",
+			"es": "COP total",
+			"pl": "COP łącznie",
+			"uk": "COP, всього",
+			"zh-cn": "总COP"
+		}
 	}
 }

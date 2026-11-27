@@ -108,9 +108,25 @@ Beim ersten Start prüft der Adapter alle Ressourcen der API. Das dauert etwa ei
 | `dhwCircuits.dhw1.*` | Warmwasser: Temperatur, Sollwert, Status |
 | `devices.device1.*` | Gekoppelte Funkgeräte, z. B. Raumregler |
 | `recordings.*` | Verlaufsdaten (`daily`, `monthly`, `today`, `thisMonth`) |
+| `calculated.cop.*` | Berechnete Leistungszahl (COP), siehe unten |
 | `system.*`, `gateway.*`, `notifications.*` | Systeminformationen, Gateway, Fehlermeldungen |
 
 Welche Ordner und Werte erscheinen, hängt von deiner Anlage ab.
+
+### Berechnete Werte (COP)
+
+Der Adapter berechnet die Leistungszahl (COP) selbst und legt sie unter `calculated.cop` ab: die erzeugte Wärme geteilt durch den eingesetzten Strom. Diese Werte werden **vom Adapter berechnet**, das Gerät meldet sie nicht.
+
+| Ordner | Werte |
+| --- | --- |
+| `calculated.cop.heating` | COP Heizen: `today` (heute), `yesterday` (gestern), `thisMonth` (diesen Monat), `lastMonth` (Vormonat) |
+| `calculated.cop.dhw` | COP Warmwasser: `today`, `yesterday`, `thisMonth`, `lastMonth` |
+| `calculated.cop.total` | COP von allem: `today`, `yesterday`, `thisMonth`, `lastMonth` und `sinceStart` (seit Beginn der Energiezähler des Geräts) |
+
+- Die erzeugte Wärme und der Strom stammen aus den Verlaufsdaten und den Energiezählern des Geräts (`recordings.heatSources.emon.*` und `heatSources.emon.*`). Der Strom ist die Energie von Verdichter plus Heizstab, wie das Gerät sie meldet. Ob Pumpen und Lüfter enthalten sind, sagt die API nicht, der COP bezieht sich deshalb nur auf Verdichter und Heizstab.
+- Wurde in einem Zeitraum kein Strom verbraucht (zum Beispiel Warmwasser am frühen Morgen), bleibt der Wert leer, statt eine falsche Zahl zu zeigen.
+- Die Verlaufsdaten werden einmal pro Stunde abgefragt, deshalb können `today` und `yesterday` bis zu eine Stunde nachgehen. Für abgeschlossene Monate meldet das Gerät ganze Kilowattstunden, `lastMonth` ist daher etwas weniger genau als `today`.
+- Die Werte entstehen nur, wenn dein Gerät die passenden Verlaufsdaten liefert.
 
 ### Betriebszustand erkennen
 

@@ -117,9 +117,25 @@ At the first start, the adapter checks all resources of the API. This takes abou
 | `dhwCircuits.dhw1.*` | Hot water: temperature, setpoint, status |
 | `devices.device1.*` | Paired radio devices, e.g. room controllers |
 | `recordings.*` | History data (`daily`, `monthly`, `today`, `thisMonth`) |
+| `calculated.cop.*` | Calculated coefficient of performance (COP), see below |
 | `system.*`, `gateway.*`, `notifications.*` | System information, gateway, error messages |
 
 Which folders and values appear depends on your system.
+
+### Calculated values (COP)
+
+The adapter calculates the coefficient of performance (COP) itself and writes it to `calculated.cop`: the heat produced divided by the electricity used. These values are **calculated by the adapter**, the device does not report them.
+
+| Folder | Values |
+| --- | --- |
+| `calculated.cop.heating` | COP heating: `today`, `yesterday`, `thisMonth`, `lastMonth` |
+| `calculated.cop.dhw` | COP hot water: `today`, `yesterday`, `thisMonth`, `lastMonth` |
+| `calculated.cop.total` | COP of everything: `today`, `yesterday`, `thisMonth`, `lastMonth` and `sinceStart` (since the energy counters of the device started) |
+
+- The heat produced and the electricity come from the history data and the energy counters of the device (`recordings.heatSources.emon.*` and `heatSources.emon.*`). The electricity is the energy of the compressor plus the electric heater, as the device reports it. The API does not say whether pumps and fan are included, so the COP is based on compressor and electric heater only.
+- If no electricity was used in a period (for example hot water early in the day), the value stays empty instead of showing a wrong number.
+- The history data is queried once an hour, so the values for `today` and `yesterday` can be up to an hour behind. For months that are over, the device reports whole kilowatt hours, so `lastMonth` is slightly less precise than `today`.
+- Values are only created if your device provides the matching history data.
 
 ### Recognising the operating state
 
@@ -163,6 +179,11 @@ This adapter is a private project and is not affiliated with Bosch Thermotechnik
     Placeholder for the next version (at the beginning of the line):
     ### **WORK IN PROGRESS**
 -->
+### **WORK IN PROGRESS**
+
+- (septa-cr) New calculated data points `calculated.cop.*`: the coefficient of performance (COP) for heating, hot water and in total, for today, yesterday, this month and last month, and in total since the start of the counters
+- (septa-cr) Code comments are now English; the README no longer claims that `HeatUpActive` stayed off during hot water charging; the downloads and stable badges were removed
+
 ### 0.0.13 (2026-11-26)
 
 - (septa-cr) The data point "Burner in operation" is now called "Heat source in operation", which fits a heat pump better

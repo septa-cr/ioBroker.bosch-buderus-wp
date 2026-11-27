@@ -383,6 +383,177 @@ describe('convertValue', () => {
 	});
 });
 
+describe('Berechnete Werte (COP)', () => {
+	describe('calcCop', () => {
+		it('teilt die erzeugte Wärme durch den Stromverbrauch und rundet auf zwei Stellen', () => {
+			expect(h.calcCop(17081.34, 4504.81)).to.equal(3.79);
+			expect(h.calcCop(3100.74, 989.56)).to.equal(3.13);
+		});
+
+		it('liefert null, wenn kein Strom verbraucht wurde oder ein Wert fehlt', () => {
+			expect(h.calcCop(10, 0)).to.equal(null);
+			expect(h.calcCop(0, 0)).to.equal(null);
+			expect(h.calcCop(null, 5)).to.equal(null);
+			expect(h.calcCop(5, null)).to.equal(null);
+			expect(h.calcCop(undefined, undefined)).to.equal(null);
+		});
+
+		it('liefert null bei negativen Wärmemengen, aber 0 bei Wärme 0 mit Stromverbrauch', () => {
+			expect(h.calcCop(-1, 5)).to.equal(null);
+			expect(h.calcCop(0, 5)).to.equal(0);
+		});
+	});
+
+	describe('seriesValue', () => {
+		const series = [
+			{ date: '2026-11-10', value: 12.5 },
+			{ date: '2026-11-11', value: null },
+		];
+
+		it('findet den Wert zu einem Datum', () => {
+			expect(h.seriesValue(series, '2026-11-10')).to.equal(12.5);
+		});
+
+		it('liefert null bei fehlendem Datum, fehlendem Wert oder fehlender Reihe', () => {
+			expect(h.seriesValue(series, '2026-11-12')).to.equal(null);
+			expect(h.seriesValue(series, '2026-11-11')).to.equal(null);
+			expect(h.seriesValue(undefined, '2026-11-10')).to.equal(null);
+		});
+	});
+
+	describe('periodDates', () => {
+		it('bestimmt heute, gestern, diesen und den vorigen Monat', () => {
+			expect(h.periodDates(new Date(2026, 10, 14, 12))).to.deep.equal({
+				today: '2026-11-14',
+				yesterday: '2026-11-13',
+				thisMonth: '2026-11',
+				lastMonth: '2026-10',
+			});
+		});
+
+		it('kommt mit Monats- und Jahreswechsel zurecht', () => {
+			expect(h.periodDates(new Date(2026, 0, 1, 0, 30))).to.deep.equal({
+				today: '2026-01-01',
+				yesterday: '2025-12-31',
+				thisMonth: '2026-01',
+				lastMonth: '2025-12',
+			});
+			expect(h.periodDates(new Date(2026, 2, 1, 8)).yesterday).to.equal('2026-02-28');
+		});
+	});
+
+	describe('writeEfficiency', () => {
+		/**
+		 * Adapter with history data and a record of the values written.
+		 *
+		 * @returns {{ adapter: any, written: Record<string, any>, names: Record<string, any> }} Adapter, values and names written
+		 */
+		function createCopAdapter() {
+			const adapter = createAdapter();
+			/** @type {Record<string, any>} */
+			const written = {};
+			/** @type {Record<string, any>} */
+			const writtenNames = {};
+			adapter.setValue = async (/** @type {string} */ id, /** @type {any} */ name, /** @type {any} */ val) => {
+				written[id] = val;
+				writtenNames[id] = name;
+			};
+			const d = h.periodDates(new Date());
+			/**
+			 * @param {number} day - Daily value for today and yesterday
+			 * @param {number} month - Monthly value for this month and last month
+			 * @returns {{ daily: any[], monthly: any[] }} Series
+			 */
+			const series = (day, month) => ({
+				daily: [
+					{ date: d.yesterday, value: day },
+					{ date: d.today, value: day },
+				],
+				monthly: [
+					{ date: d.lastMonth, value: month },
+					{ date: d.thisMonth, value: month },
+				],
+			});
+			const base = '/recordings/heatSources/emon';
+			adapter.series.set(`${base}/ch/outputProduced`, series(100, 3000));
+			adapter.series.set(`${base}/ch/compressor`, series(25, 600));
+			adapter.series.set(`${base}/ch/eheater`, series(0, 0));
+			adapter.series.set(`${base}/dhw/outputProduced`, series(12, 300));
+			adapter.series.set(`${base}/dhw/compressor`, series(4, 100));
+			adapter.series.set(`${base}/dhw/eheater`, series(0, 0));
+			adapter.series.set(`${base}/total/outputProduced`, series(112, 3300));
+			adapter.series.set(`${base}/total/compressor`, series(29, 700));
+			adapter.series.set(`${base}/total/eheater`, series(0, 0));
+			adapter.counters.set('heatSources.emon.totalConsumption.outputProduced', 20182.08);
+			adapter.counters.set('heatSources.emon.totalConsumption.compressor', 5490.28);
+			adapter.counters.set('heatSources.emon.totalConsumption.eheater', 4.11);
+			return { adapter, written, names: writtenNames };
+		}
+
+		it('schreibt für Heizen, Warmwasser und gesamt je vier Zeiträume', async () => {
+			const { adapter, written } = createCopAdapter();
+			await adapter.writeEfficiency();
+			for (const area of ['heating', 'dhw', 'total']) {
+				for (const period of ['today', 'yesterday', 'thisMonth', 'lastMonth']) {
+					expect(`calculated.cop.${area}.${period}` in written, `${area}.${period}`).to.equal(true);
+				}
+			}
+			expect(written['calculated.cop.heating.today']).to.equal(4);
+			expect(written['calculated.cop.heating.yesterday']).to.equal(4);
+			expect(written['calculated.cop.heating.thisMonth']).to.equal(5);
+			expect(written['calculated.cop.heating.lastMonth']).to.equal(5);
+			expect(written['calculated.cop.dhw.today']).to.equal(3);
+			expect(written['calculated.cop.dhw.lastMonth']).to.equal(3);
+			expect(written['calculated.cop.total.today']).to.equal(3.86);
+		});
+
+		it('schreibt den COP seit Beginn aus den Gesamtzählern (Verdichter plus Heizstab)', async () => {
+			const { adapter, written } = createCopAdapter();
+			await adapter.writeEfficiency();
+			expect(written['calculated.cop.total.sinceStart']).to.equal(3.67);
+		});
+
+		it('gibt den Datenpunkten Namen in allen Sprachen', async () => {
+			const { adapter, names: writtenNames } = createCopAdapter();
+			await adapter.writeEfficiency();
+			expect(writtenNames['calculated.cop.heating.today'].de).to.equal('COP Heizen – heute');
+			expect(writtenNames['calculated.cop.dhw.lastMonth'].de).to.equal('COP Warmwasser – Vormonat');
+			expect(writtenNames['calculated.cop.total.sinceStart'].en).to.equal('COP total – since start');
+			expect(Object.keys(writtenNames['calculated.cop.total.yesterday']).sort()).to.deep.equal(
+				[...LANGUAGES].sort(),
+			);
+		});
+
+		it('zeichnet null, wenn in einem Zeitraum kein Strom verbraucht wurde', async () => {
+			const { adapter, written } = createCopAdapter();
+			const base = '/recordings/heatSources/emon/dhw';
+			const d = h.periodDates(new Date());
+			adapter.series.set(`${base}/compressor`, { daily: [{ date: d.today, value: 0 }], monthly: [] });
+			await adapter.writeEfficiency();
+			expect(written['calculated.cop.dhw.today']).to.equal(null);
+			expect(written['calculated.cop.dhw.yesterday']).to.equal(null);
+		});
+
+		it('legt nichts an, wenn es die Verlaufsdaten bei der Anlage nicht gibt', async () => {
+			const adapter = createAdapter();
+			/** @type {string[]} */
+			const written = [];
+			adapter.setValue = async (/** @type {string} */ id) => {
+				written.push(id);
+			};
+			await adapter.writeEfficiency();
+			expect(written).to.deep.equal([]);
+		});
+
+		it('rechnet ohne Heizstab-Verlauf weiter (Heizstab zählt dann als 0)', async () => {
+			const { adapter, written } = createCopAdapter();
+			adapter.series.delete('/recordings/heatSources/emon/ch/eheater');
+			await adapter.writeEfficiency();
+			expect(written['calculated.cop.heating.today']).to.equal(4);
+		});
+	});
+});
+
 describe('Diagnosebericht', () => {
 	/**
 	 * Adapter that records the states written.
@@ -454,7 +625,16 @@ describe('Dateien des Adapters', () => {
 	});
 
 	it('alle Namen in lib/names.json gibt es in allen Sprachen', () => {
-		for (const section of ['paths', 'templates', 'keys', 'suffixes', 'folders', 'numberedFolders', 'info']) {
+		for (const section of [
+			'paths',
+			'templates',
+			'keys',
+			'suffixes',
+			'folders',
+			'numberedFolders',
+			'info',
+			'calculated',
+		]) {
 			for (const [key, translated] of Object.entries(names[section])) {
 				expect(Object.keys(translated).sort(), `${section}: ${key}`).to.deep.equal([...LANGUAGES].sort());
 			}

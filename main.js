@@ -4,7 +4,7 @@ const utils = require('@iobroker/adapter-core');
 const https = require('node:https');
 const crypto = require('node:crypto');
 const endpoints = require('./lib/endpoints.json');
-/** @type {{ paths: Record<string, ioBroker.Translated>, templates: Record<string, ioBroker.Translated>, keys: Record<string, ioBroker.Translated>, suffixes: Record<string, ioBroker.Translated>, folders: Record<string, ioBroker.Translated>, numberedFolders: Record<string, ioBroker.Translated>, fields: Record<string, Record<string, string>>, stateValues: Record<string, string[]>, stateTexts: Record<string, string>, info: Record<string, ioBroker.Translated> }} */
+/** @type {{ paths: Record<string, ioBroker.Translated>, templates: Record<string, ioBroker.Translated>, keys: Record<string, ioBroker.Translated>, suffixes: Record<string, ioBroker.Translated>, folders: Record<string, ioBroker.Translated>, numberedFolders: Record<string, ioBroker.Translated>, fields: Record<string, Record<string, string>>, stateValues: Record<string, string[]>, stateTexts: Record<string, string>, info: Record<string, ioBroker.Translated>, calculated: Record<string, ioBroker.Translated> }} */
 const names = require('./lib/names.json');
 
 /** Interval after which the search for the available paths is repeated completely (24 hours) */
@@ -319,6 +319,63 @@ function extractSeries(response, rate, average) {
 	});
 }
 
+/**
+ * Coefficient of performance (COP): heat produced divided by the electrical energy used.
+ *
+ * @param {number | null | undefined} heat - Heat produced in kWh
+ * @param {number | null | undefined} electricity - Electrical energy used in kWh
+ * @returns {number | null} COP rounded to two decimals, or null if it cannot be calculated (value missing or no energy used)
+ */
+function calcCop(heat, electricity) {
+	if (typeof heat !== 'number' || typeof electricity !== 'number' || !(electricity > 0) || heat < 0) {
+		return null;
+	}
+	return Math.round((heat / electricity) * 100) / 100;
+}
+
+/**
+ * Value of a history series for one date.
+ *
+ * @param {{ date: string, value: number | null }[] | undefined} series - Series from extractSeries
+ * @param {string} date - Day (YYYY-MM-DD) or month (YYYY-MM)
+ * @returns {number | null} Value, or null if the date is not in the series
+ */
+function seriesValue(series, date) {
+	const entry = series?.find(item => item.date === date);
+	return typeof entry?.value === 'number' ? entry.value : null;
+}
+
+/**
+ * Dates of the periods for which the COP is calculated, in local time.
+ *
+ * @param {Date} now - Current time
+ * @returns {{ today: string, yesterday: string, thisMonth: string, lastMonth: string }} Days (YYYY-MM-DD) and months (YYYY-MM)
+ */
+function periodDates(now) {
+	return {
+		today: formatDate(now),
+		yesterday: formatDate(new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1)),
+		thisMonth: formatDate(now).slice(0, 7),
+		lastMonth: formatDate(new Date(now.getFullYear(), now.getMonth() - 1, 1)).slice(0, 7),
+	};
+}
+
+/** Areas for which the COP is calculated: ID segment, path segment of the history data and key in names.calculated */
+const COP_AREAS = [
+	{ id: 'heating', history: 'ch', name: 'copHeating' },
+	{ id: 'dhw', history: 'dhw', name: 'copDhw' },
+	{ id: 'total', history: 'total', name: 'copTotal' },
+];
+
+/** Periods for which the COP is calculated: key (also used for the name and the ID) and kind of history data */
+/** @type {{ key: 'today' | 'yesterday' | 'thisMonth' | 'lastMonth', rate: 'daily' | 'monthly' }[]} */
+const COP_PERIODS = [
+	{ key: 'today', rate: 'daily' },
+	{ key: 'yesterday', rate: 'daily' },
+	{ key: 'thisMonth', rate: 'monthly' },
+	{ key: 'lastMonth', rate: 'monthly' },
+];
+
 /** Fields that only contain additional information about the API and are not measured values */
 const SKIP_KEYS = new Set(['id', 'type', 'writeable', 'allowedValues', 'uri', 'valueConfig']);
 
@@ -402,6 +459,12 @@ class BoschBuderusWp extends utils.Adapter {
 		/** Single values written last, per composite response */
 		/** @type {Map<string, Set<string>>} */
 		this.complexLeaves = new Map();
+		/** Latest history series per path (for the calculated COP values) */
+		/** @type {Map<string, { daily: { date: string, value: number | null }[], monthly: { date: string, value: number | null }[] }>} */
+		this.series = new Map();
+		/** Latest energy counters per data point ID (for the calculated COP value since start) */
+		/** @type {Map<string, number>} */
+		this.counters = new Map();
 		/** Paths that did not answer during the search and are retried hourly */
 		/** @type {string[]} */
 		this.retryPaths = [];
@@ -674,6 +737,7 @@ class BoschBuderusWp extends utils.Adapter {
 			for (const [key, value] of Object.entries(entry ?? {})) {
 				const counterId = `${base}.${key.replace(/[^A-Za-z0-9_-]/g, '_')}`;
 				const name = withPart(nameFor(apiPath), names.keys[key] ?? key);
+				this.counters.set(counterId, Number(value));
 				await this.setValue(counterId, name, Number(value), 'number', role, unit);
 			}
 		}
@@ -759,6 +823,7 @@ class BoschBuderusWp extends utils.Adapter {
 		const average = AVERAGE_UNITS.includes(unit ?? '');
 		const dailySeries = extractSeries(daily, 'P1D', average);
 		const monthlySeries = extractSeries(monthly, 'P1M', average);
+		this.series.set(apiPath, { daily: dailySeries, monthly: monthlySeries });
 		const lastDay = dailySeries[dailySeries.length - 1];
 		const lastMonth = monthlySeries[monthlySeries.length - 1];
 		const today = formatDate(now);
@@ -802,6 +867,53 @@ class BoschBuderusWp extends utils.Adapter {
 			);
 		}
 		return true;
+	}
+
+	/**
+	 * Calculates the coefficient of performance (COP) from the history data and the energy counters of the device:
+	 * heat produced divided by the electricity used by the compressor and the electric heater.
+	 * The values are written below calculated.cop for heating, hot water and in total.
+	 */
+	async writeEfficiency() {
+		const dates = periodDates(new Date());
+		for (const area of COP_AREAS) {
+			const prefix = `/recordings/heatSources/emon/${area.history}`;
+			const heat = this.series.get(`${prefix}/outputProduced`);
+			const compressor = this.series.get(`${prefix}/compressor`);
+			const eheater = this.series.get(`${prefix}/eheater`);
+			if (!heat || !compressor) {
+				// This history data does not exist on this system
+				continue;
+			}
+			for (const period of COP_PERIODS) {
+				const date = dates[period.key];
+				const compressorValue = seriesValue(compressor[period.rate], date);
+				const electricity =
+					compressorValue === null
+						? null
+						: compressorValue + (seriesValue(eheater?.[period.rate], date) ?? 0);
+				await this.setValue(
+					`calculated.cop.${area.id}.${period.key}`,
+					withPart(names.calculated[area.name], names.suffixes[period.key]),
+					calcCop(seriesValue(heat[period.rate], date), electricity),
+					'number',
+					'value',
+				);
+			}
+		}
+
+		const counter = 'heatSources.emon.totalConsumption';
+		const heatCounter = this.counters.get(`${counter}.outputProduced`);
+		const compressorCounter = this.counters.get(`${counter}.compressor`);
+		if (heatCounter !== undefined && compressorCounter !== undefined) {
+			await this.setValue(
+				'calculated.cop.total.sinceStart',
+				withPart(names.calculated.copTotal, names.suffixes.sinceStart),
+				calcCop(heatCounter, compressorCounter + (this.counters.get(`${counter}.eheater`) ?? 0)),
+				'number',
+				'value',
+			);
+		}
 	}
 
 	/**
@@ -1250,6 +1362,11 @@ class BoschBuderusWp extends utils.Adapter {
 				}
 			}
 			await this.pollPaths([...ids, ...fixed, ...slow]);
+			try {
+				await this.writeEfficiency();
+			} catch (error) {
+				this.log.debug(`COP calculation failed: ${error.message}`);
+			}
 			await this.writeDiagnosis();
 			this.log.debug(`${ids.length + fixed.length + slow.length} values updated`);
 		} catch (error) {
@@ -1378,6 +1495,9 @@ if (require.main !== module) {
 			statesFor,
 			toId,
 			extractSeries,
+			calcCop,
+			seriesValue,
+			periodDates,
 			flatten,
 			allowedValues,
 		},
