@@ -554,6 +554,126 @@ describe('Berechnete Werte (COP)', () => {
 	});
 });
 
+describe('Anlagenschema', () => {
+	describe('deriveMode', () => {
+		it('ordnet die bekannten Status dem Zustand des Schemas zu', () => {
+			expect(h.deriveMode('heating')).to.equal('heating');
+			expect(h.deriveMode('dhw')).to.equal('dhw');
+			expect(h.deriveMode('defrost')).to.equal('defrost');
+			expect(h.deriveMode('passive_defrost')).to.equal('passiveDefrost');
+			expect(h.deriveMode('pool_heat')).to.equal('pool');
+			expect(h.deriveMode('shutoff')).to.equal('idle');
+			expect(h.deriveMode('alarm')).to.equal('alarm');
+		});
+
+		it('meldet unbekannte und fehlende Werte als unknown', () => {
+			expect(h.deriveMode('something_new')).to.equal('unknown');
+			expect(h.deriveMode('toString')).to.equal('unknown');
+			expect(h.deriveMode(undefined)).to.equal('unknown');
+			expect(h.deriveMode(null)).to.equal('unknown');
+			expect(h.deriveMode(5)).to.equal('unknown');
+		});
+
+		it('kennt alle Werte der Werteliste des Status des Kältekreises', () => {
+			for (const status of names.stateValues['/heatSources/hs{n}/refrigerant/status']) {
+				expect(h.deriveMode(status), status).to.not.equal('unknown');
+			}
+		});
+	});
+
+	describe('buildSchemaData', () => {
+		it('liefert den Zustand und alle Werte, fehlende Werte sind null', () => {
+			const latest = new Map();
+			latest.set('heatSources.hs1.refrigerant.status', 'dhw');
+			latest.set(h.SCHEMA_VALUES.tc0, 57.5);
+			latest.set(h.SCHEMA_VALUES.dhwValve, true);
+			const data = h.buildSchemaData(latest);
+			expect(data.v).to.equal(1);
+			expect(data.mode).to.equal('dhw');
+			expect(data.status).to.equal('dhw');
+			expect(data.values.tc0).to.equal(57.5);
+			expect(data.values.dhwValve).to.equal(true);
+			expect(data.values.tw1).to.equal(null);
+			expect(Object.keys(data.values)).to.deep.equal(Object.keys(h.SCHEMA_VALUES));
+		});
+
+		it('meldet ohne Status den Zustand unknown', () => {
+			const data = h.buildSchemaData(new Map());
+			expect(data.mode).to.equal('unknown');
+			expect(data.status).to.equal(null);
+		});
+
+		it('erzeugt unabhängig von der Reihenfolge der Eingabe denselben Text', () => {
+			const a = new Map([
+				['heatSources.hs1.refrigerant.status', 'heating'],
+				[h.SCHEMA_VALUES.t1, 5.2],
+				[h.SCHEMA_VALUES.tc3, 30],
+			]);
+			const b = new Map([
+				[h.SCHEMA_VALUES.tc3, 30],
+				[h.SCHEMA_VALUES.t1, 5.2],
+				['heatSources.hs1.refrigerant.status', 'heating'],
+			]);
+			expect(JSON.stringify(h.buildSchemaData(a))).to.equal(JSON.stringify(h.buildSchemaData(b)));
+		});
+	});
+
+	describe('Datenpunkt calculated.schema', () => {
+		/**
+		 * Adapter that records what setValue receives.
+		 *
+		 * @param {boolean} enabled - Diagram switched on
+		 * @returns {{ adapter: any, written: { id: string, name: any, val: any }[] }} Adapter and the values written
+		 */
+		function createSchemaAdapter(enabled) {
+			const adapter = createAdapter();
+			/** @type {{ id: string, name: any, val: any }[]} */
+			const written = [];
+			adapter.schemaEnabled = enabled;
+			adapter.setValue = async (/** @type {string} */ id, /** @type {any} */ name, /** @type {any} */ val) => {
+				written.push({ id, name, val });
+			};
+			return { adapter, written };
+		}
+
+		it('schreibt nichts, wenn das Schema ausgeschaltet ist', async () => {
+			const { adapter, written } = createSchemaAdapter(false);
+			await adapter.writeSchema();
+			expect(written).to.deep.equal([]);
+		});
+
+		it('schreibt die Daten als JSON-Text mit Namen in allen Sprachen', async () => {
+			const { adapter, written } = createSchemaAdapter(true);
+			adapter.latest.set('heatSources.hs1.refrigerant.status', 'defrost');
+			adapter.latest.set(h.SCHEMA_VALUES.tl2, 22);
+			await adapter.writeSchema();
+			expect(written.length).to.equal(1);
+			expect(written[0].id).to.equal('calculated.schema');
+			expect(Object.keys(written[0].name).sort()).to.deep.equal([...LANGUAGES].sort());
+			const data = JSON.parse(written[0].val);
+			expect(data.mode).to.equal('defrost');
+			expect(data.values.tl2).to.equal(22);
+		});
+
+		it('merkt sich beim Schreiben nur die Werte für das Schema und nur im eingeschalteten Zustand', async () => {
+			const adapter = createAdapter();
+			adapter.setStateChangedAsync = async () => {};
+			adapter.knownStates.add('heatSources.hs1.refrigerant.status');
+			adapter.knownStates.add('system.type');
+
+			adapter.schemaEnabled = false;
+			await adapter.setValue('heatSources.hs1.refrigerant.status', {}, 'dhw', 'string', 'text');
+			expect(adapter.latest.size).to.equal(0);
+
+			adapter.schemaEnabled = true;
+			await adapter.setValue('heatSources.hs1.refrigerant.status', {}, 'dhw', 'string', 'text');
+			await adapter.setValue('system.type', {}, 'x', 'string', 'text');
+			expect(adapter.latest.get('heatSources.hs1.refrigerant.status')).to.equal('dhw');
+			expect(adapter.latest.has('system.type')).to.equal(false);
+		});
+	});
+});
+
 describe('Diagnosebericht', () => {
 	/**
 	 * Adapter that records the states written.
@@ -670,5 +790,23 @@ describe('Dateien des Adapters', () => {
 			const keys = Object.keys(JSON.parse(fs.readFileSync(path.join(dir, file), 'utf8'))).sort();
 			expect(keys, file).to.deep.equal(english);
 		}
+	});
+
+	it('das Anlagenschema ist standardmäßig ausgeschaltet und hat einen Schalter im dritten Reiter', () => {
+		expect(ioPackage.native.schemaEnabled).to.equal(false);
+		const config = JSON.parse(fs.readFileSync(path.join(__dirname, 'admin', 'jsonConfig.json'), 'utf8'));
+		expect(Object.keys(config.items).length).to.equal(3);
+		expect(config.items._schemaTab.items.schemaEnabled.type).to.equal('checkbox');
+	});
+
+	it('der Link zum Anlagenschema hat einen Namen in allen Sprachen und zeigt auf die Seite im Ordner www', () => {
+		const link = ioPackage.common.localLinks._default;
+		expect(Object.keys(link.name).sort()).to.deep.equal([...LANGUAGES].sort());
+		expect(link.link).to.include('/bosch-buderus-wp/index.html');
+		expect(fs.existsSync(path.join(__dirname, 'www', 'index.html'))).to.equal(true);
+	});
+
+	it('der Ordner www gehört zum veröffentlichten Paket', () => {
+		expect(packageJson.files).to.include('www/');
 	});
 });

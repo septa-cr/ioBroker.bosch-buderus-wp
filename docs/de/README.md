@@ -109,6 +109,7 @@ Beim ersten Start prüft der Adapter alle Ressourcen der API. Das dauert etwa ei
 | `devices.device1.*` | Gekoppelte Funkgeräte, z. B. Raumregler |
 | `recordings.*` | Verlaufsdaten (`daily`, `monthly`, `today`, `thisMonth`) |
 | `calculated.cop.*` | Berechnete Leistungszahl (COP), siehe unten |
+| `calculated.schema` | Daten für das Anlagenschema (JSON, nur wenn eingeschaltet, siehe unten) |
 | `system.*`, `gateway.*`, `notifications.*` | Systeminformationen, Gateway, Fehlermeldungen |
 
 Welche Ordner und Werte erscheinen, hängt von deiner Anlage ab.
@@ -141,6 +142,15 @@ Wenn bei deiner Anlage etwas fehlt oder nicht stimmt, kann der Adapter einen kur
 Der Bericht enthält die Adapter-Version, einige Geräteeigenschaften (Marke, Firmware, Anlagentyp, Wärmepumpentyp), die Pfade, die noch keinen lesbaren Namen haben, und die festen Werte, zu denen noch ein Text fehlt. Er enthält **keine Messwerte, keine IP-Adresse, keine Seriennummern und keine anderen persönlichen Daten**. Sieh ihn trotzdem durch, bevor du ihn veröffentlichst.
 
 So kopierst du ihn: Öffne im Admin den Reiter Objekte und das Objekt `bosch-buderus-wp.0.info.diagnosis`, klicke auf den Wert und kopiere den Text. Schreibe in deinem Beitrag bitte auch dazu, welches Wärmepumpen-Modell du hast. Poste den Bericht bitte in einem Codeblock (Knopf `</>` im Forum-Editor), damit der Thread übersichtlich bleibt.
+
+### Anlagenschema (experimentell)
+
+Der Adapter kann eine Seite anbieten, die den Betriebszustand der Wärmepumpe (Heizen, Warmwasser, Abtauen) und einige Werte zeigt. Sie ist **noch in Entwicklung**: Vorerst zeigt die Seite die Werte als Text, die Zeichnung folgt später.
+
+- Schalte es in den Einstellungen des Adapters im Reiter **Anlagenschema** ein (standardmäßig aus) und speichere. Dann schreibt der Adapter den Datenpunkt `calculated.schema` (ein kurzer JSON-Text mit dem Betriebszustand und den Werten) und hält ihn aktuell. Schaltest du es wieder aus, wird der Datenpunkt gelöscht.
+- Die Seite wird vom ioBroker-**Web-Adapter** ausgeliefert, deshalb muss eine Web-Instanz installiert sein. Du öffnest sie über den Link **Anlagenschema** in der Instanzliste der Admin-Oberfläche oder unter `http://<ioBroker>:<Web-Port>/bosch-buderus-wp/index.html`.
+- Die Seite liest alle fünf Sekunden nur den einen Datenpunkt `calculated.schema` (und `info.connection`), und nur solange sie im Browser geöffnet ist.
+- Die Sensornamen (T0, TC0, TC3 und so weiter) folgen dem Anlagenbeispiel von Buderus für die WLW186i/176i TP70. Nicht jede Zuordnung ist vom Hersteller bestätigt, zum Beispiel verwendet T0 den Wert `signals.SRC.IntFlowTemp`.
 
 ## Hinweise zur Sicherheit
 

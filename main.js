@@ -29,6 +29,57 @@ const PLAIN_VALUES = new Set(['on', 'off', 'yes', 'no', 'true', 'false']);
 /** Interval at which history data and other rarely changing values are queried (1 hour) */
 const SLOW_INTERVAL_MS = 60 * 60 * 1000;
 
+/** Data point with the operating state of the refrigerant circuit (basis of the plant diagram) */
+const SCHEMA_STATUS_ID = 'heatSources.hs1.refrigerant.status';
+
+/**
+ * Values for the plant diagram: short key (as in the diagram) and ID of the data point.
+ * The keys follow the sensor names of the Buderus example scheme; not every assignment is confirmed by the manufacturer.
+ */
+const SCHEMA_VALUES = {
+	t1: 'system.sensors.temperatures.outdoor_t1',
+	tl2: 'heatSources.sensors.evaporatorTemp_tl2',
+	tr5: 'heatSources.hs1.refrigerant.suctionGasTemp',
+	pl1: 'heatSources.hs1.refrigerant.lowPressureTemp',
+	tr6: 'heatSources.hs1.refrigerant.hotGasTemp',
+	ph1: 'heatSources.hs1.refrigerant.highPressureTemp',
+	tr3: 'heatSources.hs1.refrigerant.liquidPipeHeatingTemp',
+	tr4: 'heatSources.hs1.refrigerant.liquidPipeCoolingTemp',
+	tc3: 'heatSources.hs1.supplyFlowCondenserTemp',
+	tc0: 'heatSources.returnTemperature',
+	t0: 'signals.SRC.IntFlowTemp',
+	tw1: 'heatSources.dhw.cylinderTemperature',
+	compressorSpeed: 'heatSources.hs1.refrigerant.compressorActualSpeed',
+	compressorPower: 'heatSources.hs1.refrigerant.compressorElecPowerActual',
+	fanSpeed: 'heatSources.hs1.oduFanSpeed',
+	expansionValve: 'signals.SRC.CUHP.HP1.ExpansionValveActual',
+	flowPc0: 'heatSources.hs1.pumpVolumeFlow',
+	flowPc1: 'signals.SRC.HC1.FlowCtrl.PumpVolumeFlow',
+	dhwValve: 'signals.SRC.CUHP.HP1.DHWValve',
+	fourwayValve: 'signals.SRC.CUHP.HP1.FourwayValve',
+	heatingPump: 'heatingCircuits.hc1.pumpStatus',
+};
+
+/** All data points whose value is remembered for the plant diagram */
+const SCHEMA_IDS = new Set([SCHEMA_STATUS_ID, ...Object.values(SCHEMA_VALUES)]);
+
+/** Operating state of the diagram per status of the refrigerant circuit (values of the manufacturer's API) */
+const MODE_BY_STATUS = {
+	heating: 'heating',
+	dhw: 'dhw',
+	defrost: 'defrost',
+	passive_defrost: 'passiveDefrost',
+	cooling: 'cooling',
+	pool: 'pool',
+	pool_heat: 'pool',
+	alarm: 'alarm',
+	idle: 'idle',
+	startup: 'idle',
+	shutoff: 'idle',
+	off: 'idle',
+	test_mode: 'idle',
+};
+
 /**
  * Date as YYYY-MM-DD in local time.
  *
@@ -376,6 +427,37 @@ const COP_PERIODS = [
 	{ key: 'lastMonth', rate: 'monthly' },
 ];
 
+/**
+ * Operating state of the plant diagram, derived from the status of the refrigerant circuit.
+ *
+ * @param {unknown} status - Status of the refrigerant circuit (e.g. heating, dhw, defrost)
+ * @returns {string} heating, dhw, defrost, passiveDefrost, cooling, pool, alarm, idle or unknown
+ */
+function deriveMode(status) {
+	if (typeof status !== 'string') {
+		return 'unknown';
+	}
+	const modes = /** @type {Record<string, string>} */ (MODE_BY_STATUS);
+	return Object.hasOwn(modes, status) ? modes[status] : 'unknown';
+}
+
+/**
+ * Data for the plant diagram: operating state and the latest values. Missing values are null.
+ * The order of the keys is always the same, so that an unchanged state produces identical text.
+ *
+ * @param {Map<string, string | number | boolean | null>} latest - Latest values per data point ID
+ * @returns {{ v: number, mode: string, status: string | null, values: Record<string, string | number | boolean | null> }} Data of the diagram
+ */
+function buildSchemaData(latest) {
+	/** @type {Record<string, string | number | boolean | null>} */
+	const values = {};
+	for (const [key, id] of Object.entries(SCHEMA_VALUES)) {
+		values[key] = latest.get(id) ?? null;
+	}
+	const status = latest.get(SCHEMA_STATUS_ID);
+	return { v: 1, mode: deriveMode(status), status: typeof status === 'string' ? status : null, values };
+}
+
 /** Fields that only contain additional information about the API and are not measured values */
 const SKIP_KEYS = new Set(['id', 'type', 'writeable', 'allowedValues', 'uri', 'valueConfig']);
 
@@ -451,6 +533,11 @@ class BoschBuderusWp extends utils.Adapter {
 		/** Data points with user settings (common.custom) that must not be deleted */
 		/** @type {Set<string>} */
 		this.protectedStates = new Set();
+		/** Is the plant diagram switched on in the settings? */
+		this.schemaEnabled = false;
+		/** Latest values for the plant diagram per data point ID (only filled if the diagram is switched on) */
+		/** @type {Map<string, string | number | boolean | null>} */
+		this.latest = new Map();
 		/** Is the diagnosis report switched on in the settings? */
 		this.diagnosisEnabled = false;
 		/** Information for the diagnosis report per queried path (without measured values) */
@@ -614,6 +701,9 @@ class BoschBuderusWp extends utils.Adapter {
 				native: {},
 			});
 			this.knownStates.add(id);
+		}
+		if (this.schemaEnabled && SCHEMA_IDS.has(id)) {
+			this.latest.set(id, val);
 		}
 		// Only write when the value has changed (less load and fewer events for logging adapters)
 		await this.setStateChangedAsync(id, { val, ack: true });
@@ -914,6 +1004,23 @@ class BoschBuderusWp extends utils.Adapter {
 				'value',
 			);
 		}
+	}
+
+	/**
+	 * Writes the data for the plant diagram (data point calculated.schema) as one short JSON text,
+	 * so that the diagram page needs only one query. It is only written if the value has changed.
+	 */
+	async writeSchema() {
+		if (!this.schemaEnabled) {
+			return;
+		}
+		await this.setValue(
+			'calculated.schema',
+			names.calculated.schema,
+			JSON.stringify(buildSchemaData(this.latest)),
+			'string',
+			'json',
+		);
 	}
 
 	/**
@@ -1367,6 +1474,11 @@ class BoschBuderusWp extends utils.Adapter {
 			} catch (error) {
 				this.log.debug(`COP calculation failed: ${error.message}`);
 			}
+			try {
+				await this.writeSchema();
+			} catch (error) {
+				this.log.debug(`Plant diagram data failed: ${error.message}`);
+			}
 			await this.writeDiagnosis();
 			this.log.debug(`${ids.length + fixed.length + slow.length} values updated`);
 		} catch (error) {
@@ -1434,6 +1546,11 @@ class BoschBuderusWp extends utils.Adapter {
 		} else if (await this.getObjectAsync('info.diagnosis')) {
 			await this.delObjectAsync('info.diagnosis');
 		}
+		// Plant diagram: the data point is only created if it is switched on in the settings, otherwise it is removed
+		this.schemaEnabled = this.config.schemaEnabled === true;
+		if (!this.schemaEnabled && (await this.getObjectAsync('calculated.schema'))) {
+			await this.delObjectAsync('calculated.schema');
+		}
 		await this.setConnected(false);
 
 		if (!this.config.ip || !this.config.token) {
@@ -1498,6 +1615,9 @@ if (require.main !== module) {
 			calcCop,
 			seriesValue,
 			periodDates,
+			deriveMode,
+			buildSchemaData,
+			SCHEMA_VALUES,
 			flatten,
 			allowedValues,
 		},

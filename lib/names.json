@@ -7090,6 +7090,19 @@
 			"pl": "COP łącznie",
 			"uk": "COP, всього",
 			"zh-cn": "总COP"
+		},
+		"schema": {
+			"en": "Data for the plant diagram",
+			"de": "Daten für das Anlagenschema",
+			"ru": "Данные для схемы установки",
+			"pt": "Dados para o esquema da instalação",
+			"nl": "Gegevens voor het installatieschema",
+			"fr": "Données pour le schéma de l'installation",
+			"it": "Dati per lo schema dell'impianto",
+			"es": "Datos para el esquema de la instalación",
+			"pl": "Dane do schematu instalacji",
+			"uk": "Дані для схеми установки",
+			"zh-cn": "系统示意图数据"
 		}
 	}
 }

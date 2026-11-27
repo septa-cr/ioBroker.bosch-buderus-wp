@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta
+			name="viewport"
+			content="width=device-width, initial-scale=1"
+		/>
+		<title>Plant diagram</title>
+		<style>
+			:root {
+				--bg: #faf9f5;
+				--card: #ffffff;
+				--ink: #141413;
+				--muted: #5e5d59;
+				--line: #d6d2c4;
+				--accent: #a8412a;
+			}
+			@media (prefers-color-scheme: dark) {
+				:root {
+					--bg: #1c1b19;
+					--card: #262522;
+					--ink: #f0eee6;
+					--muted: #a9a79f;
+					--line: #3a3935;
+					--accent: #d9775a;
+				}
+			}
+			body {
+				margin: 0;
+				background: var(--bg);
+				color: var(--ink);
+				font-family:
+					system-ui,
+					-apple-system,
+					'Segoe UI',
+					sans-serif;
+			}
+			main {
+				max-width: 720px;
+				margin: 0 auto;
+				padding: 24px 16px 48px;
+			}
+			h1 {
+				margin: 0 0 12px;
+				font-size: 24px;
+			}
+			.pill {
+				display: inline-block;
+				margin: 0 0 8px;
+				padding: 8px 20px;
+				border-radius: 999px;
+				background: var(--accent);
+				color: #ffffff;
+				font-weight: 700;
+			}
+			.pill.off {
+				background: var(--muted);
+			}
+			.hint {
+				min-height: 1.4em;
+				margin: 4px 0 16px;
+				color: var(--muted);
+			}
+			table {
+				width: 100%;
+				border-collapse: collapse;
+				background: var(--card);
+				border: 1px solid var(--line);
+				border-radius: 10px;
+			}
+			td {
+				padding: 8px 12px;
+				border-bottom: 1px solid var(--line);
+			}
+			tr:last-child td {
+				border-bottom: none;
+			}
+			td.value {
+				text-align: right;
+				font-variant-numeric: tabular-nums;
+				white-space: nowrap;
+			}
+			.foot {
+				margin-top: 16px;
+				font-size: 13px;
+				color: var(--muted);
+			}
+		</style>
+	</head>
+	<body>
+		<main>
+			<h1 id="title"></h1>
+			<p
+				id="mode"
+				class="pill off"
+			></p>
+			<p
+				id="hint"
+				class="hint"
+			></p>
+			<table>
+				<tbody id="rows"></tbody>
+			</table>
+			<p
+				id="foot"
+				class="foot"
+			></p>
+		</main>
+		<script>
+			(function () {
+				'use strict';
+
+				var REFRESH_MS = 5000;
+				var german = (navigator.language || '').toLowerCase().indexOf('de') === 0;
+
+				/** Texts of the page (German and English) */
+				var TEXT = {
+					title: ['Plant diagram', 'Anlagenschema'],
+					foot: [
+						'Test version: this page shows the operating state and the values as text. The drawing follows later.',
+						'Testversion: Diese Seite zeigt den Betriebszustand und die Werte als Text. Die Zeichnung folgt später.',
+					],
+					noData: [
+						'No data. Is the option "Show plant diagram" switched on in the adapter settings, and is the adapter running?',
+						'Keine Daten. Ist die Option „Anlagenschema anzeigen“ in den Einstellungen des Adapters eingeschaltet und läuft der Adapter?',
+					],
+					offline: ['No connection to the gateway.', 'Keine Verbindung zum Gateway.'],
+					updated: ['Updated', 'Aktualisiert'],
+					on: ['on', 'an'],
+					off: ['off', 'aus'],
+				};
+
+				var MODES = {
+					heating: ['Heating', 'Heizen'],
+					dhw: ['Hot water', 'Warmwasser'],
+					defrost: ['Defrosting', 'Abtauen'],
+					passiveDefrost: ['Passive defrosting', 'Passives Abtauen'],
+					cooling: ['Cooling', 'Kühlen'],
+					pool: ['Pool', 'Pool'],
+					alarm: ['Alarm', 'Störung'],
+					idle: ['Idle', 'Leerlauf'],
+					unknown: ['Unknown', 'Unbekannt'],
+				};
+
+				/** Rows: key in the data, label (English, German), unit, kind of value */
+				var ROWS = [
+					['t1', ['Outdoor temperature T1', 'Außentemperatur T1'], '°C'],
+					['tl2', ['Evaporator air TL2', 'Verdampfer Luft TL2'], '°C'],
+					['tr5', ['Suction gas TR5', 'Sauggas TR5'], '°C'],
+					['pl1', ['Low pressure temperature PL1', 'Niederdruck-Temperatur PL1'], '°C'],
+					['tr6', ['Hot gas TR6', 'Heißgas TR6'], '°C'],
+					['ph1', ['High pressure temperature PH1', 'Hochdruck-Temperatur PH1'], '°C'],
+					['tr3', ['Liquid line heating TR3', 'Flüssigkeitsleitung Heizen TR3'], '°C'],
+					['tr4', ['Liquid line cooling TR4', 'Flüssigkeitsleitung Kühlen TR4'], '°C'],
+					['tc3', ['Flow at the condenser TC3', 'Vorlauf am Verflüssiger TC3'], '°C'],
+					['tc0', ['Return (condenser inlet) TC0', 'Rücklauf (Eintritt Verflüssiger) TC0'], '°C'],
+					['t0', ['Flow of the indoor unit T0', 'Vorlauf Inneneinheit T0'], '°C'],
+					['tw1', ['Hot water cylinder TW1', 'Warmwasserspeicher TW1'], '°C'],
+					['compressorSpeed', ['Compressor speed', 'Verdichter Drehzahl'], '%'],
+					['compressorPower', ['Compressor power', 'Verdichter Leistung'], 'kW'],
+					['fanSpeed', ['Fan', 'Lüfter'], '%'],
+					['expansionValve', ['Expansion valve', 'Expansionsventil'], '%'],
+					['flowPc0', ['Flow pump PC0', 'Durchfluss Pumpe PC0'], 'l/h'],
+					['flowPc1', ['Flow pump PC1', 'Durchfluss Pumpe PC1'], 'l/h'],
+					['dhwValve', ['Hot water valve', 'Warmwasserventil'], 'switch'],
+					['fourwayValve', ['Four-way valve', 'Vierwegeventil'], 'switch'],
+					['heatingPump', ['Heating circuit pump', 'Heizkreispumpe'], 'switch'],
+				];
+
+				var instance = new URLSearchParams(location.search).get('instance');
+				if (!/^\d+$/.test(instance || '')) {
+					instance = '0';
+				}
+				var prefix = 'bosch-buderus-wp.' + instance + '.';
+
+				function t(entry) {
+					return entry[german ? 1 : 0];
+				}
+
+				/**
+				 * Reads one data point from the web adapter.
+				 *
+				 * @param {string} id - ID of the data point without the instance
+				 * @returns {Promise<string>} Value as text
+				 */
+				function readState(id) {
+					return fetch('../state/' + prefix + id, { cache: 'no-store' }).then(function (response) {
+						if (!response.ok) {
+							throw new Error('HTTP ' + response.status);
+						}
+						return response.text();
+					});
+				}
+
+				/**
+				 * Formats a value for the table.
+				 *
+				 * @param {any} value - Value from the data
+				 * @param {string} unit - Unit or "switch" for on/off values
+				 * @returns {string} Text for the table
+				 */
+				function format(value, unit) {
+					if (value === null || value === undefined) {
+						return '–';
+					}
+					if (unit === 'switch') {
+						var on = value === true || value === 'on' || value === 'true';
+						return t(on ? TEXT.on : TEXT.off);
+					}
+					if (typeof value !== 'number') {
+						return String(value);
+					}
+					if (unit === 'kW') {
+						return (
+							(value / 1000).toLocaleString(german ? 'de-DE' : 'en-US', { maximumFractionDigits: 2 }) +
+							' kW'
+						);
+					}
+					return value.toLocaleString(german ? 'de-DE' : 'en-US', { maximumFractionDigits: 1 }) + ' ' + unit;
+				}
+
+				var modeElement = document.getElementById('mode');
+				var hintElement = document.getElementById('hint');
+				var rowsElement = document.getElementById('rows');
+
+				document.documentElement.lang = german ? 'de' : 'en';
+				document.title = t(TEXT.title);
+				document.getElementById('title').textContent = t(TEXT.title);
+				document.getElementById('foot').textContent = t(TEXT.foot);
+
+				/**
+				 * Shows the data in the page.
+				 *
+				 * @param {any} data - Data of the diagram (calculated.schema)
+				 * @param {boolean} connected - Is the adapter connected to the gateway?
+				 */
+				function render(data, connected) {
+					var mode = Object.prototype.hasOwnProperty.call(MODES, data.mode) ? data.mode : 'unknown';
+					modeElement.textContent = t(MODES[mode]);
+					modeElement.className = mode === 'unknown' ? 'pill off' : 'pill';
+					hintElement.textContent = connected
+						? t(TEXT.updated) + ': ' + new Date().toLocaleTimeString(german ? 'de-DE' : 'en-US')
+						: t(TEXT.offline);
+					rowsElement.textContent = '';
+					ROWS.forEach(function (row) {
+						var tr = document.createElement('tr');
+						var label = document.createElement('td');
+						var value = document.createElement('td');
+						label.textContent = t(row[1]);
+						value.className = 'value';
+						value.textContent = format((data.values || {})[row[0]], row[2]);
+						tr.appendChild(label);
+						tr.appendChild(value);
+						rowsElement.appendChild(tr);
+					});
+				}
+
+				function showError() {
+					modeElement.textContent = t(MODES.unknown);
+					modeElement.className = 'pill off';
+					hintElement.textContent = t(TEXT.noData);
+					rowsElement.textContent = '';
+				}
+
+				function refresh() {
+					if (document.hidden) {
+						return;
+					}
+					Promise.all([
+						readState('calculated.schema'),
+						readState('info.connection').catch(function () {
+							return 'true';
+						}),
+					])
+						.then(function (results) {
+							var data = JSON.parse(results[0]);
+							if (typeof data === 'string') {
+								// Some versions of the web adapter return the text of a data point in quotation marks
+								data = JSON.parse(data);
+							}
+							render(data, results[1].replace(/"/g, '') !== 'false');
+						})
+						.catch(showError);
+				}
+
+				refresh();
+				setInterval(refresh, REFRESH_MS);
+				document.addEventListener('visibilitychange', refresh);
+			})();
+		</script>
+	</body>
+</html>

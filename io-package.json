@@ -168,6 +168,26 @@
         "adminUI": {
             "config": "json"
         },
+        "localLinks": {
+            "_default": {
+                "link": "%web_protocol%://%ip%:%web_port%/bosch-buderus-wp/index.html?instance=%instance%",
+                "name": {
+                    "en": "Plant diagram",
+                    "de": "Anlagenschema",
+                    "ru": "Схема установки",
+                    "pt": "Esquema da instalação",
+                    "nl": "Installatieschema",
+                    "fr": "Schéma de l'installation",
+                    "it": "Schema dell'impianto",
+                    "es": "Esquema de la instalación",
+                    "pl": "Schemat instalacji",
+                    "uk": "Схема установки",
+                    "zh-cn": "系统示意图"
+                },
+                "color": "#0b5fa5",
+                "order": 1
+            }
+        },
         "dependencies": [
             {
                 "js-controller": ">=6.0.11"
@@ -193,7 +213,8 @@
         "token": "",
         "_pass": "",
         "interval": 60,
-        "diagnosis": false
+        "diagnosis": false,
+        "schemaEnabled": false
     },
     "objects": [],
     "instanceObjects": [
