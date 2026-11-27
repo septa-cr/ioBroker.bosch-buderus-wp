@@ -179,7 +179,7 @@ This adapter is a private project and is not affiliated with Bosch Thermotechnik
     Placeholder for the next version (at the beginning of the line):
     ### **WORK IN PROGRESS**
 -->
-### **WORK IN PROGRESS**
+### 0.1.0 (2026-11-27)
 
 - (septa-cr) New calculated data points `calculated.cop.*`: the coefficient of performance (COP) for heating, hot water and in total, for today, yesterday, this month and last month, and in total since the start of the counters
 - (septa-cr) Code comments are now English; the README no longer claims that `HeatUpActive` stayed off during hot water charging; the downloads and stable badges were removed
