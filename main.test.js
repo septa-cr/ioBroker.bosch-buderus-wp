@@ -1,9 +1,9 @@
 'use strict';
 
 /**
- * Tests für die Hilfsfunktionen und die Umwandlung der API-Werte in main.js.
- * Die Tests laufen ohne ioBroker und ohne Gerät: Der Adapter-Kern (@iobroker/adapter-core) wird durch eine
- * einfache Attrappe ersetzt, es werden keine Verbindungen aufgebaut.
+ * Tests for the helper functions and the conversion of the API values in main.js.
+ * The tests run without ioBroker and without a device: the adapter core (@iobroker/adapter-core) is replaced by a
+ * simple stand-in, no connections are made.
  */
 
 const { expect } = require('chai');
@@ -18,7 +18,7 @@ const packageJson = require('./package.json');
 
 const LANGUAGES = ['en', 'de', 'ru', 'pt', 'nl', 'fr', 'it', 'es', 'pl', 'uk', 'zh-cn'];
 
-/** Attrappe für @iobroker/adapter-core: nur das, was der Konstruktor des Adapters braucht */
+/** Stand-in for @iobroker/adapter-core: only what the constructor of the adapter needs */
 class FakeAdapter extends EventEmitter {
 	constructor() {
 		super();
@@ -29,16 +29,16 @@ class FakeAdapter extends EventEmitter {
 }
 
 /**
- * Lädt main.js mit der Attrappe statt dem echten Adapter-Kern.
+ * Loads main.js with the stand-in instead of the real adapter core.
  *
- * @returns {any} Das, was main.js exportiert (Fabrik für den Adapter plus helpers)
+ * @returns {any} What main.js exports (factory for the adapter plus helpers)
  */
 function loadMain() {
 	const mainPath = require.resolve('./main.js');
 	delete require.cache[mainPath];
-	// @ts-expect-error _load ist nicht in den Typen, wird hier bewusst für die Attrappe genutzt
+	// @ts-expect-error _load is not in the types, it is used here on purpose for the stand-in
 	const originalLoad = Module._load;
-	// @ts-expect-error siehe oben
+	// @ts-expect-error see above
 	Module._load = function (request, ...rest) {
 		if (request === '@iobroker/adapter-core') {
 			return { Adapter: FakeAdapter };
@@ -48,7 +48,7 @@ function loadMain() {
 	try {
 		return require(mainPath);
 	} finally {
-		// @ts-expect-error siehe oben
+		// @ts-expect-error see above
 		Module._load = originalLoad;
 	}
 }
@@ -205,7 +205,7 @@ describe('statesFor (Werteliste mit Texten)', () => {
 		const states = h.statesFor('/heatSources/hs1/refrigerant/status', device);
 		expect(Object.keys(states)).to.deep.equal(device);
 		expect(states.dhw).to.equal(names.stateTexts.dhw);
-		// ohne Liste des Geräts kommen die Werte aus names.json
+		// without a list from the device, the values come from names.json
 		const fallback = h.statesFor('/heatSources/hs1/refrigerant/status');
 		for (const value of ['off', 'dhw', 'pool', 'pool_heat']) {
 			expect(fallback[value], value).to.equal(names.stateTexts[value]);
@@ -385,10 +385,10 @@ describe('convertValue', () => {
 
 describe('Diagnosebericht', () => {
 	/**
-	 * Adapter mit Mitschrift der geschriebenen Zustände.
+	 * Adapter that records the states written.
 	 *
-	 * @param {boolean} enabled - Bericht eingeschaltet
-	 * @returns {{ adapter: any, written: { id: string, state: any }[] }} Adapter und geschriebene Zustände
+	 * @param {boolean} enabled - Report switched on
+	 * @returns {{ adapter: any, written: { id: string, state: any }[] }} Adapter and the states written
 	 */
 	function createDiagnosisAdapter(enabled) {
 		const adapter = createAdapter();

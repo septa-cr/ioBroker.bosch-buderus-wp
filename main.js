@@ -7,13 +7,13 @@ const endpoints = require('./lib/endpoints.json');
 /** @type {{ paths: Record<string, ioBroker.Translated>, templates: Record<string, ioBroker.Translated>, keys: Record<string, ioBroker.Translated>, suffixes: Record<string, ioBroker.Translated>, folders: Record<string, ioBroker.Translated>, numberedFolders: Record<string, ioBroker.Translated>, fields: Record<string, Record<string, string>>, stateValues: Record<string, string[]>, stateTexts: Record<string, string>, info: Record<string, ioBroker.Translated> }} */
 const names = require('./lib/names.json');
 
-/** Abstand, in dem die Suche nach den vorhandenen Pfaden komplett wiederholt wird (24 Stunden) */
+/** Interval after which the search for the available paths is repeated completely (24 hours) */
 const RESCAN_INTERVAL_MS = 24 * 60 * 60 * 1000;
 
-/** Kennung der Pfadliste: ändert sich, wenn eine neue Version der Adapter-Datei endpoints.json andere Pfade enthält */
+/** Identifier of the path list: changes when a new version of the adapter file endpoints.json contains different paths */
 const ENDPOINTS_SIGNATURE = crypto.createHash('sha1').update(endpoints.join('\n')).digest('hex').slice(0, 12);
 
-/** Pfade, deren Wert im Diagnosebericht stehen darf (nur Geräteeigenschaften, keine persönlichen Daten) */
+/** Paths whose value may appear in the diagnosis report (device properties only, no personal data) */
 const DIAGNOSIS_VALUES = new Set([
 	'/gateway/brand',
 	'/gateway/versionFirmware',
@@ -23,17 +23,17 @@ const DIAGNOSIS_VALUES = new Set([
 	'/heatSources/hs1/heatPumpType',
 ]);
 
-/** Werte, für die im Diagnosebericht kein Text fehlen kann (reine Ein/Aus-Werte) */
+/** Values for which no text can be missing in the diagnosis report (plain on/off values) */
 const PLAIN_VALUES = new Set(['on', 'off', 'yes', 'no', 'true', 'false']);
 
-/** Abstand, in dem Verlaufsdaten und andere selten ändernde Werte abgefragt werden (1 Stunde) */
+/** Interval at which history data and other rarely changing values are queried (1 hour) */
 const SLOW_INTERVAL_MS = 60 * 60 * 1000;
 
 /**
- * Datum als JJJJ-MM-TT in lokaler Zeit.
+ * Date as YYYY-MM-DD in local time.
  *
- * @param {Date} date - Datum
- * @returns {string} Formatiertes Datum
+ * @param {Date} date - Date
+ * @returns {string} Formatted date
  */
 function formatDate(date) {
 	const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -42,20 +42,20 @@ function formatDate(date) {
 }
 
 /**
- * Seltene Werte: Verlaufsdaten und die WLAN-Liste.
+ * Rare values: history data and the Wi-Fi list.
  *
- * @param {string} apiPath - API-Pfad
- * @returns {boolean} true, wenn der Pfad nur stündlich abgefragt werden soll
+ * @param {string} apiPath - API path
+ * @returns {boolean} true if the path should only be queried hourly
  */
 function isSlowPath(apiPath) {
 	return apiPath.startsWith('/recordings/') || apiPath === '/gateway/wifi/apList';
 }
 
 /**
- * Einheit der API in die Schreibweise von ioBroker umwandeln.
+ * Convert a unit from the API to the spelling used by ioBroker.
  *
- * @param {string | undefined} unit - Einheit der API
- * @returns {string | undefined} Einheit für ioBroker
+ * @param {string | undefined} unit - Unit from the API
+ * @returns {string | undefined} Unit for ioBroker
  */
 function normalizeUnit(unit) {
 	switch (unit) {
@@ -68,7 +68,7 @@ function normalizeUnit(unit) {
 		case 'day':
 		case 'month':
 		case 'year':
-			// Teile eines Datums (z. B. Installationsdatum) sind keine Einheit; ein leerer Text entfernt eine früher gesetzte Einheit
+			// Parts of a date (e.g. installation date) are not a unit; an empty text removes a previously set unit
 			return '';
 		default:
 			return unit;
@@ -76,11 +76,11 @@ function normalizeUnit(unit) {
 }
 
 /**
- * Passende Rolle für einen Zahlenwert anhand seiner Einheit.
+ * Suitable role for a number value, based on its unit.
  *
- * @param {string | undefined} unit - Einheit
- * @param {string} apiPath - API-Pfad (zur Erkennung der Luftfeuchtigkeit)
- * @returns {string} Rolle des Datenpunkts
+ * @param {string | undefined} unit - Unit
+ * @param {string} apiPath - API path (used to recognise humidity)
+ * @returns {string} Role of the data point
  */
 function numberRole(unit, apiPath) {
 	switch (unit) {
@@ -97,7 +97,7 @@ function numberRole(unit, apiPath) {
 	}
 }
 
-/** Muster für nummerierte Ordner, z. B. hc1 = Heizkreis 1. Der zweite Wert ist der Schlüssel in names.numberedFolders */
+/** Patterns for numbered folders, e.g. hc1 = heating circuit 1. The second value is the key in names.numberedFolders */
 /** @type {[RegExp, string][]} */
 const NUMBERED_FOLDERS = [
 	[/^hc(\d+)$/, 'hc'],
@@ -113,11 +113,11 @@ const NUMBERED_FOLDERS = [
 ];
 
 /**
- * Setzt in einem übersetzten Namen die Nummer für den Platzhalter {n} ein, in allen Sprachen.
+ * Inserts the number for the placeholder {n} into a translated name, in all languages.
  *
- * @param {ioBroker.Translated} translated - Name mit {n}
- * @param {string} number - Nummer, z. B. "2"
- * @returns {ioBroker.Translated} Name mit eingesetzter Nummer
+ * @param {ioBroker.Translated} translated - Name with {n}
+ * @param {string} number - Number, e.g. "2"
+ * @returns {ioBroker.Translated} Name with the number inserted
  */
 function fillNumber(translated, number) {
 	/** @type {Record<string, string>} */
@@ -129,9 +129,9 @@ function fillNumber(translated, number) {
 }
 
 /**
- * Lesbarer Name für einen Ordner im Objektbaum (die Texte stehen in lib/names.json).
+ * Readable name for a folder in the object tree (the texts are in lib/names.json).
  *
- * @param {string} segment - Teil der Datenpunkt-ID, z. B. heatingCircuits oder hc1
+ * @param {string} segment - Part of the data point ID, e.g. heatingCircuits or hc1
  * @returns {ioBroker.StringOrTranslated} Name
  */
 function folderName(segment) {
@@ -147,15 +147,15 @@ function folderName(segment) {
 	return segment;
 }
 
-/** Nummerierter Teil eines API-Pfads, z. B. hc2 in /heatingCircuits/hc2/pumpStatus oder HP1 in SRC.CUHP.HP1.Power */
+/** Numbered part of an API path, e.g. hc2 in /heatingCircuits/hc2/pumpStatus or HP1 in SRC.CUHP.HP1.Power */
 const NUMBER_IN_PATH = /(^|[/.])(hc|dhw|hs|device|zone|sc|input|HP|HC|DHW)(\d+)(?=[/.]|$)/;
 
 /**
- * Name eines Datenpunkts aus der Übersetzungsdatei, sonst der API-Pfad.
- * Zuerst wird nach einem festen Eintrag gesucht, danach nach einer Vorlage mit {n} als Platzhalter für die Nummer
- * (aus /heatingCircuits/hc2/pumpStatus wird /heatingCircuits/hc{n}/pumpStatus mit der Nummer 2).
+ * Name of a data point from the translation file, otherwise the API path.
+ * First a fixed entry is looked up, then a template with {n} as placeholder for the number
+ * (/heatingCircuits/hc2/pumpStatus becomes /heatingCircuits/hc{n}/pumpStatus with the number 2).
  *
- * @param {string} apiPath - API-Pfad
+ * @param {string} apiPath - API path
  * @returns {ioBroker.StringOrTranslated} Name
  */
 function nameFor(apiPath) {
@@ -175,11 +175,11 @@ function nameFor(apiPath) {
 }
 
 /**
- * Hängt einen Zusatz an einen Namen an, z. B. "Energie gesamt – Verdichter".
+ * Appends a suffix to a name, e.g. "Total energy – Compressor".
  *
- * @param {ioBroker.StringOrTranslated} base - Grundname
- * @param {ioBroker.StringOrTranslated} part - Zusatz
- * @returns {ioBroker.StringOrTranslated} zusammengesetzter Name
+ * @param {ioBroker.StringOrTranslated} base - Base name
+ * @param {ioBroker.StringOrTranslated} part - Suffix
+ * @returns {ioBroker.StringOrTranslated} Combined name
  */
 function withPart(base, part) {
 	/** @type {Record<string, string>} */
@@ -194,17 +194,17 @@ function withPart(base, part) {
 	return /** @type {ioBroker.Translated} */ (result);
 }
 
-/** Teile eines Feldpfads, die keinen eigenen Namen bekommen (sie stehen nur für die Verschachtelung) */
+/** Parts of a field path that get no name of their own (they only stand for nesting) */
 const SKIPPED_FIELD_PARTS = new Set(['value', 'values']);
 
-/** Sprachen, in denen die Feldnamen übersetzt werden */
+/** Languages in which the field names are translated */
 const FIELD_LANGUAGES = ['en', 'de', 'ru', 'pt', 'nl', 'fr', 'it', 'es', 'pl', 'uk', 'zh-cn'];
 
 /**
- * Lesbarer Name für ein Feld in einer zusammengesetzten Antwort, z. B. values.0.ModuleSerialNumber.
- * Bekannte Feldnamen stehen in lib/names.json, Nummern erscheinen in eckigen Klammern. Ist kein Teil bekannt, bleibt der Pfad.
+ * Readable name for a field in a composite response, e.g. values.0.ModuleSerialNumber.
+ * Known field names are in lib/names.json, numbers appear in square brackets. If no part is known, the path is kept.
  *
- * @param {string} fieldPath - Pfad des Felds innerhalb der Antwort, z. B. progress.cur_step
+ * @param {string} fieldPath - Path of the field within the response, e.g. progress.cur_step
  * @returns {ioBroker.StringOrTranslated} Name
  */
 function fieldName(fieldPath) {
@@ -229,30 +229,30 @@ function fieldName(fieldPath) {
 }
 
 /**
- * Schlüssel zum Vergleichen von Werten: ohne Groß-/Kleinschreibung, Unterstriche und Sonderzeichen.
- * Die Geräte melden manche Werte anders geschrieben als die Beschreibung der API (z. B. activeDhw statt activeDHW).
+ * Key for comparing values: ignoring case, underscores and special characters.
+ * Devices report some values spelled differently from the API description (e.g. activeDhw instead of activeDHW).
  *
- * @param {string} value - Wert
- * @returns {string} Vergleichsschlüssel
+ * @param {string} value - Value
+ * @returns {string} Comparison key
  */
 function valueKey(value) {
 	return value.toLowerCase().replace(/[^a-z0-9]/g, '');
 }
 
-/** Texte zu festen Werten, nach Vergleichsschlüssel (siehe valueKey) */
+/** Texts for fixed values, by comparison key (see valueKey) */
 /** @type {Map<string, string>} */
 const STATE_TEXTS = new Map(Object.entries(names.stateTexts).map(([value, text]) => [valueKey(value), text]));
 
 /**
- * Werteliste (common.states) für einen Textdatenpunkt mit festen Werten, z. B. den Status des Kältekreises.
- * Die Werte kommen aus der Liste, die das Gerät selbst meldet (allowedValues); fehlt sie, aus der Beschreibung der
- * Hersteller-API. Werte ohne bekannten Text werden weggelassen und erscheinen dann unverändert.
- * Die Texte sind einsprachig, weil der Admin mehrsprachige Wertelisten nicht anzeigen kann.
- * Nur Pfade, für die in lib/names.json feste Werte hinterlegt sind, bekommen eine Werteliste (reine Ein/Aus-Werte nicht).
+ * Value list (common.states) for a text data point with fixed values, e.g. the status of the refrigerant circuit.
+ * The values come from the list the device itself reports (allowedValues); if it is missing, from the description of the
+ * manufacturer API. Values without a known text are left out and then appear unchanged.
+ * The texts are single-language because Admin cannot display multi-language value lists.
+ * Only paths with fixed values in lib/names.json get a value list (plain on/off values do not).
  *
- * @param {string} apiPath - API-Pfad
- * @param {string[]} [deviceValues] - vom Gerät gemeldete erlaubte Werte (allowedValues)
- * @returns {Record<string, string> | undefined} Werte mit Texten oder undefined
+ * @param {string} apiPath - API path
+ * @param {string[]} [deviceValues] - allowed values reported by the device (allowedValues)
+ * @returns {Record<string, string> | undefined} Values with texts, or undefined
  */
 function statesFor(apiPath, deviceValues) {
 	const documented = names.stateValues[apiPath] ?? names.stateValues[apiPath.replace(NUMBER_IN_PATH, '$1$2{n}')];
@@ -272,10 +272,10 @@ function statesFor(apiPath, deviceValues) {
 }
 
 /**
- * Aus einem API-Pfad die ID eines Datenpunkts bilden.
+ * Build the ID of a data point from an API path.
  *
- * @param {string} apiPath - API-Pfad, z. B. /signals/SRC.OutdoorTemp
- * @returns {string} Datenpunkt-ID
+ * @param {string} apiPath - API path, e.g. /signals/SRC.OutdoorTemp
+ * @returns {string} Data point ID
  */
 function toId(apiPath) {
 	return apiPath
@@ -285,18 +285,18 @@ function toId(apiPath) {
 }
 
 /**
- * Einheiten, bei denen die API die Summe aller Einzelmessungen liefert, sinnvoll ist aber der Durchschnitt.
- * Energie (kWh), Starts und Laufzeiten bleiben dagegen Summen.
+ * Units for which the API returns the sum of all individual measurements, although the average makes more sense.
+ * Energy (kWh), starts and run times, on the other hand, stay sums.
  */
 const AVERAGE_UNITS = ['°C', 'K', '%', 'bar'];
 
 /**
- * Wandelt die Messreihe einer Verlaufsabfrage in eine Liste mit Datum und Wert um.
+ * Converts the series of a history query into a list of dates and values.
  *
- * @param {any} response - Antwort der API
- * @param {'P1D' | 'P1M'} rate - Abtastrate (Tage oder Monate)
- * @param {boolean} average - true: Durchschnitt (Summe geteilt durch Anzahl Messungen) statt Summe
- * @returns {{ date: string, value: number | null, samples: number }[]} Messreihe
+ * @param {any} response - API response
+ * @param {'P1D' | 'P1M'} rate - Sampling rate (days or months)
+ * @param {boolean} average - true: average (sum divided by number of measurements) instead of sum
+ * @returns {{ date: string, value: number | null, samples: number }[]} Series of measurements
  */
 function extractSeries(response, rate, average) {
 	const groups = response?.values ?? [];
@@ -319,15 +319,15 @@ function extractSeries(response, rate, average) {
 	});
 }
 
-/** Felder, die nur Zusatzinformationen zur API enthalten und keine Messwerte sind */
+/** Fields that only contain additional information about the API and are not measured values */
 const SKIP_KEYS = new Set(['id', 'type', 'writeable', 'allowedValues', 'uri', 'valueConfig']);
 
 /**
- * Zerlegt eine zusammengesetzte Antwort (Objekte und Listen) in einzelne Werte.
+ * Splits a composite response (objects and lists) into single values.
  *
- * @param {any} value - Teil der Antwort
- * @param {string} prefix - bisheriger Pfad, z. B. values.0
- * @param {[string, string | number | boolean][]} out - gesammelte Werte (Pfad, Wert)
+ * @param {any} value - Part of the response
+ * @param {string} prefix - Path so far, e.g. values.0
+ * @param {[string, string | number | boolean][]} out - Collected values (path, value)
  */
 function flatten(value, prefix, out) {
 	if (value === null || value === undefined) {
@@ -335,12 +335,12 @@ function flatten(value, prefix, out) {
 	}
 	if (Array.isArray(value)) {
 		if (value.length === 0) {
-			// Eine leere Liste (z. B. keine Fehlermeldungen) bekommt keinen Datenpunkt. Sonst würden später, wenn die Liste
-			// Einträge enthält, Datenpunkte unterhalb eines Datenpunkts entstehen. Die Antwort steht vollständig im Datenpunkt json.
+			// An empty list (e.g. no error messages) gets no data point. Otherwise, when the list later
+			// contains entries, data points would be created below a data point. The complete response is in the data point json.
 			return;
 		}
 		if (value.every(item => item === null || typeof item !== 'object')) {
-			// Liste einfacher Werte, z. B. ["ch","dhw"], als Text ablegen
+			// Store a list of simple values, e.g. ["ch","dhw"], as text
 			out.push([prefix, JSON.stringify(value)]);
 			return;
 		}
@@ -361,10 +361,10 @@ function flatten(value, prefix, out) {
 }
 
 /**
- * Vom Gerät gemeldete erlaubte Werte eines Datenpunkts.
+ * Allowed values of a data point, as reported by the device.
  *
- * @param {any} data - Antwortobjekt der API
- * @returns {string[] | undefined} Liste der Werte oder undefined
+ * @param {any} data - Response object of the API
+ * @returns {string[] | undefined} List of values, or undefined
  */
 function allowedValues(data) {
 	return Array.isArray(data?.allowedValues) ? data.allowedValues.map(String) : undefined;
@@ -385,40 +385,40 @@ class BoschBuderusWp extends utils.Adapter {
 
 		/** @type {Set<string>} */
 		this.knownStates = new Set();
-		/** Bereits angelegte Ordner und Kanäle */
+		/** Folders and channels that have already been created */
 		/** @type {Set<string>} */
 		this.knownObjects = new Set();
-		/** Datenpunkte, die in einzelne Werte aufgeteilt werden (alte Textdatenpunkte wurden entfernt) */
+		/** Data points that are split into single values (old text data points have been removed) */
 		/** @type {Set<string>} */
 		this.expandedStates = new Set();
-		/** Datenpunkte mit Benutzereinstellungen (common.custom), die nicht gelöscht werden dürfen */
+		/** Data points with user settings (common.custom) that must not be deleted */
 		/** @type {Set<string>} */
 		this.protectedStates = new Set();
-		/** Diagnosebericht in den Einstellungen eingeschaltet? */
+		/** Is the diagnosis report switched on in the settings? */
 		this.diagnosisEnabled = false;
-		/** Angaben für den Diagnosebericht je abgefragtem Pfad (ohne Messwerte) */
+		/** Information for the diagnosis report per queried path (without measured values) */
 		/** @type {Map<string, { named: boolean, value?: string, missingTexts?: string[] }>} */
 		this.diagnosis = new Map();
-		/** Zuletzt geschriebene Einzelwerte je zusammengesetzter Antwort */
+		/** Single values written last, per composite response */
 		/** @type {Map<string, Set<string>>} */
 		this.complexLeaves = new Map();
-		/** Pfade, die bei der Suche nicht geantwortet haben und stündlich erneut versucht werden */
+		/** Paths that did not answer during the search and are retried hourly */
 		/** @type {string[]} */
 		this.retryPaths = [];
 		/** @type {ioBroker.Timeout | undefined} */
 		this.pollTimer = undefined;
-		/** Feste Pfade, die es bei dieser Anlage gibt und die bei jedem Durchlauf abgefragt werden */
+		/** Fixed paths that exist on this system and are queried in every cycle */
 		/** @type {string[]} */
 		this.fixedPaths = [];
-		/** Pfade, die es gibt und die nur stündlich abgefragt werden (Verlaufsdaten, WLAN-Liste) */
+		/** Paths that exist and are only queried hourly (history data, Wi-Fi list) */
 		/** @type {string[]} */
 		this.slowPaths = [];
 		this.lastSlowPoll = 0;
-		/** Zeitpunkt der letzten vollständigen Suche nach den vorhandenen Pfaden */
+		/** Time of the last complete search for the available paths */
 		this.lastDiscovery = 0;
-		/** Wurde in den Einstellungen eine neue Suche angefordert? */
+		/** Was a new search requested in the settings? */
 		this.rescanRequested = false;
-		/** Wurde die Suche nach den festen Pfaden abgeschlossen? */
+		/** Has the search for the fixed paths been completed? */
 		this.discovered = false;
 		/** @type {boolean | undefined} */
 		this.connected = undefined;
@@ -426,11 +426,11 @@ class BoschBuderusWp extends utils.Adapter {
 	}
 
 	/**
-	 * Fragt einen Pfad der Gateway-API ab.
-	 * Liefert das Antwortobjekt, bei einem nicht vorhandenen Pfad (404) oder nicht unterstützter Anfrage (400) null.
+	 * Queries a path of the gateway API.
+	 * Returns the response object, or null for a path that does not exist (404) or an unsupported request (400).
 	 *
-	 * @param {string} path - Pfad, z. B. /gateway/brand
-	 * @returns {Promise<any>} Antwortobjekt oder null
+	 * @param {string} path - Path, e.g. /gateway/brand
+	 * @returns {Promise<any>} Response object or null
 	 */
 	apiGet(path) {
 		return new Promise((resolve, reject) => {
@@ -441,7 +441,7 @@ class BoschBuderusWp extends utils.Adapter {
 					path,
 					method: 'GET',
 					headers: { Authorization: `Bearer ${this.config.token}` },
-					rejectUnauthorized: false, // Das Gerät nutzt ein selbst signiertes Zertifikat
+					rejectUnauthorized: false, // The device uses a self-signed certificate
 					timeout: 10000,
 				},
 				res => {
@@ -471,29 +471,29 @@ class BoschBuderusWp extends utils.Adapter {
 	}
 
 	/**
-	 * Wandelt eine API-Antwort in Wert und Datentyp für ioBroker um.
+	 * Converts an API response into a value and data type for ioBroker.
 	 *
-	 * @param {any} data - Antwortobjekt der API
-	 * @returns {{ val: string | number | boolean | null, type: 'string' | 'number' | 'boolean', unit?: string, states?: Record<string, string> }} Wert, Typ, Einheit und ggf. Zustandstexte
+	 * @param {any} data - Response object of the API
+	 * @returns {{ val: string | number | boolean | null, type: 'string' | 'number' | 'boolean', unit?: string, states?: Record<string, string> }} Value, type, unit and, if present, state texts
 	 */
 	convertValue(data) {
 		const raw = data.value;
 		const unit = normalizeUnit(data.unitOfMeasure);
 
 		if (data.type === 'floatValue' || data.type === 'integerValue') {
-			// Die API liefert die Liste "state" entweder als Liste von Objekten oder als einfaches Objekt.
+			// The API returns the list "state" either as a list of objects or as a single object.
 			const entries = (Array.isArray(data.state) ? data.state : [data.state]).filter(
 				(/** @type {any} */ entry) => entry && typeof entry === 'object',
 			);
 			if (data.unitOfMeasure) {
-				// Messwert (hat eine Einheit): Sonderwerte (Kurzschluss, Leitungsbruch, zu geringer Durchfluss ...)
-				// nicht als Messwert übernehmen.
+				// Measured value (has a unit): special values (short circuit, wire break, flow too low ...)
+				// are not taken over as a measured value.
 				const specialValues = entries.flatMap((/** @type {any} */ entry) => Object.values(entry));
 				const isSpecial = raw !== undefined && specialValues.includes(raw);
 				return { val: isSpecial ? null : raw, type: 'number', unit };
 			}
-			// Zahl ohne Einheit mit "state"-Liste: Zustandsliste (z. B. 6 = Not_Commissioned). Der Wert bleibt erhalten,
-			// die Texte werden als Werteliste am Datenpunkt hinterlegt.
+			// Number without unit with a "state" list: state list (e.g. 6 = Not_Commissioned). The value is kept,
+			// the texts are stored as a value list on the data point.
 			/** @type {Record<string, string>} */
 			const states = {};
 			for (const entry of entries) {
@@ -509,7 +509,7 @@ class BoschBuderusWp extends utils.Adapter {
 			return { val: raw === 'true', type: 'boolean' };
 		}
 		if (raw === undefined || raw === null) {
-			// Antworten ohne einfachen Wert (z. B. Listen) als JSON-Text ablegen
+			// Store responses without a simple value (e.g. lists) as JSON text
 			const rest = { ...data };
 			delete rest.id;
 			delete rest.writeable;
@@ -522,15 +522,15 @@ class BoschBuderusWp extends utils.Adapter {
 	}
 
 	/**
-	 * Legt bei Bedarf einen Datenpunkt an und schreibt den Wert.
+	 * Creates a data point if needed and writes the value.
 	 *
-	 * @param {string} id - Datenpunkt-ID
-	 * @param {ioBroker.StringOrTranslated} name - Anzeigename (deutsch und englisch)
-	 * @param {string | number | boolean | null} val - Wert
-	 * @param {'string' | 'number' | 'boolean'} type - Datentyp
-	 * @param {string} role - Rolle des Datenpunkts
-	 * @param {string} [unit] - Einheit
-	 * @param {Record<string, string>} [states] - Werteliste mit Texten (für Textdatenpunkte und Zahlen ohne Einheit)
+	 * @param {string} id - Data point ID
+	 * @param {ioBroker.StringOrTranslated} name - Display name (German and English)
+	 * @param {string | number | boolean | null} val - Value
+	 * @param {'string' | 'number' | 'boolean'} type - Data type
+	 * @param {string} role - Role of the data point
+	 * @param {string} [unit] - Unit
+	 * @param {Record<string, string>} [states] - Value list with texts (for text data points and numbers without unit)
 	 */
 	async setValue(id, name, val, type, role, unit, states) {
 		if (!this.knownStates.has(id)) {
@@ -552,16 +552,16 @@ class BoschBuderusWp extends utils.Adapter {
 			});
 			this.knownStates.add(id);
 		}
-		// Nur schreiben, wenn sich der Wert geändert hat (weniger Last und weniger Ereignisse für Logging-Adapter)
+		// Only write when the value has changed (less load and fewer events for logging adapters)
 		await this.setStateChangedAsync(id, { val, ack: true });
 	}
 
 	/**
-	 * Entfernt einen bestehenden Datenpunkt, damit an dieser Stelle ein Ordner oder Kanal angelegt werden kann.
-	 * Hat der Datenpunkt Benutzereinstellungen (common.custom, z. B. für Logging), wird er nicht gelöscht.
+	 * Removes an existing data point so that a folder or channel can be created at this place.
+	 * If the data point has user settings (common.custom, e.g. for logging), it is not deleted.
 	 *
-	 * @param {string} id - ID des Objekts
-	 * @returns {Promise<boolean>} true, wenn die ID frei ist; false, wenn ein geschützter Datenpunkt bestehen bleibt
+	 * @param {string} id - ID of the object
+	 * @returns {Promise<boolean>} true if the ID is free; false if a protected data point remains
 	 */
 	async removeLegacyState(id) {
 		if (this.protectedStates.has(id)) {
@@ -584,11 +584,11 @@ class BoschBuderusWp extends utils.Adapter {
 	}
 
 	/**
-	 * Legt fehlende Ordner oberhalb eines Objekts an. Laut ioBroker-Regeln sollen Unterstrukturen
-	 * aus Objekten vom Typ folder, channel oder device bestehen und Datenpunkte nur auf der letzten Ebene liegen.
+	 * Creates missing folders above an object. According to the ioBroker rules, substructures
+	 * should consist of objects of type folder, channel or device, and data points should only be on the last level.
 	 *
-	 * @param {string} id - ID des Datenpunkts oder Kanals
-	 * @returns {Promise<boolean>} false, wenn ein geschützter Datenpunkt im Weg ist und nichts angelegt wurde
+	 * @param {string} id - ID of the data point or channel
+	 * @returns {Promise<boolean>} false if a protected data point is in the way and nothing was created
 	 */
 	async ensureParents(id) {
 		const parts = id.split('.');
@@ -597,7 +597,7 @@ class BoschBuderusWp extends utils.Adapter {
 			if (this.knownObjects.has(parentId)) {
 				continue;
 			}
-			// Ein Datenpunkt darf keine Unterobjekte haben: ein bestehender Datenpunkt an dieser Stelle wird entfernt
+			// A data point must not have sub-objects: an existing data point at this place is removed
 			if (!(await this.removeLegacyState(parentId))) {
 				return false;
 			}
@@ -612,10 +612,10 @@ class BoschBuderusWp extends utils.Adapter {
 	}
 
 	/**
-	 * Legt einen Kanal an, der mehrere Werte einer API-Antwort zusammenfasst (z. B. Energiezähler, Verlaufsdaten).
+	 * Creates a channel that groups several values of an API response (e.g. energy counters, history data).
 	 *
-	 * @param {string} id - ID des Kanals
-	 * @param {ioBroker.StringOrTranslated} name - Name des Kanals
+	 * @param {string} id - ID of the channel
+	 * @param {ioBroker.StringOrTranslated} name - Name of the channel
 	 */
 	async ensureChannel(id, name) {
 		if (this.knownObjects.has(id) || this.protectedStates.has(id)) {
@@ -629,10 +629,10 @@ class BoschBuderusWp extends utils.Adapter {
 	}
 
 	/**
-	 * Schreibt eine API-Antwort in den passenden Datenpunkt.
+	 * Writes an API response to the matching data point.
 	 *
 	 * @param {string} apiPath - API-Pfad, z. B. /signals/SRC.OutdoorTemp
-	 * @param {any} data - Antwortobjekt der API
+	 * @param {any} data - Response object of the API
 	 */
 	async writeState(apiPath, data) {
 		if (data.type === 'emonValue' && Array.isArray(data.values)) {
@@ -659,10 +659,10 @@ class BoschBuderusWp extends utils.Adapter {
 	}
 
 	/**
-	 * Energiezähler (z. B. Gesamtverbrauch) in einzelne Datenpunkte aufteilen.
+	 * Split energy counters (e.g. total consumption) into single data points.
 	 *
 	 * @param {string} apiPath - API-Pfad, z. B. /heatSources/emon/totalConsumption
-	 * @param {any} data - Antwortobjekt der API
+	 * @param {any} data - Response object of the API
 	 */
 	async writeEnergyCounters(apiPath, data) {
 		const base = toId(apiPath);
@@ -680,9 +680,9 @@ class BoschBuderusWp extends utils.Adapter {
 	}
 
 	/**
-	 * Entfernt einmalig einen Textdatenpunkt aus früheren Versionen, damit darunter einzelne Werte angelegt werden können.
+	 * Removes a text data point from earlier versions once, so that single values can be created below it.
 	 *
-	 * @param {string} base - Datenpunkt-ID
+	 * @param {string} base - Data point ID
 	 */
 	async replaceLegacyState(base) {
 		if (this.expandedStates.has(base)) {
@@ -693,11 +693,11 @@ class BoschBuderusWp extends utils.Adapter {
 	}
 
 	/**
-	 * Zusammengesetzte Antworten (z. B. Fehlermeldungen, Systeminfos) in einzelne Datenpunkte zerlegen.
-	 * Zusätzlich wird die vollständige Antwort als JSON-Text abgelegt.
+	 * Split composite responses (e.g. error messages, system info) into single data points.
+	 * In addition, the complete response is stored as JSON text.
 	 *
 	 * @param {string} apiPath - API-Pfad, z. B. /system/basicInfo
-	 * @param {any} data - Antwortobjekt der API
+	 * @param {any} data - Response object of the API
 	 */
 	async writeComplex(apiPath, data) {
 		const base = toId(apiPath);
@@ -728,7 +728,7 @@ class BoschBuderusWp extends utils.Adapter {
 				await this.setValue(id, name, String(value), 'string', 'text');
 			}
 		}
-		// Werte, die in der Antwort nicht mehr vorkommen (z. B. behobene Fehlermeldungen), leeren
+		// Clear values that no longer appear in the response (e.g. resolved error messages)
 		for (const id of this.complexLeaves.get(base) ?? []) {
 			if (!current.has(id)) {
 				await this.setStateChangedAsync(id, { val: null, ack: true });
@@ -738,11 +738,11 @@ class BoschBuderusWp extends utils.Adapter {
 	}
 
 	/**
-	 * Fragt Verlaufsdaten ab (Tageswerte der letzten 31 Tage, Monatswerte der letzten 12 Monate)
-	 * und schreibt sie in Datenpunkte. Temperaturen als Durchschnitt, Energie, Starts und Laufzeiten als Summe.
+	 * Queries history data (daily values of the last 31 days, monthly values of the last 12 months)
+	 * and writes them to data points. Temperatures as average, energy, starts and run times as sum.
 	 *
-	 * @param {string} apiPath - Pfad, z. B. /recordings/heatSources/emon/total/compressor
-	 * @returns {Promise<boolean>} true, wenn es diese Verlaufsdaten bei der Anlage gibt
+	 * @param {string} apiPath - Path, e.g. /recordings/heatSources/emon/total/compressor
+	 * @returns {Promise<boolean>} true if this history data exists on the system
 	 */
 	async pollRecording(apiPath) {
 		const now = new Date();
@@ -805,11 +805,11 @@ class BoschBuderusWp extends utils.Adapter {
 	}
 
 	/**
-	 * Merkt sich für den Diagnosebericht, ob ein Pfad einen Namen hat und ob für seine festen Werte Texte vorhanden sind.
-	 * Messwerte werden nicht gespeichert, nur einzelne Geräteeigenschaften (siehe DIAGNOSIS_VALUES).
+	 * Remembers for the diagnosis report whether a path has a name and whether texts exist for its fixed values.
+	 * Measured values are not stored, only single device properties (see DIAGNOSIS_VALUES).
 	 *
-	 * @param {string} apiPath - API-Pfad
-	 * @param {any} [data] - Antwortobjekt der API (bei Verlaufsdaten nicht vorhanden)
+	 * @param {string} apiPath - API path
+	 * @param {any} [data] - Response object of the API (not present for history data)
 	 */
 	recordDiagnosis(apiPath, data) {
 		if (!this.diagnosisEnabled) {
@@ -834,9 +834,9 @@ class BoschBuderusWp extends utils.Adapter {
 	}
 
 	/**
-	 * Schreibt den Diagnosebericht (Datenpunkt info.diagnosis). Er enthält keine Messwerte und keine persönlichen Daten:
-	 * Version, einzelne Geräteeigenschaften, Pfade ohne Namen und feste Werte ohne Text.
-	 * Tester können ihn im Forum einfügen, damit fehlende Namen und Texte ergänzt werden können.
+	 * Writes the diagnosis report (data point info.diagnosis). It contains no measured values and no personal data:
+	 * version, single device properties, paths without names and fixed values without text.
+	 * Testers can paste it into the forum so that missing names and texts can be added.
 	 */
 	async writeDiagnosis() {
 		if (!this.diagnosisEnabled) {
@@ -870,10 +870,10 @@ class BoschBuderusWp extends utils.Adapter {
 	}
 
 	/**
-	 * Fragt einen Pfad ab und schreibt den Wert in den Datenpunkt.
+	 * Queries a path and writes the value to the data point.
 	 *
-	 * @param {string} apiPath - API-Pfad
-	 * @returns {Promise<boolean>} true, wenn es den Pfad bei der Anlage gibt
+	 * @param {string} apiPath - API path
+	 * @returns {Promise<boolean>} true if the path exists on the system
 	 */
 	async pollOne(apiPath) {
 		if (apiPath.startsWith('/recordings/')) {
@@ -893,9 +893,9 @@ class BoschBuderusWp extends utils.Adapter {
 	}
 
 	/**
-	 * Setzt den Verbindungsanzeiger (info.connection), aber nur bei einer Änderung.
+	 * Sets the connection indicator (info.connection), but only on a change.
 	 *
-	 * @param {boolean} connected - true, wenn das Gateway antwortet
+	 * @param {boolean} connected - true if the gateway responds
 	 */
 	async setConnected(connected) {
 		if (this.connected === connected) {
@@ -906,9 +906,9 @@ class BoschBuderusWp extends utils.Adapter {
 	}
 
 	/**
-	 * Kurze Pause zwischen zwei Abfragen. Beim Beenden des Adapters wird kein neuer Timer mehr gestartet.
+	 * Short pause between two queries. When the adapter is shutting down, no new timer is started.
 	 *
-	 * @param {number} ms - Dauer in Millisekunden
+	 * @param {number} ms - Duration in milliseconds
 	 * @returns {Promise<void>}
 	 */
 	pause(ms) {
@@ -921,9 +921,9 @@ class BoschBuderusWp extends utils.Adapter {
 	}
 
 	/**
-	 * Fragt eine Liste von Pfaden ab und schreibt die Werte in die Datenpunkte.
+	 * Queries a list of paths and writes the values to the data points.
 	 *
-	 * @param {string[]} paths - API-Pfade
+	 * @param {string[]} paths - API paths
 	 */
 	async pollPaths(paths) {
 		for (const apiPath of paths) {
@@ -940,9 +940,9 @@ class BoschBuderusWp extends utils.Adapter {
 	}
 
 	/**
-	 * Probiert alle festen Pfade aus endpoints.json einmal aus und merkt sich die,
-	 * die es bei dieser Anlage gibt (alle anderen antworten mit 404).
-	 * Bricht ab, wenn das Gerät mehrmals hintereinander nicht antwortet.
+	 * Tries all fixed paths from endpoints.json once and remembers those
+	 * that exist on this system (all others answer with 404).
+	 * Aborts if the device does not answer several times in a row.
 	 */
 	async discoverFixedPaths() {
 		const fast = [];
@@ -991,8 +991,8 @@ class BoschBuderusWp extends utils.Adapter {
 	}
 
 	/**
-	 * Versucht Pfade erneut, die bei der Suche nicht geantwortet haben.
-	 * Vorhandene werden in die normale Abfrage übernommen, nicht vorhandene aussortiert.
+	 * Retries paths that did not answer during the search.
+	 * Existing ones are added to the normal query, non-existing ones are sorted out.
 	 */
 	async retryFailedPaths() {
 		const stillFailing = [];
@@ -1015,7 +1015,7 @@ class BoschBuderusWp extends utils.Adapter {
 	}
 
 	/**
-	 * Speichert die gefundenen Pfade, damit der nächste Start sofort mit dieser Liste arbeiten kann.
+	 * Stores the paths found, so that the next start can work with this list right away.
 	 */
 	async saveDiscovery() {
 		const data = {
@@ -1031,10 +1031,10 @@ class BoschBuderusWp extends utils.Adapter {
 	}
 
 	/**
-	 * Lädt die gespeicherte Liste der gefundenen Pfade.
-	 * Sie wird nur übernommen, wenn sie zur aktuellen Pfadliste und zur eingestellten IP-Adresse passt.
+	 * Loads the stored list of the paths found.
+	 * It is only used if it matches the current path list and the configured IP address.
 	 *
-	 * @returns {Promise<boolean>} true, wenn eine gültige Liste geladen wurde
+	 * @returns {Promise<boolean>} true if a valid list was loaded
 	 */
 	async loadDiscovery() {
 		const state = await this.getStateAsync('info.discoveredPaths');
@@ -1073,13 +1073,13 @@ class BoschBuderusWp extends utils.Adapter {
 	}
 
 	/**
-	 * Sendet Formulardaten per POST an das Gateway (z. B. zum Anfordern des API-Tokens).
+	 * Sends form data to the gateway via POST (e.g. to request the API token).
 	 *
-	 * @param {string} host - IP-Adresse des Gateways
+	 * @param {string} host - IP address of the gateway
 	 * @param {number} port - Port
-	 * @param {string} path - Pfad
-	 * @param {string} body - Formulardaten (application/x-www-form-urlencoded)
-	 * @returns {Promise<any>} Antwort als Objekt
+	 * @param {string} path - Path
+	 * @param {string} body - Form data (application/x-www-form-urlencoded)
+	 * @returns {Promise<any>} Response as object
 	 */
 	postForm(host, port, path, body) {
 		return new Promise((resolve, reject) => {
@@ -1093,7 +1093,7 @@ class BoschBuderusWp extends utils.Adapter {
 						'Content-Type': 'application/x-www-form-urlencoded',
 						'Content-Length': Buffer.byteLength(body),
 					},
-					rejectUnauthorized: false, // Das Gerät nutzt ein selbst signiertes Zertifikat
+					rejectUnauthorized: false, // The device uses a self-signed certificate
 					timeout: 15000,
 				},
 				res => {
@@ -1106,7 +1106,7 @@ class BoschBuderusWp extends utils.Adapter {
 								const body = JSON.parse(text);
 								reason = typeof body.error === 'string' ? ` (${body.error})` : '';
 							} catch {
-								// keine auswertbare Antwort
+								// no usable response
 							}
 							const error = /** @type {Error & { statusCode?: number }} */ (
 								new Error(`HTTP ${res.statusCode}${reason}`)
@@ -1131,16 +1131,16 @@ class BoschBuderusWp extends utils.Adapter {
 	}
 
 	/**
-	 * Fordert beim Gateway einen API-Token an (Login und Pass vom Aufkleber des Geräts).
-	 * Login und Pass werden weder gespeichert noch protokolliert.
+	 * Requests an API token from the gateway (login and pass from the sticker on the device).
+	 * Login and pass are neither stored nor logged.
 	 *
-	 * @param {any} message - Daten aus den Einstellungen (ip, login, pass)
-	 * @returns {Promise<{ error?: string, result?: string, native?: { token: string } }>} Antwort an die Einstellungsseite
+	 * @param {any} message - Data from the settings (ip, login, pass)
+	 * @returns {Promise<{ error?: string, result?: string, native?: { token: string } }>} Response to the settings page
 	 */
 	async requestToken(message) {
 		const ip = typeof message?.ip === 'string' ? message.ip.trim() : '';
 		const login = typeof message?.login === 'string' ? message.login.trim() : '';
-		// Laut Hersteller müssen die Bindestriche aus dem Wert "Pass" entfernt werden
+		// According to the manufacturer, the hyphens must be removed from the value "Pass"
 		const pass = typeof message?.pass === 'string' ? message.pass.replace(/-/g, '').trim() : '';
 		if (!ip || !login || !pass) {
 			return { error: 'Please enter the IP address, Login and Pass.' };
@@ -1165,7 +1165,7 @@ class BoschBuderusWp extends utils.Adapter {
 			const statusCode = /** @type {{ statusCode?: number }} */ (error).statusCode;
 			this.log.warn(`Token request failed: ${error.message}`);
 			if (statusCode === 412) {
-				// physical_proximity_unproven: die Tasten am Gerät wurden nicht (rechtzeitig) gedrückt
+				// physical_proximity_unproven: the buttons on the device were not pressed (in time)
 				return {
 					error:
 						'Please press the WLAN and Wireless buttons on the gateway at the same time for one second ' +
@@ -1173,7 +1173,7 @@ class BoschBuderusWp extends utils.Adapter {
 				};
 			}
 			if (statusCode === 400) {
-				// invalid_grant: Login oder Pass stimmen nicht
+				// invalid_grant: login or pass are wrong
 				return {
 					error:
 						'The gateway refused the login data. Check Login and Pass, ' +
@@ -1196,9 +1196,9 @@ class BoschBuderusWp extends utils.Adapter {
 	}
 
 	/**
-	 * Nachrichten von der Einstellungsseite (Schaltflächen).
+	 * Messages from the settings page (buttons).
 	 *
-	 * @param {ioBroker.Message} obj - Nachricht
+	 * @param {ioBroker.Message} obj - Message
 	 */
 	async onMessage(obj) {
 		if (!obj || typeof obj !== 'object' || typeof obj.command !== 'string') {
@@ -1219,7 +1219,7 @@ class BoschBuderusWp extends utils.Adapter {
 	}
 
 	/**
-	 * Ein Abfragedurchlauf: Signalliste holen, alle Werte lesen und den nächsten Durchlauf planen.
+	 * One polling cycle: get the signal list, read all values and schedule the next cycle.
 	 */
 	async pollCycle() {
 		try {
@@ -1238,7 +1238,7 @@ class BoschBuderusWp extends utils.Adapter {
 			const rescanDue =
 				this.discovered && (this.rescanRequested || Date.now() - this.lastDiscovery >= RESCAN_INTERVAL_MS);
 			if (!this.discovered || rescanDue) {
-				// Ohne gespeicherte Liste, einmal am Tag und auf Wunsch werden die vorhandenen Pfade gesucht
+				// Without a stored list, once a day and on request, the available paths are searched
 				this.rescanRequested = false;
 				await this.discoverFixedPaths();
 				fixed = [];
@@ -1263,7 +1263,7 @@ class BoschBuderusWp extends utils.Adapter {
 		if (this.unloaded) {
 			return;
 		}
-		// Das Intervall wird auch im Code begrenzt (10 bis 3600 Sekunden), nicht nur in den Einstellungen
+		// The interval is also limited in the code (10 to 3600 seconds), not only in the settings
 		const seconds = Math.min(3600, Math.max(10, Number(this.config.interval) || 60));
 		this.pollTimer = this.setTimeout(() => this.pollCycle(), seconds * 1000);
 	}
@@ -1300,7 +1300,7 @@ class BoschBuderusWp extends utils.Adapter {
 			},
 			native: {},
 		});
-		// Diagnosebericht: Datenpunkt nur anlegen, wenn er in den Einstellungen eingeschaltet ist, sonst entfernen
+		// Diagnosis report: only create the data point if it is switched on in the settings, otherwise remove it
 		this.diagnosisEnabled = this.config.diagnosis === true;
 		if (this.diagnosisEnabled) {
 			await this.extendObjectAsync('info.diagnosis', {
@@ -1331,10 +1331,10 @@ class BoschBuderusWp extends utils.Adapter {
 			this.log.error(`Connection to the gateway failed: ${error.message}`);
 		}
 
-		// Gespeicherte Pfadliste laden, damit die Suche nach den vorhandenen Pfaden nicht bei jedem Start läuft
+		// Load the stored path list so that the search for the available paths does not run on every start
 		await this.loadDiscovery();
 
-		// Startet die regelmäßige Abfrage. Schlägt ein Durchlauf fehl, wird es automatisch erneut versucht.
+		// Starts the regular polling. If a cycle fails, it is retried automatically.
 		await this.pollCycle();
 		this.log.info(`${this.knownStates.size} data points created, polling runs at the configured interval`);
 	}
@@ -1364,7 +1364,7 @@ if (require.main !== module) {
 	 * @param {Partial<utils.AdapterOptions>} [options] - Adapter options
 	 */
 	const createAdapter = options => new BoschBuderusWp(options);
-	// Die Hilfsfunktionen werden zusätzlich bereitgestellt, damit die Tests (main.test.js) sie einzeln prüfen können
+	// The helper functions are also exported so that the tests (main.test.js) can check them individually
 	module.exports = Object.assign(createAdapter, {
 		helpers: {
 			formatDate,

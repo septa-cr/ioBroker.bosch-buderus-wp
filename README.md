@@ -125,7 +125,7 @@ Which folders and values appear depends on your system.
 
 - `heatSources.hs1.refrigerant.status` shows what the refrigerant circuit is doing: `heating`, `cooling`, `defrost`, `dhw` (hot water charging), `idle` and others. The possible values depend on the device and can differ a little from the manufacturer's description. The adapter uses the list that your device reports itself. On a Buderus WLW186i the values `heating`, `defrost` and `dhw` were observed during the matching operation.
 - `heatSources.flameStatus` ("Heat source in operation") only says whether the heat source is running (on/off). It stays `on` while heating, charging the hot water and defrosting, because the compressor keeps running in all three cases.
-- The signals `signals.SRC.IntDHW.HeatUpActive`, `DHURunning` and `ExtraActive` did **not** show the hot water charging in our tests (they stayed off while `refrigerant.status` was `dhw`). Please use `refrigerant.status` for this.
+- The signals `signals.SRC.IntDHW.HeatUpActive`, `DHURunning` and `ExtraActive` did **not** show the hot water charging in our tests (`DHURunning` and `ExtraActive` stayed off while `refrigerant.status` was `dhw`; `HeatUpActive` has the states FALSE, HEAT and POSTHEAT, but we have not checked what it shows during hot water charging). Please use `refrigerant.status` for this.
 
 ### Diagnosis report
 

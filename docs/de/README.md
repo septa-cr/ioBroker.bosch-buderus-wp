@@ -116,7 +116,7 @@ Welche Ordner und Werte erscheinen, hängt von deiner Anlage ab.
 
 - `heatSources.hs1.refrigerant.status` zeigt, was der Kältekreis gerade tut: `heating` (Heizen), `cooling` (Kühlen), `defrost` (Abtauen), `dhw` (Warmwasser wird geladen), `idle` (Ruhe) und weitere. Welche Werte möglich sind, hängt vom Gerät ab und kann ein wenig von der Beschreibung des Herstellers abweichen. Der Adapter nutzt die Liste, die dein Gerät selbst meldet. Bei einer Buderus WLW186i wurden `heating`, `defrost` und `dhw` im jeweiligen Betrieb beobachtet.
 - `heatSources.flameStatus` („Wärmeerzeuger in Betrieb“) sagt nur, ob der Wärmeerzeuger läuft (ein/aus). Er bleibt beim Heizen, beim Laden des Warmwassers und beim Abtauen auf `on`, weil der Verdichter in allen drei Fällen weiterläuft.
-- Die Signale `signals.SRC.IntDHW.HeatUpActive`, `DHURunning` und `ExtraActive` haben in unseren Tests das Laden des Warmwassers **nicht** angezeigt (sie blieben aus, während `refrigerant.status` auf `dhw` stand). Nutze dafür bitte `refrigerant.status`.
+- Die Signale `signals.SRC.IntDHW.HeatUpActive`, `DHURunning` und `ExtraActive` haben in unseren Tests das Laden des Warmwassers **nicht** angezeigt (`DHURunning` und `ExtraActive` blieben aus, während `refrigerant.status` auf `dhw` stand; `HeatUpActive` hat die Zustände FALSE, HEAT und POSTHEAT, was es beim Laden des Warmwassers anzeigt, haben wir nicht geprüft). Nutze dafür bitte `refrigerant.status`.
 
 ### Diagnosebericht
 
