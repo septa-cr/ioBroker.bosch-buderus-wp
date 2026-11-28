@@ -28,6 +28,16 @@
                     "lg": 4,
                     "xl": 4
                 },
+                "_donateSpacer1": {
+                    "type": "staticText",
+                    "text": "",
+                    "newLine": false,
+                    "xs": 12,
+                    "sm": 12,
+                    "md": 6,
+                    "lg": 2,
+                    "xl": 2
+                },
                 "_donateText": {
                     "type": "staticText",
                     "text": "Do you like this adapter? You can support its development with a coffee donation.",
@@ -49,6 +59,16 @@
                     "md": 6,
                     "lg": 4,
                     "xl": 4
+                },
+                "_donateSpacer2": {
+                    "type": "staticText",
+                    "text": "",
+                    "newLine": false,
+                    "xs": 12,
+                    "sm": 12,
+                    "md": 6,
+                    "lg": 2,
+                    "xl": 2
                 },
                 "_donateButton": {
                     "type": "staticLink",
