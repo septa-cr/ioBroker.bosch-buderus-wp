@@ -60,18 +60,25 @@
 					sans-serif;
 			}
 			main {
-				max-width: 1100px;
+				max-width: 1200px;
 				margin: 0 auto;
-				padding: 16px 16px 48px;
+				padding: 8px 16px 32px;
+			}
+			.head {
+				display: flex;
+				flex-wrap: wrap;
+				align-items: center;
+				gap: 4px 16px;
+				margin-bottom: 4px;
 			}
 			h1 {
-				margin: 0 0 12px;
-				font-size: 24px;
+				margin: 0;
+				font-size: 22px;
 			}
 			.pill {
 				display: inline-block;
-				margin: 0 0 8px;
-				padding: 8px 20px;
+				margin: 0;
+				padding: 6px 18px;
 				border-radius: 999px;
 				background: var(--accent);
 				color: #ffffff;
@@ -81,8 +88,7 @@
 				background: var(--muted);
 			}
 			.hint {
-				min-height: 1.4em;
-				margin: 4px 0 12px;
+				margin: 0;
 				color: var(--muted);
 			}
 			.wrap {
@@ -93,6 +99,12 @@
 				width: 100%;
 				min-width: 900px;
 				height: auto;
+			}
+			/* on wide screens the drawing is scaled so that it fits into the height of the window */
+			@media (min-width: 900px) {
+				svg#diagram {
+					height: calc(100vh - 56px);
+				}
 			}
 			/* drawing */
 			.band {
@@ -206,15 +218,17 @@
 	</head>
 	<body>
 		<main>
-			<h1 id="title"></h1>
-			<p
-				id="mode"
-				class="pill off"
-			></p>
-			<p
-				id="hint"
-				class="hint"
-			></p>
+			<div class="head">
+				<h1 id="title"></h1>
+				<p
+					id="mode"
+					class="pill off"
+				></p>
+				<p
+					id="hint"
+					class="hint"
+				></p>
+			</div>
 			<div class="wrap">
 				<svg
 					id="diagram"
