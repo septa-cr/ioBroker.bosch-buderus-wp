@@ -187,9 +187,10 @@ This adapter is a private project and is not affiliated with Bosch Thermotechnik
 
 ## Changelog
 
-### **WORK IN PROGRESS**
+### 0.2.0 (2026-11-28)
 
-- (septa-cr) New experimental plant diagram: in the new tab "Plant diagram" of the settings you can switch on the data point `calculated.schema` (off by default). A page for the web adapter draws the plant diagram with the operating state (heating, hot water, defrosting) and the current values
+- (septa-cr) New experimental plant diagram: in the new tab "Plant diagram" of the settings you can switch on the data point `calculated.schema` (off by default). A page for the web adapter draws the plant diagram with the operating state (heating, hot water, defrosting) and the current values; the appearance can be light, dark or automatic, and a button opens the page. It is drawn for a heat pump WLW186i/176i with indoor unit TP70
+- (septa-cr) The donate button now sits at the top right of the connection tab
 
 ### 0.1.0 (2026-11-27)
 
