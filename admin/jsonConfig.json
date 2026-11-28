@@ -28,12 +28,43 @@
                     "lg": 4,
                     "xl": 4
                 },
+                "_donateText": {
+                    "type": "staticText",
+                    "text": "Do you like this adapter? You can support its development with a coffee donation.",
+                    "newLine": false,
+                    "xs": 12,
+                    "sm": 12,
+                    "md": 6,
+                    "lg": 4,
+                    "xl": 4
+                },
                 "interval": {
                     "type": "number",
                     "label": "Polling interval (seconds)",
                     "min": 10,
                     "max": 3600,
                     "newLine": true,
+                    "xs": 12,
+                    "sm": 12,
+                    "md": 6,
+                    "lg": 4,
+                    "xl": 4
+                },
+                "_donateButton": {
+                    "type": "staticLink",
+                    "label": "Donate a coffee via PayPal",
+                    "href": "https://www.paypal.com/donate/?hosted_button_id=BW2WL8QCH2AMU",
+                    "target": "_blank",
+                    "button": true,
+                    "variant": "contained",
+                    "icon": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0Ij48cGF0aCBkPSJNMyA5aDEzdjVhNSA1IDAgMCAxLTUgNUg4YTUgNSAwIDAgMS01LTV6IiBmaWxsPSIjM2IyYTFhIi8+PHBhdGggZD0iTTE2IDEwaDEuNWEyLjUgMi41IDAgMCAxIDAgNUgxNiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjM2IyYTFhIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNNyAyYzAgMS41IDEuNSAxLjUgMS41IDNTNyA2LjUgNyA3LjVNMTEgMmMwIDEuNSAxLjUgMS41IDEuNSAzUzExIDYuNSAxMSA3LjUiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzNiMmExYSIgc3Ryb2tlLXdpZHRoPSIxLjYiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPjxyZWN0IHg9IjIiIHk9IjIwIiB3aWR0aD0iMTYiIGhlaWdodD0iMiIgcng9IjEiIGZpbGw9IiMzYjJhMWEiLz48L3N2Zz4K",
+                    "controlStyle": {
+                        "backgroundColor": "#ffc439",
+                        "color": "#111111",
+                        "fontWeight": "bold",
+                        "textTransform": "none"
+                    },
+                    "newLine": false,
                     "xs": 12,
                     "sm": 12,
                     "md": 6,
@@ -152,41 +183,6 @@
                     "label": "Search resources again",
                     "command": "rescan",
                     "variant": "outlined",
-                    "newLine": true,
-                    "xs": 12,
-                    "sm": 12,
-                    "md": 6,
-                    "lg": 4,
-                    "xl": 4
-                },
-                "_donateDivider": {
-                    "type": "divider",
-                    "newLine": true
-                },
-                "_donateText": {
-                    "type": "staticText",
-                    "text": "Do you like this adapter? You can support its development with a coffee donation.",
-                    "newLine": true,
-                    "xs": 12,
-                    "sm": 12,
-                    "md": 12,
-                    "lg": 12,
-                    "xl": 12
-                },
-                "_donateButton": {
-                    "type": "staticLink",
-                    "label": "Donate a coffee via PayPal",
-                    "href": "https://www.paypal.com/donate/?hosted_button_id=BW2WL8QCH2AMU",
-                    "target": "_blank",
-                    "button": true,
-                    "variant": "contained",
-                    "icon": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0Ij48cGF0aCBkPSJNMyA5aDEzdjVhNSA1IDAgMCAxLTUgNUg4YTUgNSAwIDAgMS01LTV6IiBmaWxsPSIjM2IyYTFhIi8+PHBhdGggZD0iTTE2IDEwaDEuNWEyLjUgMi41IDAgMCAxIDAgNUgxNiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjM2IyYTFhIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNNyAyYzAgMS41IDEuNSAxLjUgMS41IDNTNyA2LjUgNyA3LjVNMTEgMmMwIDEuNSAxLjUgMS41IDEuNSAzUzExIDYuNSAxMSA3LjUiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzNiMmExYSIgc3Ryb2tlLXdpZHRoPSIxLjYiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPjxyZWN0IHg9IjIiIHk9IjIwIiB3aWR0aD0iMTYiIGhlaWdodD0iMiIgcng9IjEiIGZpbGw9IiMzYjJhMWEiLz48L3N2Zz4K",
-                    "controlStyle": {
-                        "backgroundColor": "#ffc439",
-                        "color": "#111111",
-                        "fontWeight": "bold",
-                        "textTransform": "none"
-                    },
                     "newLine": true,
                     "xs": 12,
                     "sm": 12,
