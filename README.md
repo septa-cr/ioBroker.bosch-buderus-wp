@@ -157,8 +157,9 @@ To copy it, open the object `bosch-buderus-wp.0.info.diagnosis` in the admin UI 
 The adapter can offer a page that shows the operating state of the heat pump (heating, hot water, defrosting) and a few values. It is **still under development**: for now the page shows the values as text, the drawing follows later.
 
 - Switch it on in the adapter settings, tab **Plant diagram** (it is off by default), and save. Then the adapter writes the data point `calculated.schema` (a short JSON text with the operating state and the values) and keeps it up to date. If you switch it off again, the data point is deleted.
-- The page is delivered by the ioBroker **web adapter**, so a web instance must be installed. It opens through the link **Plant diagram** in the instance list of the admin UI, or at `http://<ioBroker>:<web port>/bosch-buderus-wp/index.html`.
+- The page is delivered by the ioBroker **web adapter**, so a web instance must be installed. You open it in the browser at `http://<IP of ioBroker>:<web port>/bosch-buderus-wp/index.html` (for example `http://192.168.1.10:8082/bosch-buderus-wp/index.html`).
 - The page reads only the one data point `calculated.schema` (and `info.connection`) every five seconds, and only while it is open in a browser.
+- The diagram is drawn for a heat pump WLW186i/176i with indoor unit TP70. With other systems values may be missing or wrongly assigned.
 - The sensor names (T0, TC0, TC3 and so on) follow the Buderus example scheme for the WLW186i/176i TP70. Not every assignment is confirmed by the manufacturer, for example T0 uses the value `signals.SRC.IntFlowTemp`.
 
 ## Security notes
@@ -187,7 +188,7 @@ This adapter is a private project and is not affiliated with Bosch Thermotechnik
 
 ### **WORK IN PROGRESS**
 
-- (septa-cr) New experimental plant diagram: in the new tab "Plant diagram" of the settings you can switch on the data point `calculated.schema` (off by default). A test page for the web adapter shows the operating state (heating, hot water, defrosting) and a few values; the link "Plant diagram" opens it from the instance list
+- (septa-cr) New experimental plant diagram: in the new tab "Plant diagram" of the settings you can switch on the data point `calculated.schema` (off by default). A test page for the web adapter shows the operating state (heating, hot water, defrosting) and a few values
 
 ### 0.1.0 (2026-11-27)
 

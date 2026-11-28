@@ -799,11 +799,10 @@ describe('Dateien des Adapters', () => {
 		expect(config.items._schemaTab.items.schemaEnabled.type).to.equal('checkbox');
 	});
 
-	it('der Link zum Anlagenschema hat einen Namen in allen Sprachen und zeigt auf die Seite im Ordner www', () => {
-		const link = ioPackage.common.localLinks._default;
-		expect(Object.keys(link.name).sort()).to.deep.equal([...LANGUAGES].sort());
-		expect(link.link).to.include('/bosch-buderus-wp/index.html');
+	it('die Seite des Anlagenschemas liegt im Ordner www und es gibt keinen Link mit Platzhalter für die Adresse', () => {
 		expect(fs.existsSync(path.join(__dirname, 'www', 'index.html'))).to.equal(true);
+		// %ip% is replaced by the setting "ip" of the instance (the gateway), so it must not be used
+		expect(ioPackage.common.localLinks).to.equal(undefined);
 	});
 
 	it('der Ordner www gehört zum veröffentlichten Paket', () => {

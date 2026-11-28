@@ -148,8 +148,9 @@ So kopierst du ihn: Öffne im Admin den Reiter Objekte und das Objekt `bosch-bud
 Der Adapter kann eine Seite anbieten, die den Betriebszustand der Wärmepumpe (Heizen, Warmwasser, Abtauen) und einige Werte zeigt. Sie ist **noch in Entwicklung**: Vorerst zeigt die Seite die Werte als Text, die Zeichnung folgt später.
 
 - Schalte es in den Einstellungen des Adapters im Reiter **Anlagenschema** ein (standardmäßig aus) und speichere. Dann schreibt der Adapter den Datenpunkt `calculated.schema` (ein kurzer JSON-Text mit dem Betriebszustand und den Werten) und hält ihn aktuell. Schaltest du es wieder aus, wird der Datenpunkt gelöscht.
-- Die Seite wird vom ioBroker-**Web-Adapter** ausgeliefert, deshalb muss eine Web-Instanz installiert sein. Du öffnest sie über den Link **Anlagenschema** in der Instanzliste der Admin-Oberfläche oder unter `http://<ioBroker>:<Web-Port>/bosch-buderus-wp/index.html`.
+- Die Seite wird vom ioBroker-**Web-Adapter** ausgeliefert, deshalb muss eine Web-Instanz installiert sein. Du öffnest sie im Browser unter `http://<IP des ioBrokers>:<Web-Port>/bosch-buderus-wp/index.html` (zum Beispiel `http://192.168.1.10:8082/bosch-buderus-wp/index.html`).
 - Die Seite liest alle fünf Sekunden nur den einen Datenpunkt `calculated.schema` (und `info.connection`), und nur solange sie im Browser geöffnet ist.
+- Das Schema ist für eine Wärmepumpe WLW186i/176i mit Inneneinheit TP70 gezeichnet. Bei anderen Anlagen können Werte fehlen oder falsch zugeordnet sein.
 - Die Sensornamen (T0, TC0, TC3 und so weiter) folgen dem Anlagenbeispiel von Buderus für die WLW186i/176i TP70. Nicht jede Zuordnung ist vom Hersteller bestätigt, zum Beispiel verwendet T0 den Wert `signals.SRC.IntFlowTemp`.
 
 ## Hinweise zur Sicherheit
