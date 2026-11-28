@@ -194,7 +194,8 @@
         "_pass": "",
         "interval": 60,
         "diagnosis": false,
-        "schemaEnabled": false
+        "schemaEnabled": false,
+        "schemaTheme": "auto"
     },
     "objects": [],
     "instanceObjects": [

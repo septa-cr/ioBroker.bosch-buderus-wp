@@ -280,9 +280,49 @@
                     "lg": 4,
                     "xl": 4
                 },
+                "_openDiagram": {
+                    "type": "sendTo",
+                    "label": "Open plant diagram",
+                    "command": "openDiagram",
+                    "openUrl": true,
+                    "window": "bosch-buderus-wp-diagram",
+                    "variant": "contained",
+                    "disabled": "!data.schemaEnabled",
+                    "newLine": true,
+                    "xs": 12,
+                    "sm": 12,
+                    "md": 6,
+                    "lg": 4,
+                    "xl": 4
+                },
+                "schemaTheme": {
+                    "type": "select",
+                    "label": "Appearance",
+                    "options": [
+                        {
+                            "label": "Automatic (like the browser)",
+                            "value": "auto"
+                        },
+                        {
+                            "label": "Light",
+                            "value": "light"
+                        },
+                        {
+                            "label": "Dark",
+                            "value": "dark"
+                        }
+                    ],
+                    "disabled": "!data.schemaEnabled",
+                    "newLine": true,
+                    "xs": 12,
+                    "sm": 12,
+                    "md": 6,
+                    "lg": 4,
+                    "xl": 4
+                },
                 "_schemaNote": {
                     "type": "staticText",
-                    "text": "This function is still under development: for now the page shows the operating state and a few values as text, the drawing follows later. The diagram is drawn for a heat pump WLW186i/176i with indoor unit TP70; with other systems values may be missing or wrongly assigned.",
+                    "text": "This function is still under development: the page draws the plant diagram and shows the operating state and the current values. The diagram is drawn for a heat pump WLW186i/176i with indoor unit TP70; with other systems values may be missing or wrongly assigned.",
                     "newLine": true,
                     "xs": 12,
                     "sm": 12,

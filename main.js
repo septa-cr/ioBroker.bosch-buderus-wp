@@ -47,7 +47,8 @@ const SCHEMA_VALUES = {
 	tr4: 'heatSources.hs1.refrigerant.liquidPipeCoolingTemp',
 	tc3: 'heatSources.hs1.supplyFlowCondenserTemp',
 	tc0: 'heatSources.returnTemperature',
-	t0: 'signals.SRC.IntFlowTemp',
+	tc1: 'signals.SRC.IntFlowTemp',
+	t0: 'heatSources.actualSupplyTemperature',
 	tw1: 'heatSources.dhw.cylinderTemperature',
 	compressorSpeed: 'heatSources.hs1.refrigerant.compressorActualSpeed',
 	compressorPower: 'heatSources.hs1.refrigerant.compressorElecPowerActual',
@@ -446,16 +447,70 @@ function deriveMode(status) {
  * The order of the keys is always the same, so that an unchanged state produces identical text.
  *
  * @param {Map<string, string | number | boolean | null>} latest - Latest values per data point ID
- * @returns {{ v: number, mode: string, status: string | null, values: Record<string, string | number | boolean | null> }} Data of the diagram
+ * @param {string} [theme] - Appearance of the page: auto, light or dark (anything else counts as auto)
+ * @returns {{ v: number, theme: string, mode: string, status: string | null, values: Record<string, string | number | boolean | null> }} Data of the diagram
  */
-function buildSchemaData(latest) {
+function buildSchemaData(latest, theme) {
 	/** @type {Record<string, string | number | boolean | null>} */
 	const values = {};
 	for (const [key, id] of Object.entries(SCHEMA_VALUES)) {
 		values[key] = latest.get(id) ?? null;
 	}
 	const status = latest.get(SCHEMA_STATUS_ID);
-	return { v: 1, mode: deriveMode(status), status: typeof status === 'string' ? status : null, values };
+	return {
+		v: 1,
+		theme: theme === 'light' || theme === 'dark' ? theme : 'auto',
+		mode: deriveMode(status),
+		status: typeof status === 'string' ? status : null,
+		values,
+	};
+}
+
+/**
+ * Builds the address of the plant diagram page from the settings of a web adapter instance and the network
+ * interfaces of the host.
+ *
+ * @param {{ port?: number | string, secure?: boolean, bind?: string } | undefined} web - Settings of the web instance
+ * @param {Record<string, any> | undefined} interfaces - Network interfaces of the host (as in os.networkInterfaces())
+ * @param {number} instance - Number of this adapter instance
+ * @returns {string | null} Address, or null if it cannot be determined
+ */
+function buildDiagramUrl(web, interfaces, instance) {
+	const port = Number(web?.port);
+	if (!Number.isInteger(port) || port < 1 || port > 65535) {
+		return null;
+	}
+	const ipv4 = /^\d{1,3}(\.\d{1,3}){3}$/;
+	let host = null;
+	if (
+		typeof web?.bind === 'string' &&
+		ipv4.test(web.bind) &&
+		web.bind !== '0.0.0.0' &&
+		!web.bind.startsWith('127.')
+	) {
+		host = web.bind;
+	} else if (interfaces && typeof interfaces === 'object') {
+		for (const list of Object.values(interfaces)) {
+			const found = Array.isArray(list)
+				? list.find(
+						entry =>
+							entry &&
+							entry.internal !== true &&
+							(entry.family === 'IPv4' || entry.family === 4) &&
+							typeof entry.address === 'string' &&
+							ipv4.test(entry.address),
+					)
+				: undefined;
+			if (found) {
+				host = found.address;
+				break;
+			}
+		}
+	}
+	if (!host) {
+		return null;
+	}
+	return `${web?.secure === true ? 'https' : 'http'}://${host}:${port}/bosch-buderus-wp/index.html?instance=${instance}`;
 }
 
 /** Fields that only contain additional information about the API and are not measured values */
@@ -535,6 +590,7 @@ class BoschBuderusWp extends utils.Adapter {
 		this.protectedStates = new Set();
 		/** Is the plant diagram switched on in the settings? */
 		this.schemaEnabled = false;
+		this.schemaTheme = 'auto';
 		/** Latest values for the plant diagram per data point ID (only filled if the diagram is switched on) */
 		/** @type {Map<string, string | number | boolean | null>} */
 		this.latest = new Map();
@@ -1017,7 +1073,7 @@ class BoschBuderusWp extends utils.Adapter {
 		await this.setValue(
 			'calculated.schema',
 			names.calculated.schema,
-			JSON.stringify(buildSchemaData(this.latest)),
+			JSON.stringify(buildSchemaData(this.latest, this.schemaTheme)),
 			'string',
 			'json',
 		);
@@ -1415,6 +1471,41 @@ class BoschBuderusWp extends utils.Adapter {
 	}
 
 	/**
+	 * Finds the address of the plant diagram page (served by the first enabled web adapter instance).
+	 *
+	 * @returns {Promise<{ openUrl: string, window: string } | { error: string }>} Address to open, or an error text
+	 */
+	async diagramLink() {
+		try {
+			const view = await this.getObjectViewAsync('system', 'instance', {
+				startkey: 'system.adapter.web.',
+				endkey: 'system.adapter.web.\u9999',
+			});
+			const row = (view?.rows ?? []).find(
+				(/** @type {any} */ entry) => entry?.value?.common?.enabled !== false && entry?.value?.native,
+			);
+			if (!row) {
+				return { error: 'No web adapter instance found. Please install and start the web adapter.' };
+			}
+			const hostObject = await this.getForeignObjectAsync(`system.host.${this.host}`);
+			const url = buildDiagramUrl(
+				row.value.native,
+				hostObject?.native?.hardware?.networkInterfaces,
+				this.instance ?? 0,
+			);
+			if (!url) {
+				return {
+					error: 'The address could not be determined. Please open the page by hand (see the text above).',
+				};
+			}
+			return { openUrl: url, window: 'bosch-buderus-wp-diagram' };
+		} catch (error) {
+			this.log.debug(`Address of the plant diagram failed: ${error.message}`);
+			return { error: 'The address could not be determined. Please open the page by hand (see the text above).' };
+		}
+	}
+
+	/**
 	 * Messages from the settings page (buttons).
 	 *
 	 * @param {ioBroker.Message} obj - Message
@@ -1426,6 +1517,8 @@ class BoschBuderusWp extends utils.Adapter {
 		let response;
 		if (obj.command === 'getToken') {
 			response = await this.requestToken(obj.message);
+		} else if (obj.command === 'openDiagram') {
+			response = await this.diagramLink();
 		} else if (obj.command === 'rescan') {
 			this.rescanRequested = true;
 			response = { result: 'The search for resources will start with the next query cycle.' };
@@ -1548,6 +1641,10 @@ class BoschBuderusWp extends utils.Adapter {
 		}
 		// Plant diagram: the data point is only created if it is switched on in the settings, otherwise it is removed
 		this.schemaEnabled = this.config.schemaEnabled === true;
+		this.schemaTheme =
+			this.config.schemaTheme === 'light' || this.config.schemaTheme === 'dark'
+				? this.config.schemaTheme
+				: 'auto';
 		if (!this.schemaEnabled && (await this.getObjectAsync('calculated.schema'))) {
 			await this.delObjectAsync('calculated.schema');
 		}
@@ -1617,6 +1714,7 @@ if (require.main !== module) {
 			periodDates,
 			deriveMode,
 			buildSchemaData,
+			buildDiagramUrl,
 			SCHEMA_VALUES,
 			flatten,
 			allowedValues,

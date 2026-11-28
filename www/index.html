@@ -11,20 +11,43 @@
 			:root {
 				--bg: #faf9f5;
 				--card: #ffffff;
+				--band: #f2efe6;
+				--band-line: #cfc9b8;
 				--ink: #141413;
 				--muted: #5e5d59;
 				--line: #d6d2c4;
 				--accent: #a8412a;
+				--hot: #c1502e;
+				--cold: #3b6fa3;
+				--off: #8a8378;
 			}
 			@media (prefers-color-scheme: dark) {
-				:root {
+				:root:not([data-theme]) {
 					--bg: #1c1b19;
 					--card: #262522;
+					--band: #22211f;
+					--band-line: #3a3935;
 					--ink: #f0eee6;
 					--muted: #a9a79f;
 					--line: #3a3935;
 					--accent: #d9775a;
+					--hot: #e0795a;
+					--cold: #6aa0d6;
+					--off: #8a8378;
 				}
+			}
+			:root[data-theme='dark'] {
+				--bg: #1c1b19;
+				--card: #262522;
+				--band: #22211f;
+				--band-line: #3a3935;
+				--ink: #f0eee6;
+				--muted: #a9a79f;
+				--line: #3a3935;
+				--accent: #d9775a;
+				--hot: #e0795a;
+				--cold: #6aa0d6;
+				--off: #8a8378;
 			}
 			body {
 				margin: 0;
@@ -37,9 +60,9 @@
 					sans-serif;
 			}
 			main {
-				max-width: 720px;
+				max-width: 1100px;
 				margin: 0 auto;
-				padding: 24px 16px 48px;
+				padding: 16px 16px 48px;
 			}
 			h1 {
 				margin: 0 0 12px;
@@ -59,18 +82,111 @@
 			}
 			.hint {
 				min-height: 1.4em;
-				margin: 4px 0 16px;
+				margin: 4px 0 12px;
+				color: var(--muted);
+			}
+			.wrap {
+				overflow-x: auto;
+			}
+			svg#diagram {
+				display: block;
+				width: 100%;
+				min-width: 900px;
+				height: auto;
+			}
+			/* drawing */
+			.band {
+				fill: var(--band);
+				stroke: var(--band-line);
+				stroke-dasharray: 5 4;
+			}
+			.pipe {
+				fill: none;
+				stroke-width: 2;
+				stroke-linecap: round;
+				stroke-linejoin: round;
+			}
+			.pipe.hot {
+				stroke: var(--hot);
+			}
+			.pipe.cold {
+				stroke: var(--cold);
+			}
+			.pipe.off {
+				stroke: var(--off);
+				stroke-dasharray: 6 6;
+			}
+			.arrow.hot {
+				fill: var(--hot);
+			}
+			.arrow.cold {
+				fill: var(--cold);
+			}
+			.arrow.off {
+				fill: var(--off);
+			}
+			.card {
+				fill: var(--card);
+				stroke: var(--line);
+			}
+			.card.hot {
+				stroke: var(--hot);
+			}
+			.card.cold {
+				stroke: var(--cold);
+			}
+			.card.off {
+				stroke: var(--off);
+				stroke-dasharray: 5 4;
+			}
+			.icon {
+				fill: none;
+				stroke-width: 1.8;
+				stroke-linecap: round;
+				stroke-linejoin: round;
+				stroke: var(--ink);
+			}
+			.icon.hot {
+				stroke: var(--hot);
+			}
+			.icon.cold {
+				stroke: var(--cold);
+			}
+			.icon.off {
+				stroke: var(--off);
+			}
+			text {
+				fill: var(--ink);
+				font-size: 13px;
+			}
+			text.big {
+				font-size: 14px;
+			}
+			text.small {
+				font-size: 12px;
+			}
+			text.muted {
+				fill: var(--muted);
+			}
+			tspan.b {
+				font-weight: 700;
+			}
+			details {
+				margin-top: 16px;
+			}
+			summary {
+				cursor: pointer;
 				color: var(--muted);
 			}
 			table {
 				width: 100%;
+				margin-top: 8px;
 				border-collapse: collapse;
 				background: var(--card);
 				border: 1px solid var(--line);
-				border-radius: 10px;
 			}
 			td {
-				padding: 8px 12px;
+				padding: 6px 12px;
 				border-bottom: 1px solid var(--line);
 			}
 			tr:last-child td {
@@ -99,9 +215,19 @@
 				id="hint"
 				class="hint"
 			></p>
-			<table>
-				<tbody id="rows"></tbody>
-			</table>
+			<div class="wrap">
+				<svg
+					id="diagram"
+					viewBox="48 108 1184 1068"
+					role="img"
+				></svg>
+			</div>
+			<details>
+				<summary id="allValues"></summary>
+				<table>
+					<tbody id="rows"></tbody>
+				</table>
+			</details>
 			<p
 				id="foot"
 				class="foot"
@@ -112,14 +238,16 @@
 				'use strict';
 
 				var REFRESH_MS = 5000;
+				var NS = 'http://www.w3.org/2000/svg';
 				var german = (navigator.language || '').toLowerCase().indexOf('de') === 0;
+				var locale = german ? 'de-DE' : 'en-US';
 
-				/** Texts of the page (German and English) */
+				/** Texts of the page: [English, German] */
 				var TEXT = {
 					title: ['Plant diagram', 'Anlagenschema'],
 					foot: [
-						'Test version: this page shows the operating state and the values as text. The drawing follows later.',
-						'Testversion: Diese Seite zeigt den Betriebszustand und die Werte als Text. Die Zeichnung folgt später.',
+						'Drawn after the Buderus example scheme for WLW186i/176i with indoor unit TP70. The piping inside is read from a faint scheme and is not confirmed. There is no measured value for the return of the heating circuit and of the hot water cylinder; TC0 is the common return to the condenser. When the refrigerant circuit defrosts, it is drawn reversed; this is an assumption.',
+						'Gezeichnet nach dem Anlagenbeispiel von Buderus für WLW186i/176i mit Inneneinheit TP70. Die Verrohrung innen ist aus einem blassen Schema gelesen und nicht bestätigt. Für den Rücklauf von Heizkreis und Warmwasserspeicher gibt es keinen eigenen Messwert; TC0 ist der gemeinsame Rücklauf zum Verflüssiger. Beim Abtauen ist der Kältekreis umgekehrt gezeichnet; das ist eine Annahme.',
 					],
 					noData: [
 						'No data. Is the option "Show plant diagram" switched on in the adapter settings, and is the adapter running?',
@@ -127,6 +255,7 @@
 					],
 					offline: ['No connection to the gateway.', 'Keine Verbindung zum Gateway.'],
 					updated: ['Updated', 'Aktualisiert'],
+					allValues: ['All values', 'Alle Werte'],
 					on: ['on', 'an'],
 					off: ['off', 'aus'],
 				};
@@ -143,7 +272,7 @@
 					unknown: ['Unknown', 'Unbekannt'],
 				};
 
-				/** Rows: key in the data, label (English, German), unit, kind of value */
+				/** Rows of the table: key in the data, label, unit */
 				var ROWS = [
 					['t1', ['Outdoor temperature T1', 'Außentemperatur T1'], '°C'],
 					['tl2', ['Evaporator air TL2', 'Verdampfer Luft TL2'], '°C'],
@@ -155,7 +284,8 @@
 					['tr4', ['Liquid line cooling TR4', 'Flüssigkeitsleitung Kühlen TR4'], '°C'],
 					['tc3', ['Flow at the condenser TC3', 'Vorlauf am Verflüssiger TC3'], '°C'],
 					['tc0', ['Return (condenser inlet) TC0', 'Rücklauf (Eintritt Verflüssiger) TC0'], '°C'],
-					['t0', ['Flow of the indoor unit T0', 'Vorlauf Inneneinheit T0'], '°C'],
+					['tc1', ['Flow of the heat pump TC1', 'Vorlauf der Wärmepumpe TC1'], '°C'],
+					['t0', ['Heating flow T0', 'Vorlauf Heizung T0'], '°C'],
 					['tw1', ['Hot water cylinder TW1', 'Warmwasserspeicher TW1'], '°C'],
 					['compressorSpeed', ['Compressor speed', 'Verdichter Drehzahl'], '%'],
 					['compressorPower', ['Compressor power', 'Verdichter Leistung'], 'kW'],
@@ -167,6 +297,28 @@
 					['fourwayValve', ['Four-way valve', 'Vierwegeventil'], 'switch'],
 					['heatingPump', ['Heating circuit pump', 'Heizkreispumpe'], 'switch'],
 				];
+
+				/** Icons (28 x 28) */
+				var ICONS = {
+					fan:
+						'<circle cx="14" cy="14" r="11"/>' +
+						'<path d="M14 14 C13 9 16 5 20 6 C19 10 17 13 14 14"/>' +
+						'<path d="M14 14 C13 9 16 5 20 6 C19 10 17 13 14 14" transform="rotate(90 14 14)"/>' +
+						'<path d="M14 14 C13 9 16 5 20 6 C19 10 17 13 14 14" transform="rotate(180 14 14)"/>' +
+						'<path d="M14 14 C13 9 16 5 20 6 C19 10 17 13 14 14" transform="rotate(270 14 14)"/>',
+					coil: '<path d="M4 5 H24 V11 H4 V17 H24 V23 H4"/>',
+					compressor:
+						'<circle cx="14" cy="14" r="11"/><path d="M14 14 a2 2 0 0 1 4 0 a4.5 4.5 0 0 1 -9 0 a7 7 0 0 1 14 0"/>',
+					expansion: '<path d="M4 10 L14 16 L4 22 Z M24 10 L14 16 L24 22 Z M14 16 V6 M10 6 H18"/>',
+					pump: '<circle cx="14" cy="14" r="11"/><path d="M10 8.5 L20 14 L10 19.5 Z"/>',
+					valve3: '<path d="M3 6 L14 12 L3 18 Z M25 6 L14 12 L25 18 Z M8 26 L14 12 L20 26 Z"/>',
+					buffer: '<rect x="7" y="3" width="14" height="22" rx="6"/><path d="M10 12 Q12 10 14 12 T18 12 M10 17 Q12 15 14 17 T18 17"/>',
+					radiator:
+						'<rect x="4" y="6" width="20" height="16" rx="3"/><path d="M9 9 V19 M14 9 V19 M19 9 V19"/>',
+					dhw: '<rect x="7" y="3" width="14" height="22" rx="6"/><path d="M11 8 H17 V12 H11 V16 H17 V20 H11"/>',
+					heater: '<path d="M3 14 H7 L9 7 L13 21 L17 7 L21 21 L23 14 H25"/>',
+					tap: '<path d="M3 10 H15 C19 10 21 12 21 15 V16 M9 10 V6 M5 6 H13"/><path d="M21 19 C19 22 19 24 21 25 C23 24 23 22 21 19 Z"/>',
+				};
 
 				var instance = new URLSearchParams(location.search).get('instance');
 				if (!/^\d+$/.test(instance || '')) {
@@ -194,6 +346,20 @@
 				}
 
 				/**
+				 * Formats a number for the page.
+				 *
+				 * @param {any} value - Value from the data
+				 * @param {number} digits - Maximum number of decimal places
+				 * @returns {string} Text, or a dash if there is no number
+				 */
+				function num(value, digits) {
+					if (typeof value !== 'number') {
+						return '–';
+					}
+					return value.toLocaleString(locale, { maximumFractionDigits: digits });
+				}
+
+				/**
 				 * Formats a value for the table.
 				 *
 				 * @param {any} value - Value from the data
@@ -212,22 +378,496 @@
 						return String(value);
 					}
 					if (unit === 'kW') {
-						return (
-							(value / 1000).toLocaleString(german ? 'de-DE' : 'en-US', { maximumFractionDigits: 2 }) +
-							' kW'
-						);
+						return num(value / 1000, 2) + ' kW';
 					}
-					return value.toLocaleString(german ? 'de-DE' : 'en-US', { maximumFractionDigits: 1 }) + ' ' + unit;
+					return num(value, 1) + ' ' + unit;
 				}
 
+				var svg = document.getElementById('diagram');
 				var modeElement = document.getElementById('mode');
 				var hintElement = document.getElementById('hint');
 				var rowsElement = document.getElementById('rows');
 
-				document.documentElement.lang = german ? 'de' : 'en';
-				document.title = t(TEXT.title);
-				document.getElementById('title').textContent = t(TEXT.title);
-				document.getElementById('foot').textContent = t(TEXT.foot);
+				/**
+				 * Creates an SVG element.
+				 *
+				 * @param {string} name - Name of the element
+				 * @param {object} attributes - Attributes
+				 * @param {Element} [parent] - Element to append to
+				 * @returns {Element} The new element
+				 */
+				function el(name, attributes, parent) {
+					var element = document.createElementNS(NS, name);
+					Object.keys(attributes || {}).forEach(function (key) {
+						element.setAttribute(key, attributes[key]);
+					});
+					if (parent) {
+						parent.appendChild(element);
+					}
+					return element;
+				}
+
+				/**
+				 * Draws the whole diagram for one operating state.
+				 *
+				 * @param {string} mode - heating, dhw, defrost or other (everything grey)
+				 * @param {object} values - Values of the data
+				 */
+				function draw(mode, values) {
+					var heating = mode === 'heating';
+					var dhw = mode === 'dhw';
+					var defrost = mode === 'defrost';
+					var known = heating || dhw || defrost;
+
+					/** Colour class: grey when the state is not known */
+					function c(color) {
+						return known ? color : 'off';
+					}
+
+					function v(key, digits) {
+						return num(values[key], digits === undefined ? 1 : digits);
+					}
+
+					svg.textContent = '';
+					var g = el('g', {}, svg);
+
+					function band(x, y, w, h) {
+						el('rect', { x: x, y: y, width: w, height: h, rx: 14, class: 'band' }, g);
+					}
+
+					/** A pipe along the given points, with an arrow head at the end */
+					function pipe(points, color) {
+						var d = points
+							.map(function (p, i) {
+								return (i ? 'L ' : 'M ') + p[0] + ' ' + p[1];
+							})
+							.join(' ');
+						el('path', { d: d, class: 'pipe ' + color }, g);
+						var a = points[points.length - 2];
+						var b = points[points.length - 1];
+						var angle = (Math.atan2(b[1] - a[1], b[0] - a[0]) * 180) / Math.PI;
+						el(
+							'path',
+							{
+								d: 'M 0 0 L -9 -4.5 L -9 4.5 Z',
+								transform: 'translate(' + b[0] + ' ' + b[1] + ') rotate(' + angle + ')',
+								class: 'arrow ' + color,
+							},
+							g,
+						);
+					}
+
+					function icon(name, x, y, color) {
+						var group = el('g', { transform: 'translate(' + x + ' ' + y + ')', class: 'icon ' + color }, g);
+						appendShapes(group, ICONS[name]);
+					}
+
+					/** Adds the fixed icon shapes (own constants, no data from outside) to a group */
+					function appendShapes(group, source) {
+						var parsed = new DOMParser().parseFromString(
+							'<svg xmlns="' + NS + '">' + source + '</svg>',
+							'image/svg+xml',
+						);
+						Array.prototype.forEach.call(parsed.documentElement.childNodes, function (node) {
+							group.appendChild(document.importNode(node, true));
+						});
+					}
+
+					/** Text lines; the first of them may be bold. Align: start, middle, end */
+					function label(x, y, lines, align, cls, boldFirst) {
+						var node = el(
+							'text',
+							{ x: x, y: y + 12, 'text-anchor': align || 'start', class: cls || '' },
+							g,
+						);
+						lines.forEach(function (line, i) {
+							var span = el(
+								'tspan',
+								{ x: x, dy: i ? 16 : 0, class: boldFirst && i === 0 ? 'b' : '' },
+								node,
+							);
+							span.textContent = line;
+						});
+					}
+
+					/** A card with icon, title and lines */
+					function card(x, y, w, h, ico, color, title, lines, border, dashed, muted) {
+						el(
+							'rect',
+							{
+								x: x,
+								y: y,
+								width: w,
+								height: h,
+								rx: 10,
+								class: 'card ' + (dashed ? 'off' : border || ''),
+							},
+							g,
+						);
+						var total = 28 + 4 + 18 * (1 + lines.length);
+						var top = y + (h - total) / 2;
+						icon(ico, x + w / 2 - 14, top, color);
+						var node = el('text', { 'text-anchor': 'middle', class: 'big' + (muted ? ' muted' : '') }, g);
+						[title].concat(lines).forEach(function (line, i) {
+							var span = el(
+								'tspan',
+								{ x: x + w / 2, y: top + 28 + 4 + 14 + i * 18, class: i === 0 ? 'b' : '' },
+								node,
+							);
+							span.textContent = line;
+						});
+					}
+
+					// bands and headings
+					band(64, 120, 896, 320);
+					band(64, 500, 1152, 380);
+					band(64, 936, 1152, 216);
+					var outdoor = el('text', { x: 80, y: 140, class: 'big' }, g);
+					el('tspan', { class: 'b' }, outdoor).textContent = t(['Outdoor unit', 'Außeneinheit']);
+					el('tspan', {}, outdoor).textContent =
+						' (' +
+						t(['monobloc', 'Monoblock']) +
+						') · ' +
+						t(['Outdoor temperature', 'Außentemperatur']) +
+						' T1 ' +
+						v('t1') +
+						' °C';
+					label(80, 508, [t(['Indoor unit', 'Inneneinheit']) + ' (TP70)'], 'start', 'big', true);
+					label(80, 944, [t(['Consumers', 'Verbraucher'])], 'start', 'big', true);
+
+					// refrigerant circuit (reversed while defrosting)
+					if (defrost) {
+						pipe(
+							[
+								[400, 204],
+								[196, 204],
+								[196, 296],
+							],
+							'hot',
+						);
+						pipe(
+							[
+								[296, 354],
+								[400, 354],
+							],
+							'cold',
+						);
+						pipe(
+							[
+								[560, 354],
+								[664, 354],
+							],
+							'cold',
+						);
+						pipe(
+							[
+								[794, 300],
+								[794, 204],
+								[604, 204],
+							],
+							'cold',
+						);
+					} else {
+						pipe(
+							[
+								[196, 300],
+								[196, 204],
+								[400, 204],
+							],
+							c('cold'),
+						);
+						pipe(
+							[
+								[600, 204],
+								[794, 204],
+								[794, 300],
+							],
+							c('hot'),
+						);
+						pipe(
+							[
+								[664, 354],
+								[560, 354],
+							],
+							c('hot'),
+						);
+						pipe(
+							[
+								[400, 354],
+								[296, 354],
+							],
+							c('cold'),
+						);
+					}
+
+					// water between outdoor and indoor unit
+					pipe(
+						[
+							[700, 408],
+							[700, 536],
+						],
+						c('hot'),
+					);
+					pipe(
+						[
+							[890, 540],
+							[890, 412],
+						],
+						c('cold'),
+					);
+
+					// hot side of the indoor unit
+					pipe(
+						[
+							[700, 648],
+							[700, 716],
+						],
+						c('hot'),
+					);
+					pipe(
+						[
+							[700, 690],
+							[500, 690],
+							[500, 716],
+						],
+						c('hot'),
+					);
+					pipe(
+						[
+							[600, 690],
+							[600, 974],
+						],
+						dhw ? 'hot' : 'off',
+					);
+					pipe(
+						[
+							[420, 774],
+							[200, 774],
+							[200, 978],
+						],
+						c('hot'),
+					);
+
+					// cold side: heating return, buffer outlet to VW1, hot water return to VW1
+					pipe(
+						[
+							[260, 982],
+							[260, 858],
+							[640, 858],
+							[640, 832],
+						],
+						c('cold'),
+					);
+					pipe(
+						[
+							[740, 828],
+							[740, 858],
+							[890, 858],
+							[890, 832],
+						],
+						known && !dhw ? 'cold' : 'off',
+					);
+					pipe(
+						[
+							[660, 982],
+							[660, 905],
+							[1010, 905],
+							[1010, 774],
+							[954, 774],
+						],
+						dhw ? 'cold' : 'off',
+					);
+					pipe(
+						[
+							[890, 720],
+							[890, 652],
+						],
+						c('cold'),
+					);
+
+					// hot water draw-off and cold water supply
+					pipe(
+						[
+							[700, 1020],
+							[790, 1020],
+						],
+						c('hot'),
+					);
+					pipe(
+						[
+							[790, 1066],
+							[704, 1066],
+						],
+						c('cold'),
+					);
+					icon('tap', 794, 1006, c('hot'));
+
+					// outdoor unit
+					card(96, 300, 200, 108, 'fan', defrost ? 'hot' : c('cold'), t(['Evaporator', 'Verdampfer']), [
+						t(['Air', 'Luft']) + ' TL2 ' + v('tl2') + ' °C',
+						t(['Fan', 'Lüfter']) + ' ' + v('fanSpeed', 0) + ' %',
+					]);
+					var power =
+						typeof values.compressorPower === 'number'
+							? ' · ' + num(values.compressorPower / 1000, 2) + ' kW'
+							: '';
+					card(400, 150, 200, 108, 'compressor', c('hot'), t(['Compressor', 'Verdichter']), [
+						v('compressorSpeed', 0) + ' %' + power,
+					]);
+					card(400, 300, 160, 108, 'expansion', c('cold'), t(['Expansion valve', 'Expansionsventil']), [
+						v('expansionValve', 0) + ' %',
+					]);
+					card(664, 300, 260, 108, 'coil', defrost ? 'cold' : c('hot'), t(['Condenser', 'Verflüssiger']), [
+						t(['Refrigerant ⇄ heating water', 'Kältemittel ⇄ Heizwasser']),
+					]);
+
+					// indoor unit
+					card(620, 540, 160, 108, 'heater', 'ink', t(['Additional heater', 'Zusatzheizer']), [
+						'TC1 ' + v('tc1') + ' °C',
+						t(['operation unknown', 'Betrieb unbekannt']),
+					]);
+					card(
+						810,
+						540,
+						160,
+						108,
+						'pump',
+						c('cold'),
+						t(['Pump PC0', 'Pumpe PC0']),
+						['(' + t(['primary circuit', 'Primärkreis']) + ')', v('flowPc0', 0) + ' l/h'],
+						c('cold'),
+					);
+					card(
+						420,
+						720,
+						160,
+						108,
+						'pump',
+						c('hot'),
+						t(['Pump PC1', 'Pumpe PC1']),
+						['(' + t(['heating circuit', 'Heizkreis']) + ')', v('flowPc1', 0) + ' l/h'],
+						c('hot'),
+					);
+					card(
+						620,
+						720,
+						160,
+						108,
+						'buffer',
+						c('hot'),
+						t(['Buffer tank', 'Pufferspeicher']),
+						['70 l'],
+						c('hot'),
+					);
+					card(
+						830,
+						720,
+						120,
+						108,
+						'valve3',
+						'ink',
+						t(['Valve VW1', 'Ventil VW1']),
+						[dhw ? t(['Hot water', 'Warmwasser']) : known ? t(['Heating', 'Heizen']) : '–'],
+						'ink',
+					);
+
+					// consumers
+					card(100, 982, 200, 108, 'radiator', c('hot'), t(['Radiator', 'Heizkörper']), [], c('hot'));
+					var tw1 = 'TW1 ' + v('tw1') + ' °C';
+					if (dhw) {
+						card(
+							500,
+							982,
+							200,
+							108,
+							'dhw',
+							'hot',
+							t(['Hot water cylinder', 'Warmwasserspeicher']),
+							[tw1, t(['is being charged', 'wird gerade geladen'])],
+							'hot',
+						);
+					} else {
+						card(
+							500,
+							982,
+							200,
+							108,
+							'dhw',
+							'off',
+							t(['Hot water cylinder', 'Warmwasserspeicher']),
+							[tw1, t(['not being charged', 'wird gerade nicht geladen'])],
+							'',
+							true,
+							true,
+						);
+					}
+
+					// sensor labels
+					label(214, 180, ['TR5 ' + t(['suction gas', 'Sauggas']) + ' ' + v('tr5') + ' °C']);
+					label(214, 212, ['PL1 ' + v('pl1') + ' °C']);
+					label(695, 180, ['TR6 ' + v('tr6') + ' °C'], 'middle');
+					label(695, 212, ['PH1 ' + v('ph1') + ' °C'], 'middle');
+					label(612, 330, ['TR3 ' + v('tr3') + ' °C'], 'middle');
+					label(348, 330, ['TR4 ' + v('tr4') + ' °C'], 'middle');
+					label(690, 454, ['TC3 ' + t(['flow', 'Vorlauf']) + ' ' + v('tc3') + ' °C'], 'end');
+					label(902, 454, ['TC0 ' + t(['return', 'Rücklauf']), v('tc0') + ' °C']);
+					label(690, 666, ['TC1 ' + t(['flow', 'Vorlauf']) + ' ' + v('tc1') + ' °C'], 'end');
+					label(212, 750, ['T0 ' + t(['flow', 'Vorlauf']) + ' ' + v('t0') + ' °C']);
+					label(272, 836, [
+						t(['Return heating circuit', 'Rücklauf Heizkreis']) +
+							(dhw
+								? ' (' + t(['no measured value', 'kein Messwert']) + ')'
+								: ' (TC0 ' + v('tc0') + ' °C)'),
+					]);
+					label(
+						680,
+						912,
+						[
+							t(['Return hot water', 'Rücklauf Warmwasser']) +
+								(dhw ? ' (TC0 ' + v('tc0') + ' °C)' : ' (' + t(['not active', 'nicht aktiv']) + ')'),
+						],
+						'start',
+						dhw ? '' : 'muted',
+					);
+					label(832, 1012, [t(['Draw-off point (hot water)', 'Zapfstelle (Warmwasser)'])]);
+					label(800, 1058, [t(['Cold water (supply)', 'Kaltwasser (Zulauf)'])]);
+
+					// legend
+					label(1016, 144, [t(['Legend', 'Legende'])], 'start', 'big', true);
+					var legend = [
+						['hot', t(['warm / flow', 'warm / Vorlauf']), 178],
+						['cold', t(['cold / return', 'kalt / Rücklauf']), 202],
+						['off', t(['not active', 'gerade nicht aktiv']), 226],
+					];
+					legend.forEach(function (item) {
+						el('path', { d: 'M 1016 ' + item[2] + ' H 1040', class: 'pipe ' + item[0] }, g);
+						label(1048, item[2] - 7, [item[1]]);
+					});
+					[
+						'TL2 ' + t(['evaporator air', 'Verdampfer Luft']),
+						'TR5 ' + t(['suction gas', 'Sauggas']),
+						'TR6 ' + t(['hot gas', 'Heißgas']),
+						'TR3 ' + t(['liquid line (heating)', 'Flüssigkeitsleitung (Heizen)']),
+						'TR4 ' + t(['liquid line (cooling)', 'Flüssigkeitsleitung (Kühlen)']),
+						'PL1 ' + t(['low pressure temperature', 'Niederdruck-Temperatur']),
+						'PH1 ' + t(['high pressure temperature', 'Hochdruck-Temperatur']),
+						'TC3 ' + t(['flow at the condenser', 'Vorlauf am Verflüssiger']),
+						'TC0 ' + t(['return (condenser inlet)', 'Rücklauf (Eintritt Verflüssiger)']),
+						'TC1 ' + t(['flow of the heat pump', 'Vorlauf der Wärmepumpe']),
+						'T0 ' + t(['heating flow', 'Vorlauf Heizung']),
+						'TW1 ' + t(['hot water cylinder', 'Warmwasserspeicher']),
+						'T1 ' + t(['outdoor temperature', 'Außentemperatur']),
+					].forEach(function (line, i) {
+						label(1016, 252 + i * 16, [line], 'start', 'small');
+					});
+					label(
+						1016,
+						470,
+						[t(['Crossing = no connection', 'Kreuzung = keine Verbindung'])],
+						'start',
+						'small muted',
+					);
+				}
 
 				/**
 				 * Shows the data in the page.
@@ -236,21 +876,29 @@
 				 * @param {boolean} connected - Is the adapter connected to the gateway?
 				 */
 				function render(data, connected) {
+					// Appearance chosen in the adapter settings; without a choice the page follows the browser
+					if (data.theme === 'light' || data.theme === 'dark') {
+						document.documentElement.setAttribute('data-theme', data.theme);
+					} else {
+						document.documentElement.removeAttribute('data-theme');
+					}
 					var mode = Object.prototype.hasOwnProperty.call(MODES, data.mode) ? data.mode : 'unknown';
+					var values = data.values || {};
 					modeElement.textContent = t(MODES[mode]);
 					modeElement.className = mode === 'unknown' ? 'pill off' : 'pill';
 					hintElement.textContent = connected
-						? t(TEXT.updated) + ': ' + new Date().toLocaleTimeString(german ? 'de-DE' : 'en-US')
+						? t(TEXT.updated) + ': ' + new Date().toLocaleTimeString(locale)
 						: t(TEXT.offline);
+					draw(mode === 'heating' || mode === 'dhw' || mode === 'defrost' ? mode : 'other', values);
 					rowsElement.textContent = '';
 					ROWS.forEach(function (row) {
 						var tr = document.createElement('tr');
-						var label = document.createElement('td');
+						var name = document.createElement('td');
 						var value = document.createElement('td');
-						label.textContent = t(row[1]);
+						name.textContent = t(row[1]);
 						value.className = 'value';
-						value.textContent = format((data.values || {})[row[0]], row[2]);
-						tr.appendChild(label);
+						value.textContent = format(values[row[0]], row[2]);
+						tr.appendChild(name);
 						tr.appendChild(value);
 						rowsElement.appendChild(tr);
 					});
@@ -260,6 +908,7 @@
 					modeElement.textContent = t(MODES.unknown);
 					modeElement.className = 'pill off';
 					hintElement.textContent = t(TEXT.noData);
+					draw('other', {});
 					rowsElement.textContent = '';
 				}
 
@@ -283,6 +932,13 @@
 						})
 						.catch(showError);
 				}
+
+				document.documentElement.lang = german ? 'de' : 'en';
+				document.title = t(TEXT.title);
+				document.getElementById('title').textContent = t(TEXT.title);
+				document.getElementById('allValues').textContent = t(TEXT.allValues);
+				document.getElementById('foot').textContent = t(TEXT.foot);
+				svg.setAttribute('aria-label', t(TEXT.title));
 
 				refresh();
 				setInterval(refresh, REFRESH_MS);

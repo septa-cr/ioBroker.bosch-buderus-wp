@@ -597,6 +597,59 @@ describe('Anlagenschema', () => {
 			expect(Object.keys(data.values)).to.deep.equal(Object.keys(h.SCHEMA_VALUES));
 		});
 
+		it('ordnet T0 dem Heizungsvorlauf und TC1 dem Vorlauf der Wärmepumpe zu (wie in den Namen der Datenpunkte)', () => {
+			expect(h.SCHEMA_VALUES.t0).to.equal('heatSources.actualSupplyTemperature');
+			expect(h.SCHEMA_VALUES.tc1).to.equal('signals.SRC.IntFlowTemp');
+			expect(names.paths['/heatSources/actualSupplyTemperature'].en).to.include('(T0)');
+			expect(names.paths['/signals/SRC.IntFlowTemp'].en).to.include('(TC1)');
+		});
+
+		it('die Seite im Ordner www kennt jeden Wert der Schemadaten', () => {
+			const page = fs.readFileSync(path.join(__dirname, 'www', 'index.html'), 'utf8');
+			for (const key of Object.keys(h.SCHEMA_VALUES)) {
+				expect(page, key).to.include(`'${key}'`);
+			}
+		});
+
+		it('gibt das gewählte Erscheinungsbild weiter und nimmt bei unbekannten Werten automatisch', () => {
+			expect(h.buildSchemaData(new Map(), 'dark').theme).to.equal('dark');
+			expect(h.buildSchemaData(new Map(), 'light').theme).to.equal('light');
+			expect(h.buildSchemaData(new Map(), 'auto').theme).to.equal('auto');
+			expect(h.buildSchemaData(new Map(), 'violett').theme).to.equal('auto');
+			expect(h.buildSchemaData(new Map()).theme).to.equal('auto');
+		});
+
+		it('bildet die Adresse der Seite aus dem Web-Adapter und der IP-Adresse des Rechners', () => {
+			const ifaces = {
+				lo: [{ address: '127.0.0.1', family: 'IPv4', internal: true }],
+				eth0: [
+					{ address: 'fe80::1', family: 'IPv6', internal: false },
+					{ address: '192.168.1.10', family: 'IPv4', internal: false },
+				],
+			};
+			expect(h.buildDiagramUrl({ port: 8082, secure: false, bind: '0.0.0.0' }, ifaces, 0)).to.equal(
+				'http://192.168.1.10:8082/bosch-buderus-wp/index.html?instance=0',
+			);
+			expect(h.buildDiagramUrl({ port: '8443', secure: true, bind: '10.0.0.5' }, ifaces, 1)).to.equal(
+				'https://10.0.0.5:8443/bosch-buderus-wp/index.html?instance=1',
+			);
+		});
+
+		it('liefert keine Adresse, wenn Port oder Rechneradresse fehlen oder unbrauchbar sind', () => {
+			const ifaces = { eth0: [{ address: '192.168.1.10', family: 'IPv4', internal: false }] };
+			expect(h.buildDiagramUrl(undefined, ifaces, 0)).to.equal(null);
+			expect(h.buildDiagramUrl({ port: 0 }, ifaces, 0)).to.equal(null);
+			expect(h.buildDiagramUrl({ port: 8082 }, undefined, 0)).to.equal(null);
+			expect(
+				h.buildDiagramUrl(
+					{ port: 8082 },
+					{ lo: [{ address: '127.0.0.1', family: 'IPv4', internal: true }] },
+					0,
+				),
+			).to.equal(null);
+			expect(h.buildDiagramUrl({ port: 8082, bind: 'evil.example' }, {}, 0)).to.equal(null);
+		});
+
 		it('meldet ohne Status den Zustand unknown', () => {
 			const data = h.buildSchemaData(new Map());
 			expect(data.mode).to.equal('unknown');
@@ -797,6 +850,14 @@ describe('Dateien des Adapters', () => {
 		const config = JSON.parse(fs.readFileSync(path.join(__dirname, 'admin', 'jsonConfig.json'), 'utf8'));
 		expect(Object.keys(config.items).length).to.equal(3);
 		expect(config.items._schemaTab.items.schemaEnabled.type).to.equal('checkbox');
+		expect(ioPackage.native.schemaTheme).to.equal('auto');
+		const open = config.items._schemaTab.items._openDiagram;
+		expect(open.type).to.equal('sendTo');
+		expect(open.command).to.equal('openDiagram');
+		expect(open.openUrl).to.equal(true);
+		const theme = config.items._schemaTab.items.schemaTheme;
+		expect(theme.type).to.equal('select');
+		expect(theme.options.map(o => o.value)).to.deep.equal(['auto', 'light', 'dark']);
 	});
 
 	it('die Seite des Anlagenschemas liegt im Ordner www und es gibt keinen Link mit Platzhalter für die Adresse', () => {
